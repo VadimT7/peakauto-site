@@ -138,12 +138,20 @@ select option { background: var(--panel); color: var(--ink); }
 .sk-l2 { height: 10px; width: 40%; background: #101012; margin-top: 12px; }
 
 /* ---------- hero ---------- */
-.hero { position: relative; height: 100vh; min-height: 640px; overflow: hidden; }
-.hero > img {
+.hero { position: relative; height: 100vh; min-height: 640px; overflow: hidden; background: var(--bg2); }
+.hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s ease; }
+.hero-slide.on { opacity: 1; }
+.hero-slide img {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: center 42%;
   filter: saturate(.8) contrast(1.07) brightness(.88);
   animation: pkDrift 22s ease-in-out infinite alternate;
+}
+.grain::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 3;
+  opacity: .06; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
 }
 .hero-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10, 10, 11, .55) 0%, rgba(10, 10, 11, .05) 34%, rgba(10, 10, 11, .12) 58%, rgba(10, 10, 11, .92) 100%); }
 .hero-line { position: absolute; left: 0; right: 0; top: 56%; height: 1px; overflow: hidden; pointer-events: none; }
@@ -168,6 +176,46 @@ select option { background: var(--panel); color: var(--ink); }
 /* ---------- home stock ---------- */
 .stock { padding: clamp(72px, 9vw, 130px) 4vw 0; }
 .stock-head { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; margin-bottom: 44px; flex-wrap: wrap; }
+
+/* ---------- explore (brands / categories / price bands) ---------- */
+.xp { padding: clamp(72px, 9vw, 130px) 4vw 0; }
+.xp-sub { font-size: 11px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; color: var(--ink42); margin: 52px 0 20px; }
+.xp-brands { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1px; background: var(--line); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.xp-brand { background: var(--bg); padding: 26px 22px; cursor: pointer; transition: background .3s ease; }
+.xp-brand:hover { background: #111113; }
+.xp-brand b { display: block; font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
+.xp-brand span { display: block; margin-top: 8px; font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink45); }
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+@media (max-width: 860px) { .cat-grid { grid-template-columns: 1fr; } }
+.cat-card { position: relative; aspect-ratio: 16/9; overflow: hidden; background: var(--bg); cursor: pointer; }
+.cat-card img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.6) contrast(1.12) brightness(.62); transition: transform .9s cubic-bezier(.2,.6,.2,1); }
+.cat-card:hover img { transform: scale(1.045); }
+.cat-card .cap { position: absolute; left: 24px; bottom: 22px; z-index: 2; }
+.cat-card .cap b { display: block; font-size: 19px; font-weight: 600; letter-spacing: -.01em; }
+.cat-card .cap span { display: block; margin-top: 7px; font-size: 11px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: rgba(244,241,236,.6); }
+.cat-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,11,.15), rgba(10,10,11,.05) 45%, rgba(10,10,11,.72)); }
+.cat-card .cap { z-index: 2; }
+.band-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.band {
+  cursor: pointer; background: transparent; color: rgba(244,241,236,.75);
+  border: 1px solid rgba(255,255,255,.2); font-size: 12px; font-weight: 600;
+  letter-spacing: .1em; padding: 13px 22px; transition: all .25s ease;
+}
+.band:hover { border-color: rgba(255,255,255,.55); color: var(--ink); }
+.band i { font-style: normal; color: var(--ink42); margin-left: 8px; }
+
+/* ---------- faq ---------- */
+.faqs { padding: clamp(72px, 9vw, 130px) 4vw; }
+.faq { border-top: 1px solid var(--line2); }
+.faq:last-of-type { border-bottom: 1px solid var(--line2); }
+.faq summary {
+  list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: baseline;
+  gap: 24px; padding: 26px 0; font-size: 17px; font-weight: 600; letter-spacing: -.01em;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary .ind { font-weight: 200; font-size: 24px; color: rgba(244,241,236,.4); transition: transform .3s ease; }
+.faq[open] summary .ind { transform: rotate(45deg); }
+.faq p { margin: 0 0 28px; font-size: 14.5px; line-height: 1.7; color: var(--ink55); max-width: 68ch; }
 
 /* ---------- story ---------- */
 .story { height: 300vh; position: relative; margin-top: clamp(72px, 9vw, 130px); }
@@ -214,6 +262,10 @@ select option { background: var(--panel); color: var(--ink); }
 .show-row .v { text-align: right; }
 .show-links { display: flex; gap: 28px; margin-top: 32px; }
 .mapbox { position: relative; aspect-ratio: 4/3; background: #0F0F11; border: 1px solid var(--line); overflow: hidden; }
+.mapbox iframe {
+  position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block;
+  filter: invert(92%) hue-rotate(180deg) saturate(.32) brightness(.92) contrast(1.04);
+}
 .map-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px); background-size: 56px 56px; }
 .map-st1 { position: absolute; left: 20%; top: -10%; bottom: -10%; width: 1px; background: rgba(255, 255, 255, .1); transform: rotate(18deg); }
 .map-st2 { position: absolute; left: 60%; top: -10%; bottom: -10%; width: 1px; background: rgba(255, 255, 255, .14); transform: rotate(-24deg); }

@@ -77,6 +77,19 @@
       wa_hi: 'Bună ziua! Mă interesează {car} ({year}).',
       wa_reserve: 'Vreau să rezerv {car}.', wa_view: 'Vreau să programez o vizionare pentru {car}.',
       wa_credit: 'Credit și leasing', wa_trade: 'Trade-In', wa_order: 'Auto la comandă', wa_report: 'Solicit raportul de istoric pentru {car}.',
+      xp_title: 'Explorează stocul', xp_brands: 'După marcă', xp_cats: 'După caroserie', xp_bands: 'După buget',
+      cars_word: 'automobile', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedan & Limuzină', cat_sport: 'Coupé & Cabrio',
+      faq_title: 'Întrebări frecvente',
+      faq1q: 'Cât durează un import la comandă?',
+      faq1a: 'Între 30 și 45 de zile de la contract: sursare din UE/SUA, transport asigurat, vămuire și acte. Primești actualizări pe tot parcursul.',
+      faq2q: 'Pot cumpăra în credit sau leasing?',
+      faq2a: 'Da, lucrăm cu bănci partenere din Moldova. Avans de la 20%, aprobare în 24–48 de ore. Calculatorul de pe pagina fiecărui automobil îți dă o estimare orientativă.',
+      faq3q: 'Acceptați trade-in?',
+      faq3a: 'Da. Evaluăm mașina ta în aceeași zi, iar diferența o achiți cash, prin transfer sau în rate.',
+      faq4q: 'Cum verificați automobilele?',
+      faq4a: 'Istoric complet pe VIN, verificare de daune și rulaj, inspecție tehnică înainte de cumpărare. VIN-ul este public pe pagina fiecărui automobil, iar raportul complet îl primești la cerere.',
+      faq5q: 'Unde vă găsesc?',
+      faq5a: 'Showroom pe str. Grigore Ureche 64, în centrul Chișinăului. Luni–Sâmbătă 09:00–19:00. Scrie-ne pe WhatsApp sau sună oricând.',
       status_avail: 'Disponibil',
       ftr_about: 'Automobile premium și business class, importate și verificate. Showroom în centrul Chișinăului.',
       ftr_nav: 'Navigare', ftr_contact: 'Contact', ftr_hours: 'Lun–Sâm 09:00–19:00', ftr_sunday: 'Duminică închis',
@@ -131,6 +144,19 @@
       wa_hi: 'Здравствуйте! Интересует {car} ({year}).',
       wa_reserve: 'Хочу забронировать {car}.', wa_view: 'Хочу записаться на просмотр {car}.',
       wa_credit: 'Кредит и лизинг', wa_trade: 'Trade-In', wa_order: 'Авто под заказ', wa_report: 'Прошу отчёт истории для {car}.',
+      xp_title: 'Исследуй сток', xp_brands: 'По марке', xp_cats: 'По кузову', xp_bands: 'По бюджету',
+      cars_word: 'автомобилей', cat_suv: 'SUV и кроссоверы', cat_sedan: 'Седаны', cat_sport: 'Купе и кабрио',
+      faq_title: 'Частые вопросы',
+      faq1q: 'Сколько занимает импорт под заказ?',
+      faq1a: 'От 30 до 45 дней с момента договора: подбор в ЕС/США, застрахованная перевозка, растаможка и документы. Держим в курсе на каждом этапе.',
+      faq2q: 'Можно купить в кредит или лизинг?',
+      faq2a: 'Да, работаем с банками-партнёрами Молдовы. Аванс от 20%, одобрение за 24–48 часов. Калькулятор на странице каждого автомобиля даст ориентировочный расчёт.',
+      faq3q: 'Принимаете trade-in?',
+      faq3a: 'Да. Оценим вашу машину в тот же день, разницу можно оплатить наличными, переводом или в рассрочку.',
+      faq4q: 'Как вы проверяете автомобили?',
+      faq4a: 'Полная история по VIN, проверка ДТП и пробега, техническая инспекция до покупки. VIN открыт на странице каждого автомобиля, полный отчёт - по запросу.',
+      faq5q: 'Где вас найти?',
+      faq5a: 'Шоурум на ул. Григоре Уреке 64, в центре Кишинёва. Понедельник–суббота 09:00–19:00. Пишите в WhatsApp или звоните.',
       status_avail: 'В наличии',
       ftr_about: 'Премиальные автомобили и бизнес-класс, импортированные и проверенные. Шоурум в центре Кишинёва.',
       ftr_nav: 'Навигация', ftr_contact: 'Контакты', ftr_hours: 'Пн–Сб 09:00–19:00', ftr_sunday: 'Воскресенье закрыто',
@@ -185,6 +211,19 @@
       wa_hi: 'Hello! I am interested in {car} ({year}).',
       wa_reserve: 'I want to reserve {car}.', wa_view: 'I want to book a viewing for {car}.',
       wa_credit: 'Credit & leasing', wa_trade: 'Trade-In', wa_order: 'Car on order', wa_report: 'Requesting the history report for {car}.',
+      xp_title: 'Explore the stock', xp_brands: 'By make', xp_cats: 'By body style', xp_bands: 'By budget',
+      cars_word: 'cars', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedans', cat_sport: 'Coupés & convertibles',
+      faq_title: 'Frequently asked questions',
+      faq1q: 'How long does an import on order take?',
+      faq1a: '30 to 45 days from contract: sourcing in the EU/US, insured transport, customs and paperwork. You get updates the whole way.',
+      faq2q: 'Can I buy on credit or leasing?',
+      faq2a: 'Yes, we work with partner banks in Moldova. Down payment from 20%, approval in 24–48 hours. The calculator on every car page gives you an indicative estimate.',
+      faq3q: 'Do you accept trade-ins?',
+      faq3a: 'Yes. We value your car the same day; the difference can be paid in cash, by transfer, or in instalments.',
+      faq4q: 'How do you verify the cars?',
+      faq4a: 'Full VIN history, damage and mileage checks, technical inspection before purchase. The VIN is public on every car page and the full report is available on request.',
+      faq5q: 'Where do I find you?',
+      faq5a: 'Showroom at 64 Grigore Ureche St, central Chișinău. Monday–Saturday 09:00–19:00. Message us on WhatsApp or call any time.',
       status_avail: 'Available',
       ftr_about: 'Premium and business-class cars, imported and verified. Showroom in central Chișinău.',
       ftr_nav: 'Navigate', ftr_contact: 'Contact', ftr_hours: 'Mon–Sat 09:00–19:00', ftr_sunday: 'Sunday closed',
@@ -225,11 +264,13 @@
     lang: 'ro',
     route: { page: 'home', carId: null },
     brand: 'all', body: 'all', fuel: 'all', sort: 'new',
+    bodyGroup: null, priceBand: null,
     gi: 0, lb: false,
     calcDown: 30, calcTerm: 60
   };
   var silentHash = false;
   var skelTimer = null;
+  var heroTimer = null;
 
   function t(key) {
     var d = T[state.lang] || T.ro;
@@ -257,14 +298,48 @@
     }
     return out;
   }
-  var TEASER = distinctMakeTop(6);
+  var TEASER = distinctMakeTop(9);
   var IG_CELLS = distinctMakeTop(5);
+  /* hero rotates evergreen stock; the flagship listing stays in the story section only */
+  var HERO_SLIDES = (function () {
+    var seen = {}, out = [];
+    for (var i = 0; i < byPrice.length && out.length < 5; i++) {
+      var c = byPrice[i];
+      if (c.id === FLAGSHIP.id || seen[c.make]) continue;
+      seen[c.make] = 1; out.push(c);
+    }
+    return out;
+  })();
 
   var makeCounts = {};
   CARS.forEach(function (c) { makeCounts[c.make] = (makeCounts[c.make] || 0) + 1; });
   var TOP_MAKES = Object.keys(makeCounts).sort(function (a, b) { return makeCounts[b] - makeCounts[a]; }).slice(0, 5);
   var BODIES = Object.keys(CARS.reduce(function (m, c) { if (c.body) m[c.body] = 1; return m; }, {}));
   var FUELS = Object.keys(CARS.reduce(function (m, c) { if (c.fuel) m[c.fuel] = 1; return m; }, {}));
+
+  var XP_MAKES = Object.keys(makeCounts).sort(function (a, b) { return makeCounts[b] - makeCounts[a]; }).slice(0, 6)
+    .map(function (m) {
+      var cars = CARS.filter(function (c) { return c.make === m; });
+      return { make: m, count: cars.length, minPrice: Math.min.apply(null, cars.map(function (c) { return c.price; })) };
+    });
+  var CATS = [
+    { key: 'suv', bodies: ['SUV', 'Crossover', 'Camionetă'] },
+    { key: 'sedan', bodies: ['Sedan'] },
+    { key: 'sport', bodies: ['Coupe', 'Cabriolet'] }
+  ].map(function (g) {
+    var cars = CARS.filter(function (c) { return g.bodies.indexOf(c.body) !== -1; })
+      .sort(function (a, b) { return b.price - a.price; });
+    return { key: g.key, bodies: g.bodies, count: cars.length, img: cars.length ? cars[0].images[0] : null };
+  }).filter(function (g) { return g.count > 0; });
+  var BANDS = [
+    { min: 0, max: 40000, label: '< 40.000 €' },
+    { min: 40000, max: 80000, label: '40–80.000 €' },
+    { min: 80000, max: 150000, label: '80–150.000 €' },
+    { min: 150000, max: Infinity, label: '150.000 € +' }
+  ].map(function (b) {
+    b.count = CARS.filter(function (c) { return c.price >= b.min && c.price < b.max; }).length;
+    return b;
+  }).filter(function (b) { return b.count > 0; });
 
   function carById(id) {
     for (var i = 0; i < CARS.length; i++) if (CARS[i].id === id) return CARS[i];
@@ -303,8 +378,12 @@
     return '' +
     '<div data-page="home">' +
 
-    '<section class="hero">' +
-      '<img src="' + esc(img900(f.images[0])) + '" alt="' + esc(f.name) + '">' +
+    '<section class="hero grain">' +
+      HERO_SLIDES.map(function (s, i) {
+        return '<div class="hero-slide' + (i === 0 ? ' on' : '') + '" data-slide="' + i + '">' +
+          '<img src="' + esc(img900(s.images[0])) + '" alt="' + esc(s.name) + '"' + (i > 0 ? ' loading="lazy"' : '') + '>' +
+          '</div>';
+      }).join('') +
       '<div class="hero-shade"></div>' +
       '<div class="hero-line"><div></div></div>' +
       '<div class="hero-foot">' +
@@ -319,8 +398,8 @@
         '</div>' +
         '<div class="hero-car pk-hide-m">' +
           '<div class="hero-car-line"></div>' +
-          '<div class="hero-car-name">' + esc(f.name) + '</div>' +
-          '<div class="hero-car-sub">' + esc(f.year + (f.gen ? ' · ' + f.gen : '')) + '</div>' +
+          '<div class="hero-car-name" id="pk-hcap-name">' + esc(HERO_SLIDES[0].name) + '</div>' +
+          '<div class="hero-car-sub" id="pk-hcap-sub">' + esc(HERO_SLIDES[0].year + ' · ' + fmtEur(HERO_SLIDES[0].price)) + '</div>' +
         '</div>' +
       '</div>' +
     '</section>' +
@@ -342,8 +421,36 @@
       gridHtml(TEASER) +
     '</section>' +
 
+    '<section class="xp">' +
+      '<div class="sec-head"><span class="sec-num">02</span><h2 class="sec-title">' + t('xp_title') + '</h2></div>' +
+      '<div class="xp-sub">' + t('xp_cats') + '</div>' +
+      '<div class="cat-grid">' +
+        CATS.map(function (g) {
+          return '<div class="cat-card" data-catgo="' + esc(g.bodies.join('|')) + '">' +
+            '<img src="' + esc(img900(g.img)) + '" alt="' + t('cat_' + g.key) + '" loading="lazy">' +
+            '<div class="cap"><b>' + t('cat_' + g.key) + '</b><span>' + g.count + ' ' + t('cars_word') + ' →</span></div>' +
+            '</div>';
+        }).join('') +
+      '</div>' +
+      '<div class="xp-sub">' + t('xp_brands') + '</div>' +
+      '<div class="xp-brands">' +
+        XP_MAKES.map(function (m) {
+          return '<div class="xp-brand" data-brandgo="' + esc(m.make) + '">' +
+            '<b>' + esc(m.make) + '</b>' +
+            '<span>' + m.count + ' ' + t('cars_word') + ' · ' + t('rail_from') + ' ' + fmtEur(m.minPrice) + '</span>' +
+            '</div>';
+        }).join('') +
+      '</div>' +
+      '<div class="xp-sub">' + t('xp_bands') + '</div>' +
+      '<div class="band-row">' +
+        BANDS.map(function (b, i) {
+          return '<button class="band" data-bandgo="' + i + '">' + esc(b.label) + '<i>' + b.count + '</i></button>';
+        }).join('') +
+      '</div>' +
+    '</section>' +
+
     '<div class="story" id="pk-story">' +
-      '<div class="story-stage">' +
+      '<div class="story-stage grain">' +
         '<div class="story-scene" data-scene="0" style="opacity:1">' +
           '<img src="' + esc(img900(f.images[0])) + '" alt="Exterior">' +
           '<div class="story-shade"></div>' +
@@ -360,13 +467,13 @@
           '<div style="font-size:14px;color:rgba(244,241,236,.55)">' + t('story_from') + ' <span style="color:#F4F1EC;font-weight:600">' + fmtNum(mo) + ' ' + t('story_mo') + '</span> ' + t('story_lease') + '</div>' +
           '<button class="btn-red" data-car="' + esc(f.id) + '" style="margin-top:8px">' + t('story_cta') + ' <span style="font-weight:400">→</span></button>' +
         '</div>' +
-        '<div class="story-tag"><span class="sec-num">02</span><span style="font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:rgba(244,241,236,.55)">' + t('story_tag') + '</span></div>' +
+        '<div class="story-tag"><span class="sec-num">03</span><span style="font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:rgba(244,241,236,.55)">' + t('story_tag') + '</span></div>' +
         '<div class="story-bar" id="pk-story-bar"></div>' +
       '</div>' +
     '</div>' +
 
     '<section class="how" id="servicii">' +
-      '<div class="sec-head"><span class="sec-num">03</span><h2 class="sec-title">' + t('how_title') + '</h2></div>' +
+      '<div class="sec-head"><span class="sec-num">04</span><h2 class="sec-title">' + t('how_title') + '</h2></div>' +
       '<div class="pk-steps">' +
         '<div class="step"><div class="step-num">01</div><h3>' + t('how1_t') + '</h3><p>' + t('how1_d') + '</p></div>' +
         '<div class="step"><div class="step-num">02</div><h3>' + t('how2_t') + '</h3><p>' + t('how2_d') + '</p></div>' +
@@ -388,7 +495,7 @@
 
     '<section class="show" id="showroom">' +
       '<div>' +
-        '<div class="sec-head"><span class="sec-num">04</span><h2 class="sec-title">' + t('show_title') + '</h2></div>' +
+        '<div class="sec-head"><span class="sec-num">05</span><h2 class="sec-title">' + t('show_title') + '</h2></div>' +
         '<div class="show-rows">' +
           '<div class="show-row"><span class="k">' + t('show_addr_k') + '</span><span class="v">' + t('show_addr_v') + '</span></div>' +
           '<div class="show-row"><span class="k">' + t('show_prog_k') + '</span><span class="v">' + t('show_prog_v') + '</span></div>' +
@@ -400,16 +507,21 @@
         '</div>' +
       '</div>' +
       '<div class="mapbox">' +
-        '<div class="map-grid"></div><div class="map-st1"></div><div class="map-st2"></div><div class="map-st3"></div>' +
-        '<div class="map-dot"></div>' +
-        '<div class="map-tag"><b>Peak Auto</b><span>Grigore Ureche 64</span></div>' +
-        '<div class="map-coords">47.0345° N · 28.8389° E</div>' +
+        '<iframe src="https://maps.google.com/maps?q=Strada%20Grigore%20Ureche%2064%2C%20Chi%C8%99in%C4%83u%2C%20Moldova&z=16&output=embed" loading="lazy" title="Peak Auto — Grigore Ureche 64, Chișinău" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>' +
+        '<div class="map-tag" style="pointer-events:none;left:18px;top:auto;bottom:46px;transform:none"><b>Peak Auto</b><span>Grigore Ureche 64</span></div>' +
       '</div>' +
+    '</section>' +
+
+    '<section class="faqs">' +
+      '<div class="sec-head" style="margin-bottom:48px"><span class="sec-num">06</span><h2 class="sec-title">' + t('faq_title') + '</h2></div>' +
+      [1, 2, 3, 4, 5].map(function (n) {
+        return '<details class="faq"><summary>' + t('faq' + n + 'q') + '<span class="ind">+</span></summary><p>' + t('faq' + n + 'a') + '</p></details>';
+      }).join('') +
     '</section>' +
 
     '<section class="ig">' +
       '<div class="ig-head">' +
-        '<div class="sec-head"><span class="sec-num">05</span><h2 class="sec-title">@peakauto.md</h2></div>' +
+        '<div class="sec-head"><span class="sec-num">07</span><h2 class="sec-title">@peakauto.md</h2></div>' +
         '<a class="link-caps" href="' + IG_URL + '" target="_blank" rel="noopener">' + t('ig_followers') + '</a>' +
       '</div>' +
       '<div class="ig-grid">' +
@@ -438,8 +550,10 @@
         if (state.brand === '__other') { if (TOP_MAKES.indexOf(c.make) !== -1) return false; }
         else if (c.make !== state.brand) return false;
       }
+      if (state.bodyGroup && state.bodyGroup.indexOf(c.body) === -1) return false;
       if (state.body !== 'all' && c.body !== state.body) return false;
       if (state.fuel !== 'all' && c.fuel !== state.fuel) return false;
+      if (state.priceBand && !(c.price >= state.priceBand[0] && c.price < state.priceBand[1])) return false;
       return true;
     });
     if (state.sort === 'priceAsc') list = list.slice().sort(function (a, b) { return a.price - b.price; });
@@ -698,6 +812,7 @@
   function render(opts) {
     var view = document.getElementById('pk-view');
     var page = state.route.page;
+    clearInterval(heroTimer);
     if (page === 'home') view.innerHTML = homeHtml();
     else if (page === 'inventory') view.innerHTML = invHtml(!!(opts && opts.loading));
     else {
@@ -709,6 +824,22 @@
     syncHeader();
     initTicks();
     renderLb();
+    if (page === 'home') startHero();
+  }
+
+  function startHero() {
+    var slides = document.querySelectorAll('.hero-slide');
+    if (slides.length < 2) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var idx = 0;
+    heroTimer = setInterval(function () {
+      idx = (idx + 1) % slides.length;
+      slides.forEach(function (s, i) { s.classList.toggle('on', i === idx); });
+      var car = HERO_SLIDES[idx];
+      var n = document.getElementById('pk-hcap-name'), s2 = document.getElementById('pk-hcap-sub');
+      if (n) n.textContent = car.name;
+      if (s2) s2.textContent = car.year + ' · ' + fmtEur(car.price);
+    }, 6500);
   }
 
   function bindView() {
@@ -722,14 +853,36 @@
     view.querySelectorAll('[data-brand]').forEach(function (el) {
       el.addEventListener('click', function () { state.brand = el.getAttribute('data-brand'); render(); });
     });
+    view.querySelectorAll('[data-brandgo]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        state.brand = el.getAttribute('data-brandgo');
+        state.body = 'all'; state.bodyGroup = null; state.priceBand = null;
+        goto('inventory');
+      });
+    });
+    view.querySelectorAll('[data-catgo]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        state.bodyGroup = el.getAttribute('data-catgo').split('|');
+        state.body = 'all'; state.brand = 'all'; state.priceBand = null;
+        goto('inventory');
+      });
+    });
+    view.querySelectorAll('[data-bandgo]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var b = BANDS[+el.getAttribute('data-bandgo')];
+        state.priceBand = [b.min, b.max === Infinity ? Number.MAX_VALUE : b.max];
+        state.brand = 'all'; state.body = 'all'; state.bodyGroup = null;
+        goto('inventory');
+      });
+    });
     var fb = document.getElementById('pk-f-body');
-    if (fb) fb.addEventListener('change', function () { state.body = fb.value; render(); });
+    if (fb) fb.addEventListener('change', function () { state.body = fb.value; state.bodyGroup = null; render(); });
     var ff = document.getElementById('pk-f-fuel');
     if (ff) ff.addEventListener('change', function () { state.fuel = ff.value; render(); });
     var fs = document.getElementById('pk-f-sort');
     if (fs) fs.addEventListener('change', function () { state.sort = fs.value; render(); });
     var rs = document.getElementById('pk-reset');
-    if (rs) rs.addEventListener('click', function () { state.brand = 'all'; state.body = 'all'; state.fuel = 'all'; state.sort = 'new'; render(); });
+    if (rs) rs.addEventListener('click', function () { state.brand = 'all'; state.body = 'all'; state.fuel = 'all'; state.sort = 'new'; state.bodyGroup = null; state.priceBand = null; render(); });
 
     var gal = document.getElementById('pk-gal');
     if (gal) {
