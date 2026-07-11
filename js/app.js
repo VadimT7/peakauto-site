@@ -1,0 +1,905 @@
+/* PEAK AUTO — SPA implementing PEAK AUTO.dc.html (hash routing: #/ , #/automobile , #/auto/<id>) */
+(function () {
+  'use strict';
+
+  var CARS = window.PK_CARS || [];
+  var PHONE_DISPLAY = '+373 61 249 999';
+  var PHONE_TEL = 'tel:+37361249999';
+  var WA = 'https://wa.me/37361249999';
+  var IG_URL = 'https://instagram.com/peakauto.md';
+  var EUR_MDL = 20.07;
+  var CDN = 'https://i.simpalsmedia.com/999.md/BoardImages/';
+
+  function img900(hash) { return CDN + '900x900/' + hash; }
+  function img320(hash) { return CDN + '320x240/' + hash; }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function fmtEur(n) { return n.toLocaleString('ro-RO').replace(/ /g, '.') + ' €'; }
+  function fmtNum(n) { return n.toLocaleString('ro-RO').replace(/ /g, ' '); }
+  function monthly(price, downPct, term) {
+    var p = price * (1 - downPct / 100), r = 0.09 / 12;
+    var f = Math.pow(1 + r, term);
+    return Math.round(p * r * f / (f - 1));
+  }
+
+  /* ---------- i18n ---------- */
+  var T = {
+    ro: {
+      nav_cars: 'Automobile', nav_services: 'Servicii', nav_showroom: 'Showroom', nav_contact: 'Contact',
+      hero_kicker: 'Peak Auto — Chișinău', hero_h1: 'Premium & business class.', hero_sub: 'Importate. Verificate. În Chișinău.',
+      hero_cta: 'Explorează stocul',
+      trust_years: 'Ani pe piață', trust_stock: 'Automobile în stoc', trust_sold: 'Automobile livrate', trust_ig: 'Urmăritori Instagram',
+      stock_title: 'Stoc curent', stock_all: 'Vezi toate cele {n} →',
+      story_tag: 'În prim-plan', story_ext_k: 'Exterior', story_int_k: 'Interior',
+      story_ext_t: 'Prezență fără efort.', story_int_t: 'Liniște de business class.',
+      story_from: 'de la', story_mo: '€ / lună', story_lease: 'în leasing', story_cta: 'Vezi automobilul',
+      how_title: 'Cum lucrăm',
+      how1_t: 'Alegem și verificăm', how1_d: 'Fiecare automobil trece prin verificare de istoric — VIN, raport de istoric, inspecție tehnică independentă. Fără surprize.',
+      how2_t: 'Import în 30–45 de zile', how2_d: 'Sursăm din licitații și dealeri autorizați din Europa și SUA. Transport asigurat, urmărire pe tot parcursul.',
+      how3_t: 'Acte la cheie', how3_d: 'Vămuire, înmatriculare, garanție contractuală. Primești cheile unui automobil gata de drum, în Chișinău.',
+      serv_credit_t: 'Credit & Leasing', serv_credit_d: 'Avans de la 20% · aprobare în 24–48h · bănci partenere din Moldova',
+      serv_trade_t: 'Trade-In', serv_trade_d: 'Evaluare în aceeași zi · predai vechiul, pleci cu noul',
+      serv_order_t: 'Auto la Comandă', serv_order_d: 'Specificația ta, sursată din UE/SUA · livrare în 30–45 de zile',
+      show_title: 'Showroom Chișinău', show_addr_k: 'Adresă', show_addr_v: 'str. Grigore Ureche 64, Centru',
+      show_prog_k: 'Program', show_prog_v: 'Lun–Sâm 09:00–19:00 · Duminică închis', show_tel_k: 'Telefon',
+      show_dir: 'Indicații rutiere', show_write: 'Scrie-ne',
+      ig_followers: '7.800+ urmăritori →',
+      close_i: 'Mașina ta e deja în drum spre Chișinău.', close_h: 'Spune-ne ce cauți. De restul ne ocupăm noi.', close_wa: 'Scrie-ne pe WhatsApp',
+      inv_kicker: 'Stoc verificat · Chișinău', inv_title: 'Automobile', inv_count: 'automobile în stoc',
+      chip_all: 'Toate mărcile', chip_other: 'Alte mărci',
+      f_body: 'Caroserie: toate', f_fuel: 'Combustibil: toate',
+      sort_new: 'Cele mai recente', sort_pa: 'Preț crescător', sort_pd: 'Preț descrescător', sort_y: 'An fabricație',
+      inv_empty: 'Niciun automobil nu corespunde filtrelor.', inv_reset: 'Resetează filtrele',
+      back: '← Automobile',
+      specs_title: 'Specificații',
+      sg_motor: 'Motor & performanță', sg_state: 'Stare & istoric', sg_body: 'Caroserie', sg_reg: 'Înregistrare',
+      k_power: 'Putere', k_engine: 'Motor', k_fuel: 'Combustibil', k_box: 'Cutie de viteze', k_drive: 'Tracțiune',
+      k_year: 'An fabricație', k_km: 'Rulaj', k_state: 'Stare', k_avail: 'Disponibilitate',
+      k_body: 'Tip', k_gen: 'Generație', k_seats: 'Locuri', k_doors: 'Uși', k_wheel: 'Volan',
+      k_reg: 'Înmatriculare', k_origin: 'Origine', k_vin: 'VIN', k_author: 'Vânzător',
+      desc_title: 'Descriere', see_999: 'Vezi anunțul pe 999.md →',
+      equip_title: 'Dotări',
+      hist_title: 'Istoric vehicul', hist_sub: 'verificat înainte de import', hist_badge: 'VIN transparent ✓',
+      hist_1t: 'VIN public', hist_1d: 'verificabil independent', hist_2t: 'Origine: {v}', hist_2d: 'import direct',
+      hist_3t: '{v}', hist_3d: 'înmatriculare', hist_4t: 'Rulaj declarat', hist_4d: '{v}',
+      hist_cta: 'Solicită raportul complet',
+      calc_title: 'Calculator finanțare', calc_sub: 'Estimare orientativă · leasing prin bănci partenere din Moldova',
+      calc_down: 'Avans', calc_term: 'Perioadă', calc_months: 'luni', calc_out: 'Rata lunară estimată',
+      calc_note: 'Dobândă orientativă 9% anual. Oferta finală aparține băncii partenere.',
+      sim_title: 'Automobile similare',
+      rail_from: 'de la', rail_mo: '€ / lună', rail_calc: 'calculează',
+      rail_wa: 'Scrie pe WhatsApp', rail_call: 'Sună', rail_reserve: 'Rezervă acest automobil', rail_view: 'Programează o vizionare',
+      rail_fine: 'Istoric verificat · VIN disponibil la cerere · Asistență vămuire și înmatriculare',
+      wa_hi: 'Bună ziua! Mă interesează {car} ({year}).',
+      wa_reserve: 'Vreau să rezerv {car}.', wa_view: 'Vreau să programez o vizionare pentru {car}.',
+      wa_credit: 'Credit și leasing', wa_trade: 'Trade-In', wa_order: 'Auto la comandă', wa_report: 'Solicit raportul de istoric pentru {car}.',
+      status_avail: 'Disponibil',
+      ftr_about: 'Automobile premium și business class, importate și verificate. Showroom în centrul Chișinăului.',
+      ftr_nav: 'Navigare', ftr_contact: 'Contact', ftr_hours: 'Lun–Sâm 09:00–19:00', ftr_sunday: 'Duminică închis',
+      ftr_rights: '© 2026 Peak Development SRL. Toate drepturile rezervate.', ftr_vat: 'Prețuri în EUR · TVA inclus unde este cazul'
+    },
+    ru: {
+      nav_cars: 'Автомобили', nav_services: 'Услуги', nav_showroom: 'Шоурум', nav_contact: 'Контакты',
+      hero_kicker: 'Peak Auto — Кишинёв', hero_h1: 'Премиум и бизнес-класс.', hero_sub: 'Импортированы. Проверены. В Кишинёве.',
+      hero_cta: 'Смотреть автомобили',
+      trust_years: 'Лет на рынке', trust_stock: 'Автомобилей в наличии', trust_sold: 'Автомобилей продано', trust_ig: 'Подписчиков Instagram',
+      stock_title: 'В наличии', stock_all: 'Смотреть все {n} →',
+      story_tag: 'В центре внимания', story_ext_k: 'Экстерьер', story_int_k: 'Интерьер',
+      story_ext_t: 'Присутствие без усилий.', story_int_t: 'Тишина бизнес-класса.',
+      story_from: 'от', story_mo: '€ / месяц', story_lease: 'в лизинг', story_cta: 'Смотреть автомобиль',
+      how_title: 'Как мы работаем',
+      how1_t: 'Выбираем и проверяем', how1_d: 'Каждый автомобиль проходит проверку истории — VIN, отчёт истории, независимая техническая инспекция. Без сюрпризов.',
+      how2_t: 'Импорт за 30–45 дней', how2_d: 'Закупаем на аукционах и у официальных дилеров Европы и США. Застрахованная перевозка, отслеживание на всём пути.',
+      how3_t: 'Документы под ключ', how3_d: 'Растаможка, регистрация, договорная гарантия. Получаешь ключи от автомобиля, готового к дороге, в Кишинёве.',
+      serv_credit_t: 'Кредит и лизинг', serv_credit_d: 'Аванс от 20% · одобрение за 24–48ч · банки-партнёры Молдовы',
+      serv_trade_t: 'Trade-In', serv_trade_d: 'Оценка в тот же день · сдаёшь старый, уезжаешь на новом',
+      serv_order_t: 'Авто под заказ', serv_order_d: 'Твоя спецификация из ЕС/США · доставка за 30–45 дней',
+      show_title: 'Шоурум Кишинёв', show_addr_k: 'Адрес', show_addr_v: 'ул. Григоре Уреке 64, Центр',
+      show_prog_k: 'График', show_prog_v: 'Пн–Сб 09:00–19:00 · Воскресенье закрыто', show_tel_k: 'Телефон',
+      show_dir: 'Маршрут', show_write: 'Написать',
+      ig_followers: '7.800+ подписчиков →',
+      close_i: 'Твоя машина уже в пути в Кишинёв.', close_h: 'Скажи, что ищешь. Остальное — наша забота.', close_wa: 'Написать в WhatsApp',
+      inv_kicker: 'Проверенный сток · Кишинёв', inv_title: 'Автомобили', inv_count: 'автомобилей в наличии',
+      chip_all: 'Все марки', chip_other: 'Другие марки',
+      f_body: 'Кузов: все', f_fuel: 'Топливо: все',
+      sort_new: 'Сначала новые', sort_pa: 'Цена по возрастанию', sort_pd: 'Цена по убыванию', sort_y: 'Год выпуска',
+      inv_empty: 'Ни один автомобиль не соответствует фильтрам.', inv_reset: 'Сбросить фильтры',
+      back: '← Автомобили',
+      specs_title: 'Характеристики',
+      sg_motor: 'Двигатель и динамика', sg_state: 'Состояние и история', sg_body: 'Кузов', sg_reg: 'Регистрация',
+      k_power: 'Мощность', k_engine: 'Двигатель', k_fuel: 'Топливо', k_box: 'Коробка передач', k_drive: 'Привод',
+      k_year: 'Год выпуска', k_km: 'Пробег', k_state: 'Состояние', k_avail: 'Наличие',
+      k_body: 'Тип', k_gen: 'Поколение', k_seats: 'Мест', k_doors: 'Дверей', k_wheel: 'Руль',
+      k_reg: 'Регистрация', k_origin: 'Происхождение', k_vin: 'VIN', k_author: 'Продавец',
+      desc_title: 'Описание', see_999: 'Смотреть объявление на 999.md →',
+      equip_title: 'Комплектация',
+      hist_title: 'История автомобиля', hist_sub: 'проверен до импорта', hist_badge: 'VIN прозрачен ✓',
+      hist_1t: 'Открытый VIN', hist_1d: 'проверяется независимо', hist_2t: 'Происхождение: {v}', hist_2d: 'прямой импорт',
+      hist_3t: '{v}', hist_3d: 'регистрация', hist_4t: 'Заявленный пробег', hist_4d: '{v}',
+      hist_cta: 'Запросить полный отчёт',
+      calc_title: 'Калькулятор финансирования', calc_sub: 'Ориентировочный расчёт · лизинг через банки-партнёры Молдовы',
+      calc_down: 'Аванс', calc_term: 'Срок', calc_months: 'мес.', calc_out: 'Примерный платёж в месяц',
+      calc_note: 'Ориентировочная ставка 9% годовых. Финальное предложение — за банком-партнёром.',
+      sim_title: 'Похожие автомобили',
+      rail_from: 'от', rail_mo: '€ / месяц', rail_calc: 'рассчитать',
+      rail_wa: 'Написать в WhatsApp', rail_call: 'Позвонить', rail_reserve: 'Забронировать автомобиль', rail_view: 'Записаться на просмотр',
+      rail_fine: 'История проверена · VIN по запросу · Помощь с растаможкой и регистрацией',
+      wa_hi: 'Здравствуйте! Интересует {car} ({year}).',
+      wa_reserve: 'Хочу забронировать {car}.', wa_view: 'Хочу записаться на просмотр {car}.',
+      wa_credit: 'Кредит и лизинг', wa_trade: 'Trade-In', wa_order: 'Авто под заказ', wa_report: 'Прошу отчёт истории для {car}.',
+      status_avail: 'В наличии',
+      ftr_about: 'Премиальные автомобили и бизнес-класс, импортированные и проверенные. Шоурум в центре Кишинёва.',
+      ftr_nav: 'Навигация', ftr_contact: 'Контакты', ftr_hours: 'Пн–Сб 09:00–19:00', ftr_sunday: 'Воскресенье закрыто',
+      ftr_rights: '© 2026 Peak Development SRL. Все права защищены.', ftr_vat: 'Цены в EUR · НДС включён где применимо'
+    },
+    en: {
+      nav_cars: 'Cars', nav_services: 'Services', nav_showroom: 'Showroom', nav_contact: 'Contact',
+      hero_kicker: 'Peak Auto — Chișinău', hero_h1: 'Premium & business class.', hero_sub: 'Imported. Verified. In Chișinău.',
+      hero_cta: 'Explore the stock',
+      trust_years: 'Years in business', trust_stock: 'Cars in stock', trust_sold: 'Cars delivered', trust_ig: 'Instagram followers',
+      stock_title: 'Current stock', stock_all: 'View all {n} →',
+      story_tag: 'In the spotlight', story_ext_k: 'Exterior', story_int_k: 'Interior',
+      story_ext_t: 'Effortless presence.', story_int_t: 'Business-class silence.',
+      story_from: 'from', story_mo: '€ / month', story_lease: 'on lease', story_cta: 'View the car',
+      how_title: 'How we work',
+      how1_t: 'We pick and verify', how1_d: 'Every car goes through a history check — VIN, history report, independent technical inspection. No surprises.',
+      how2_t: 'Import in 30–45 days', how2_d: 'Sourced from auctions and authorized dealers across Europe and the US. Insured transport, tracked all the way.',
+      how3_t: 'Turn-key paperwork', how3_d: 'Customs, registration, contractual warranty. You get the keys to a road-ready car, in Chișinău.',
+      serv_credit_t: 'Credit & Leasing', serv_credit_d: 'Down payment from 20% · approval in 24–48h · partner banks in Moldova',
+      serv_trade_t: 'Trade-In', serv_trade_d: 'Same-day valuation · hand over the old one, drive off in the new one',
+      serv_order_t: 'Car on Order', serv_order_d: 'Your spec, sourced from EU/US · delivery in 30–45 days',
+      show_title: 'Showroom Chișinău', show_addr_k: 'Address', show_addr_v: '64 Grigore Ureche St, Center',
+      show_prog_k: 'Hours', show_prog_v: 'Mon–Sat 09:00–19:00 · Sunday closed', show_tel_k: 'Phone',
+      show_dir: 'Directions', show_write: 'Message us',
+      ig_followers: '7,800+ followers →',
+      close_i: 'Your car is already on its way to Chișinău.', close_h: 'Tell us what you want. We handle the rest.', close_wa: 'Message us on WhatsApp',
+      inv_kicker: 'Verified stock · Chișinău', inv_title: 'Cars', inv_count: 'cars in stock',
+      chip_all: 'All makes', chip_other: 'Other makes',
+      f_body: 'Body: all', f_fuel: 'Fuel: all',
+      sort_new: 'Newest first', sort_pa: 'Price ascending', sort_pd: 'Price descending', sort_y: 'Year',
+      inv_empty: 'No cars match the filters.', inv_reset: 'Reset filters',
+      back: '← Cars',
+      specs_title: 'Specifications',
+      sg_motor: 'Engine & performance', sg_state: 'Condition & history', sg_body: 'Body', sg_reg: 'Registration',
+      k_power: 'Power', k_engine: 'Engine', k_fuel: 'Fuel', k_box: 'Gearbox', k_drive: 'Drivetrain',
+      k_year: 'Year', k_km: 'Mileage', k_state: 'Condition', k_avail: 'Availability',
+      k_body: 'Type', k_gen: 'Generation', k_seats: 'Seats', k_doors: 'Doors', k_wheel: 'Steering',
+      k_reg: 'Registration', k_origin: 'Origin', k_vin: 'VIN', k_author: 'Seller',
+      desc_title: 'Description', see_999: 'View the listing on 999.md →',
+      equip_title: 'Equipment',
+      hist_title: 'Vehicle history', hist_sub: 'verified before import', hist_badge: 'Transparent VIN ✓',
+      hist_1t: 'Public VIN', hist_1d: 'independently verifiable', hist_2t: 'Origin: {v}', hist_2d: 'direct import',
+      hist_3t: '{v}', hist_3d: 'registration', hist_4t: 'Declared mileage', hist_4d: '{v}',
+      hist_cta: 'Request the full report',
+      calc_title: 'Finance calculator', calc_sub: 'Indicative estimate · leasing via partner banks in Moldova',
+      calc_down: 'Down payment', calc_term: 'Term', calc_months: 'months', calc_out: 'Estimated monthly payment',
+      calc_note: 'Indicative 9% annual rate. The final offer belongs to the partner bank.',
+      sim_title: 'Similar cars',
+      rail_from: 'from', rail_mo: '€ / month', rail_calc: 'calculate',
+      rail_wa: 'Message on WhatsApp', rail_call: 'Call', rail_reserve: 'Reserve this car', rail_view: 'Book a viewing',
+      rail_fine: 'History verified · VIN on request · Customs and registration assistance',
+      wa_hi: 'Hello! I am interested in {car} ({year}).',
+      wa_reserve: 'I want to reserve {car}.', wa_view: 'I want to book a viewing for {car}.',
+      wa_credit: 'Credit & leasing', wa_trade: 'Trade-In', wa_order: 'Car on order', wa_report: 'Requesting the history report for {car}.',
+      status_avail: 'Available',
+      ftr_about: 'Premium and business-class cars, imported and verified. Showroom in central Chișinău.',
+      ftr_nav: 'Navigate', ftr_contact: 'Contact', ftr_hours: 'Mon–Sat 09:00–19:00', ftr_sunday: 'Sunday closed',
+      ftr_rights: '© 2026 Peak Development SRL. All rights reserved.', ftr_vat: 'Prices in EUR · VAT included where applicable'
+    }
+  };
+
+  /* value translations (999.md feature values are Romanian) */
+  var VAL = {
+    ru: {
+      'Benzină': 'Бензин', 'Diesel': 'Дизель', 'Dizel': 'Дизель', 'Electricitate': 'Электро',
+      'Hibrid': 'Гибрид', 'Plagin-hibrid (benzină)': 'Плагин-гибрид (бензин)', 'Plagin-hibrid (diesel)': 'Плагин-гибрид (дизель)',
+      'Hibrid (benzină)': 'Гибрид (бензин)', 'Hibrid (diesel)': 'Гибрид (дизель)', 'Gaz/Benzină': 'Газ/Бензин',
+      'Automată': 'Автомат', 'Mecanică': 'Механика', 'Robotizată': 'Робот', 'Variator': 'Вариатор',
+      'Din față': 'Передний', 'Din spate': 'Задний', '4x4': '4x4',
+      'Sedan': 'Седан', 'Crossover': 'Кроссовер', 'SUV': 'Внедорожник', 'Coupe': 'Купе', 'Cabriolet': 'Кабриолет',
+      'Camionetă': 'Пикап', 'Universal': 'Универсал', 'Minivan': 'Минивэн', 'Hatchback': 'Хэтчбек',
+      'Cu rulaj': 'С пробегом', 'Nou': 'Новый', 'Disponibil': 'В наличии', 'La comandă': 'Под заказ',
+      'Republica Moldova': 'Республика Молдова', 'Zona Euro': 'Еврозона', 'SUA': 'США', 'Stânga': 'Левый', 'Dreapta': 'Правый',
+      'Dealer auto': 'Автодилер'
+    },
+    en: {
+      'Benzină': 'Petrol', 'Diesel': 'Diesel', 'Dizel': 'Diesel', 'Electricitate': 'Electric',
+      'Hibrid': 'Hybrid', 'Plagin-hibrid (benzină)': 'Plug-in hybrid (petrol)', 'Plagin-hibrid (diesel)': 'Plug-in hybrid (diesel)',
+      'Hibrid (benzină)': 'Hybrid (petrol)', 'Hibrid (diesel)': 'Hybrid (diesel)', 'Gaz/Benzină': 'LPG/Petrol',
+      'Automată': 'Automatic', 'Mecanică': 'Manual', 'Robotizată': 'Automated manual', 'Variator': 'CVT',
+      'Din față': 'FWD', 'Din spate': 'RWD', '4x4': '4x4',
+      'Sedan': 'Sedan', 'Crossover': 'Crossover', 'SUV': 'SUV', 'Coupe': 'Coupé', 'Cabriolet': 'Convertible',
+      'Camionetă': 'Pickup', 'Universal': 'Estate', 'Minivan': 'Minivan', 'Hatchback': 'Hatchback',
+      'Cu rulaj': 'Used', 'Nou': 'New', 'Disponibil': 'Available', 'La comandă': 'On order',
+      'Republica Moldova': 'Republic of Moldova', 'Zona Euro': 'Eurozone', 'SUA': 'USA', 'Stânga': 'Left', 'Dreapta': 'Right',
+      'Dealer auto': 'Car dealer'
+    }
+  };
+
+  /* ---------- state ---------- */
+  var state = {
+    lang: 'ro',
+    route: { page: 'home', carId: null },
+    brand: 'all', body: 'all', fuel: 'all', sort: 'new',
+    gi: 0, lb: false,
+    calcDown: 30, calcTerm: 60
+  };
+  var silentHash = false;
+  var skelTimer = null;
+
+  function t(key) {
+    var d = T[state.lang] || T.ro;
+    return d[key] != null ? d[key] : (T.ro[key] != null ? T.ro[key] : key);
+  }
+  function tv(val) {
+    if (state.lang === 'ro' || !val) return val;
+    var m = VAL[state.lang];
+    return (m && m[val]) || val;
+  }
+  function tf(key, repl) {
+    var s = t(key);
+    Object.keys(repl || {}).forEach(function (k) { s = s.replace('{' + k + '}', repl[k]); });
+    return s;
+  }
+
+  /* ---------- curation ---------- */
+  var byPrice = CARS.slice().sort(function (a, b) { return b.price - a.price; });
+  var FLAGSHIP = byPrice[0];
+  function distinctMakeTop(n) {
+    var seen = {}, out = [];
+    for (var i = 0; i < byPrice.length && out.length < n; i++) {
+      var c = byPrice[i];
+      if (!seen[c.make]) { seen[c.make] = 1; out.push(c); }
+    }
+    return out;
+  }
+  var TEASER = distinctMakeTop(6);
+  var IG_CELLS = distinctMakeTop(5);
+
+  var makeCounts = {};
+  CARS.forEach(function (c) { makeCounts[c.make] = (makeCounts[c.make] || 0) + 1; });
+  var TOP_MAKES = Object.keys(makeCounts).sort(function (a, b) { return makeCounts[b] - makeCounts[a]; }).slice(0, 5);
+  var BODIES = Object.keys(CARS.reduce(function (m, c) { if (c.body) m[c.body] = 1; return m; }, {}));
+  var FUELS = Object.keys(CARS.reduce(function (m, c) { if (c.fuel) m[c.fuel] = 1; return m; }, {}));
+
+  function carById(id) {
+    for (var i = 0; i < CARS.length; i++) if (CARS[i].id === id) return CARS[i];
+    return null;
+  }
+  function carMeta(c) {
+    var parts = [c.year, fmtNum(c.km) + ' km'];
+    if (c.power) parts.push(c.power + ' CP');
+    else if (c.engine) parts.push(c.engine);
+    return parts.join(' · ');
+  }
+  function waFor(key, c) {
+    var txt = tf(key, { car: c ? c.name : '', year: c ? c.year : '' });
+    return WA + '?text=' + encodeURIComponent(txt);
+  }
+
+  /* ---------- shared renderers ---------- */
+  function cardHtml(c) {
+    return '' +
+      '<div class="car-card" data-car="' + esc(c.id) + '">' +
+        '<div class="car-media"><img src="' + esc(img900(c.images[0])) + '" alt="' + esc(c.name) + '" loading="lazy"></div>' +
+        '<div class="car-body">' +
+          '<div class="car-row"><span class="car-name">' + esc(c.name) + '</span><span class="car-price">' + fmtEur(c.price) + '</span></div>' +
+          '<div class="car-meta">' + esc(carMeta(c)) + '</div>' +
+        '</div>' +
+      '</div>';
+  }
+  function gridHtml(cars) {
+    return '<div class="pk-cars">' + cars.map(cardHtml).join('') + '</div>';
+  }
+
+  /* ---------- home ---------- */
+  function homeHtml() {
+    var f = FLAGSHIP;
+    var mo = monthly(f.price, 30, 60);
+    return '' +
+    '<div data-page="home">' +
+
+    '<section class="hero">' +
+      '<img src="' + esc(img900(f.images[0])) + '" alt="' + esc(f.name) + '">' +
+      '<div class="hero-shade"></div>' +
+      '<div class="hero-line"><div></div></div>' +
+      '<div class="hero-foot">' +
+        '<div class="hero-main">' +
+          '<div class="hero-kicker">' + t('hero_kicker') + '</div>' +
+          '<h1 class="hero-h1">' + t('hero_h1') + '</h1>' +
+          '<p class="hero-sub">' + t('hero_sub') + '</p>' +
+          '<div class="hero-ctas">' +
+            '<button class="btn-red" data-nav="inventory">' + t('hero_cta') + ' <span style="font-weight:400">→</span></button>' +
+            '<a class="btn-ghost" href="' + WA + '" target="_blank" rel="noopener">WhatsApp</a>' +
+          '</div>' +
+        '</div>' +
+        '<div class="hero-car pk-hide-m">' +
+          '<div class="hero-car-line"></div>' +
+          '<div class="hero-car-name">' + esc(f.name) + '</div>' +
+          '<div class="hero-car-sub">' + esc(f.year + (f.gen ? ' · ' + f.gen : '')) + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</section>' +
+
+    '<section class="trust">' +
+      '<div class="trust-grid">' +
+        '<div><div class="trust-num"><span data-tick="3">0</span>+</div><div class="trust-label">' + t('trust_years') + '</div></div>' +
+        '<div><div class="trust-num"><span data-tick="' + CARS.length + '">0</span></div><div class="trust-label">' + t('trust_stock') + '</div></div>' +
+        '<div><div class="trust-num"><span data-tick="500">0</span>+</div><div class="trust-label">' + t('trust_sold') + '</div></div>' +
+        '<div><div class="trust-num"><span data-tick="7.8" data-dec="1">0</span>k</div><div class="trust-label">' + t('trust_ig') + '</div></div>' +
+      '</div>' +
+    '</section>' +
+
+    '<section class="stock">' +
+      '<div class="stock-head">' +
+        '<div class="sec-head"><span class="sec-num">01</span><h2 class="sec-title">' + t('stock_title') + '</h2></div>' +
+        '<a class="link-caps" href="#/automobile" data-nav="inventory">' + tf('stock_all', { n: CARS.length }) + '</a>' +
+      '</div>' +
+      gridHtml(TEASER) +
+    '</section>' +
+
+    '<div class="story" id="pk-story">' +
+      '<div class="story-stage">' +
+        '<div class="story-scene" data-scene="0" style="opacity:1">' +
+          '<img src="' + esc(img900(f.images[0])) + '" alt="Exterior">' +
+          '<div class="story-shade"></div>' +
+          '<div class="story-cap"><div class="story-cap-k">' + t('story_ext_k') + '</div><div class="story-cap-t">' + esc(f.name) + '. ' + t('story_ext_t') + '</div></div>' +
+        '</div>' +
+        '<div class="story-scene" data-scene="1">' +
+          '<img src="' + esc(img900(f.images[Math.min(8, f.images.length - 1)])) + '" alt="Interior">' +
+          '<div class="story-shade"></div>' +
+          '<div class="story-cap"><div class="story-cap-k">' + t('story_int_k') + '</div><div class="story-cap-t">' + t('story_int_t') + '</div></div>' +
+        '</div>' +
+        '<div class="story-scene story-final" data-scene="2">' +
+          '<div class="story-cap-k" style="color:rgba(244,241,236,.5)">' + esc(f.name) + ' · ' + f.year + '</div>' +
+          '<div class="story-price">' + fmtNum(f.price) + ' <span>€</span></div>' +
+          '<div style="font-size:14px;color:rgba(244,241,236,.55)">' + t('story_from') + ' <span style="color:#F4F1EC;font-weight:600">' + fmtNum(mo) + ' ' + t('story_mo') + '</span> ' + t('story_lease') + '</div>' +
+          '<button class="btn-red" data-car="' + esc(f.id) + '" style="margin-top:8px">' + t('story_cta') + ' <span style="font-weight:400">→</span></button>' +
+        '</div>' +
+        '<div class="story-tag"><span class="sec-num">02</span><span style="font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:rgba(244,241,236,.55)">' + t('story_tag') + '</span></div>' +
+        '<div class="story-bar" id="pk-story-bar"></div>' +
+      '</div>' +
+    '</div>' +
+
+    '<section class="how" id="servicii">' +
+      '<div class="sec-head"><span class="sec-num">03</span><h2 class="sec-title">' + t('how_title') + '</h2></div>' +
+      '<div class="pk-steps">' +
+        '<div class="step"><div class="step-num">01</div><h3>' + t('how1_t') + '</h3><p>' + t('how1_d') + '</p></div>' +
+        '<div class="step"><div class="step-num">02</div><h3>' + t('how2_t') + '</h3><p>' + t('how2_d') + '</p></div>' +
+        '<div class="step"><div class="step-num">03</div><h3>' + t('how3_t') + '</h3><p>' + t('how3_d') + '</p></div>' +
+      '</div>' +
+    '</section>' +
+
+    '<section class="servs">' +
+      '<a class="serv" href="' + WA + '?text=' + encodeURIComponent(t('wa_credit')) + '" target="_blank" rel="noopener">' +
+        '<div><div class="serv-t">' + t('serv_credit_t') + '</div><div class="serv-d">' + t('serv_credit_d') + '</div></div>' +
+        '<span class="serv-arrow">→</span></a>' +
+      '<a class="serv" href="' + WA + '?text=' + encodeURIComponent(t('wa_trade')) + '" target="_blank" rel="noopener">' +
+        '<div><div class="serv-t">' + t('serv_trade_t') + '</div><div class="serv-d">' + t('serv_trade_d') + '</div></div>' +
+        '<span class="serv-arrow">→</span></a>' +
+      '<a class="serv" href="' + WA + '?text=' + encodeURIComponent(t('wa_order')) + '" target="_blank" rel="noopener">' +
+        '<div><div class="serv-t">' + t('serv_order_t') + '</div><div class="serv-d">' + t('serv_order_d') + '</div></div>' +
+        '<span class="serv-arrow">→</span></a>' +
+    '</section>' +
+
+    '<section class="show" id="showroom">' +
+      '<div>' +
+        '<div class="sec-head"><span class="sec-num">04</span><h2 class="sec-title">' + t('show_title') + '</h2></div>' +
+        '<div class="show-rows">' +
+          '<div class="show-row"><span class="k">' + t('show_addr_k') + '</span><span class="v">' + t('show_addr_v') + '</span></div>' +
+          '<div class="show-row"><span class="k">' + t('show_prog_k') + '</span><span class="v">' + t('show_prog_v') + '</span></div>' +
+          '<div class="show-row"><span class="k">' + t('show_tel_k') + '</span><a class="v" href="' + PHONE_TEL + '">' + PHONE_DISPLAY + '</a></div>' +
+        '</div>' +
+        '<div class="show-links">' +
+          '<a class="link-under" href="https://maps.google.com/?q=Grigore+Ureche+64+Chisinau" target="_blank" rel="noopener">' + t('show_dir') + '</a>' +
+          '<a class="link-under" href="' + WA + '" target="_blank" rel="noopener">' + t('show_write') + '</a>' +
+        '</div>' +
+      '</div>' +
+      '<div class="mapbox">' +
+        '<div class="map-grid"></div><div class="map-st1"></div><div class="map-st2"></div><div class="map-st3"></div>' +
+        '<div class="map-dot"></div>' +
+        '<div class="map-tag"><b>Peak Auto</b><span>Grigore Ureche 64</span></div>' +
+        '<div class="map-coords">47.0345° N · 28.8389° E</div>' +
+      '</div>' +
+    '</section>' +
+
+    '<section class="ig">' +
+      '<div class="ig-head">' +
+        '<div class="sec-head"><span class="sec-num">05</span><h2 class="sec-title">@peakauto.md</h2></div>' +
+        '<a class="link-caps" href="' + IG_URL + '" target="_blank" rel="noopener">' + t('ig_followers') + '</a>' +
+      '</div>' +
+      '<div class="ig-grid">' +
+        IG_CELLS.map(function (c) {
+          return '<a class="ig-cell" href="' + IG_URL + '" target="_blank" rel="noopener"><img src="' + esc(img900(c.images[0])) + '" alt="' + esc(c.name) + '" loading="lazy"></a>';
+        }).join('') +
+      '</div>' +
+    '</section>' +
+
+    '<section class="closing">' +
+      '<p class="closing-i">' + t('close_i') + '</p>' +
+      '<h2 class="closing-h">' + t('close_h') + '</h2>' +
+      '<div class="closing-ctas">' +
+        '<a class="btn-red" href="' + WA + '" target="_blank" rel="noopener">' + t('close_wa') + '</a>' +
+        '<a class="btn-ghost" href="' + PHONE_TEL + '">' + PHONE_DISPLAY + '</a>' +
+      '</div>' +
+    '</section>' +
+
+    '</div>';
+  }
+
+  /* ---------- inventory ---------- */
+  function filteredCars() {
+    var list = CARS.filter(function (c) {
+      if (state.brand !== 'all') {
+        if (state.brand === '__other') { if (TOP_MAKES.indexOf(c.make) !== -1) return false; }
+        else if (c.make !== state.brand) return false;
+      }
+      if (state.body !== 'all' && c.body !== state.body) return false;
+      if (state.fuel !== 'all' && c.fuel !== state.fuel) return false;
+      return true;
+    });
+    if (state.sort === 'priceAsc') list = list.slice().sort(function (a, b) { return a.price - b.price; });
+    else if (state.sort === 'priceDesc') list = list.slice().sort(function (a, b) { return b.price - a.price; });
+    else if (state.sort === 'year') list = list.slice().sort(function (a, b) { return b.year - a.year; });
+    return list;
+  }
+
+  function invHtml(loading) {
+    var list = filteredCars();
+    var chips = [{ v: 'all', l: t('chip_all') }]
+      .concat(TOP_MAKES.map(function (m) { return { v: m, l: m }; }))
+      .concat([{ v: '__other', l: t('chip_other') }]);
+    var bodyOpts = '<option value="all">' + t('f_body') + '</option>' + BODIES.map(function (b) {
+      return '<option value="' + esc(b) + '"' + (state.body === b ? ' selected' : '') + '>' + esc(tv(b)) + '</option>';
+    }).join('');
+    var fuelOpts = '<option value="all">' + t('f_fuel') + '</option>' + FUELS.map(function (fu) {
+      return '<option value="' + esc(fu) + '"' + (state.fuel === fu ? ' selected' : '') + '>' + esc(tv(fu)) + '</option>';
+    }).join('');
+    var sortOpts = [['new', 'sort_new'], ['priceAsc', 'sort_pa'], ['priceDesc', 'sort_pd'], ['year', 'sort_y']].map(function (o) {
+      return '<option value="' + o[0] + '"' + (state.sort === o[0] ? ' selected' : '') + '>' + t(o[1]) + '</option>';
+    }).join('');
+
+    var bodyHtml;
+    if (loading) {
+      var sk = '';
+      for (var i = 0; i < 6; i++) sk += '<div style="background:#0A0A0B"><div class="sk-media"></div><div class="sk-body"><div class="sk-l1"></div><div class="sk-l2"></div></div></div>';
+      bodyHtml = '<div class="pk-cars">' + sk + '</div>';
+    } else if (!list.length) {
+      bodyHtml = '<div class="inv-empty"><div class="inv-empty-t">' + t('inv_empty') + '</div>' +
+        '<button class="btn-ghost" id="pk-reset" style="font-size:12px;padding:15px 28px">' + t('inv_reset') + '</button></div>';
+    } else {
+      bodyHtml = gridHtml(list);
+    }
+
+    return '' +
+    '<div class="inv" data-page="inventory">' +
+      '<section class="inv-head">' +
+        '<div><div class="inv-kicker">' + t('inv_kicker') + '</div><h1 class="inv-h1">' + t('inv_title') + '</h1></div>' +
+        '<div class="inv-count"><b>' + list.length + '</b> ' + t('inv_count') + '</div>' +
+      '</section>' +
+      '<div class="filters">' +
+        '<div class="chips">' + chips.map(function (ch) {
+          return '<button class="chip' + (state.brand === ch.v ? ' on' : '') + '" data-brand="' + esc(ch.v) + '">' + esc(ch.l) + '</button>';
+        }).join('') + '</div>' +
+        '<div class="filters-sel">' +
+          '<select id="pk-f-body" aria-label="Body">' + bodyOpts + '</select>' +
+          '<select id="pk-f-fuel" aria-label="Fuel">' + fuelOpts + '</select>' +
+          '<select id="pk-f-sort" aria-label="Sort">' + sortOpts + '</select>' +
+        '</div>' +
+      '</div>' +
+      '<section class="inv-grid">' + bodyHtml + '</section>' +
+    '</div>';
+  }
+
+  /* ---------- car detail ---------- */
+  function specRow(k, v) {
+    if (!v) return '';
+    return '<div class="spec-row"><span class="k">' + t(k) + '</span><span class="v">' + esc(tv(v)) + '</span></div>';
+  }
+  function carHtml(c) {
+    var gal = c.images;
+    var gi = Math.min(state.gi, gal.length - 1);
+    var mo = monthly(c.price, 30, 60);
+    var calcMo = monthly(c.price, state.calcDown, state.calcTerm);
+    var mdl = Math.round(c.price * EUR_MDL / 1000) * 1000;
+
+    var sim = CARS.filter(function (x) { return x.id !== c.id && x.make === c.make; });
+    if (sim.length < 3) sim = sim.concat(CARS.filter(function (x) { return x.id !== c.id && x.make !== c.make && x.body === c.body; }));
+    if (sim.length < 3) sim = sim.concat(CARS.filter(function (x) { return x.id !== c.id && sim.indexOf(x) === -1; }));
+    sim = sim.slice(0, 3);
+
+    var equipHtml = c.equip && c.equip.length ? (
+      '<div class="det-sec">' +
+        '<h2 class="det-h2" style="margin-bottom:24px">' + t('equip_title') + '</h2>' +
+        '<div class="equip-grid">' + c.equip.map(function (e) {
+          return '<div class="equip-it"><i>—</i><span>' + esc(e) + '</span></div>';
+        }).join('') + '</div>' +
+      '</div>') : '';
+
+    var proseHtml = c.prose ? (
+      '<div class="det-sec">' +
+        '<h2 class="det-h2">' + t('desc_title') + '</h2>' +
+        '<div class="prose">' + esc(c.prose) + '</div>' +
+        '<a class="link-under" style="display:inline-block;margin-top:22px" href="' + esc(c.url) + '" target="_blank" rel="noopener">' + t('see_999') + '</a>' +
+      '</div>') : '';
+
+    return '' +
+    '<div class="det" data-page="car">' +
+      '<div class="det-back"><button data-nav="inventory">' + t('back') + '</button></div>' +
+      '<div class="pk-detail">' +
+
+        '<div style="min-width:0">' +
+          '<div class="gal" id="pk-gal">' +
+            '<img class="main" id="pk-gal-img" src="' + esc(img900(gal[gi])) + '" alt="' + esc(c.name) + '">' +
+            '<div class="gal-shade"></div>' +
+            '<div class="gal-count" id="pk-gal-count">' + (gi + 1) + ' / ' + gal.length + '</div>' +
+            '<button class="gal-nav prev" id="pk-prev" aria-label="Prev">←</button>' +
+            '<button class="gal-nav next" id="pk-next" aria-label="Next">→</button>' +
+          '</div>' +
+          '<div class="pk-thumbs" id="pk-thumbs">' + gal.map(function (h, i) {
+            return '<div class="thumb' + (i === gi ? ' on' : '') + '" data-gi="' + i + '"><img src="' + esc(img320(h)) + '" alt="" loading="lazy"></div>';
+          }).join('') + '</div>' +
+
+          '<div class="det-sec">' +
+            '<h2 class="det-h2">' + t('specs_title') + '</h2>' +
+            '<div class="pk-specs">' +
+              '<div class="spec-grp"><div class="spec-grp-t">' + t('sg_motor') + '</div>' +
+                (c.power ? specRow('k_power', c.power + ' CP') : '') +
+                specRow('k_engine', c.engine) + specRow('k_fuel', c.fuel) + specRow('k_box', c.box) + specRow('k_drive', c.drive) +
+              '</div>' +
+              '<div class="spec-grp"><div class="spec-grp-t">' + t('sg_state') + '</div>' +
+                specRow('k_year', String(c.year)) + specRow('k_km', fmtNum(c.km) + ' km') +
+                specRow('k_state', c.stateRaw || 'Cu rulaj') + specRow('k_avail', c.avail) +
+              '</div>' +
+              '<div class="spec-grp"><div class="spec-grp-t">' + t('sg_body') + '</div>' +
+                specRow('k_body', c.body) + specRow('k_gen', c.gen) + specRow('k_seats', c.seats) + specRow('k_doors', c.doors) + specRow('k_wheel', c.wheel) +
+              '</div>' +
+              '<div class="spec-grp"><div class="spec-grp-t">' + t('sg_reg') + '</div>' +
+                specRow('k_reg', c.reg) + specRow('k_origin', c.origin) + specRow('k_vin', c.vin) + specRow('k_author', 'Dealer auto') +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          equipHtml +
+          proseHtml +
+
+          '<div class="hist">' +
+            '<div class="hist-head">' +
+              '<div><h2 class="det-h2" style="margin-bottom:10px">' + t('hist_title') + '</h2>' +
+              '<div class="hist-sub">VIN ' + esc(c.vin || '—') + ' · ' + t('hist_sub') + '</div></div>' +
+              '<div class="hist-badge">' + t('hist_badge') + '</div>' +
+            '</div>' +
+            '<div class="hist-grid">' +
+              '<div class="hist-it"><b>' + t('hist_1t') + '</b><span>' + t('hist_1d') + '</span></div>' +
+              '<div class="hist-it"><b>' + tf('hist_2t', { v: esc(tv(c.origin || '—')) }) + '</b><span>' + t('hist_2d') + '</span></div>' +
+              '<div class="hist-it"><b>' + tf('hist_3t', { v: esc(tv(c.reg || '—')) }) + '</b><span>' + t('hist_3d') + '</span></div>' +
+              '<div class="hist-it"><b>' + t('hist_4t') + '</b><span>' + tf('hist_4d', { v: fmtNum(c.km) + ' km' }) + '</span></div>' +
+            '</div>' +
+            '<a class="link-under" style="display:inline-block;margin-top:28px" href="' + waFor('wa_report', c) + '" target="_blank" rel="noopener">' + t('hist_cta') + '</a>' +
+          '</div>' +
+
+          '<div class="det-sec" id="calc">' +
+            '<h2 class="det-h2">' + t('calc_title') + '</h2>' +
+            '<div class="calc-sub">' + t('calc_sub') + '</div>' +
+            '<div class="calc-grid">' +
+              '<div class="calc-sliders">' +
+                '<div>' +
+                  '<div class="calc-lbl"><span class="k">' + t('calc_down') + '</span><span class="v"><span id="pk-down-pct">' + state.calcDown + '</span>% · <span id="pk-down-eur">' + fmtEur(Math.round(c.price * state.calcDown / 100)) + '</span></span></div>' +
+                  '<input type="range" id="pk-r-down" min="10" max="70" step="5" value="' + state.calcDown + '" aria-label="Down payment">' +
+                '</div>' +
+                '<div>' +
+                  '<div class="calc-lbl"><span class="k">' + t('calc_term') + '</span><span class="v"><span id="pk-term">' + state.calcTerm + '</span> ' + t('calc_months') + '</span></div>' +
+                  '<input type="range" id="pk-r-term" min="12" max="84" step="12" value="' + state.calcTerm + '" aria-label="Term">' +
+                '</div>' +
+              '</div>' +
+              '<div class="calc-out">' +
+                '<div class="calc-out-k">' + t('calc_out') + '</div>' +
+                '<div class="calc-out-v"><span id="pk-calc-mo">' + fmtNum(calcMo) + '</span> <span>' + t('rail_mo') + '</span></div>' +
+                '<div class="calc-note">' + t('calc_note') + '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<div class="det-sec" style="margin-top:80px">' +
+            '<h2 class="det-h2" style="margin-bottom:32px">' + t('sim_title') + '</h2>' +
+            gridHtml(sim) +
+          '</div>' +
+        '</div>' +
+
+        '<div class="pk-rail">' +
+          '<div class="rail-badge"><i></i><span>' + esc(tv(c.avail || 'Disponibil')) + '</span></div>' +
+          '<h1 class="rail-name">' + esc(c.name) + '</h1>' +
+          '<div class="rail-meta">' + esc(carMeta(c) + ' · ' + tv(c.fuel)) + '</div>' +
+          '<div class="rail-price">' + fmtEur(c.price) + '</div>' +
+          '<div class="rail-mdl">≈ ' + fmtNum(mdl) + ' MDL</div>' +
+          '<div class="rail-monthly">' + t('rail_from') + ' <b>' + fmtNum(mo) + ' ' + t('rail_mo') + '</b> · <a href="#calc">' + t('rail_calc') + '</a></div>' +
+          '<div class="rail-hr"></div>' +
+          '<div class="rail-col">' +
+            '<a class="rail-btn-red" href="' + waFor('wa_hi', c) + '" target="_blank" rel="noopener">' + t('rail_wa') + '</a>' +
+            '<a class="rail-btn" href="' + PHONE_TEL + '">' + t('rail_call') + '&nbsp;' + PHONE_DISPLAY + '</a>' +
+            '<div class="rail-duo">' +
+              '<a href="viber://chat?number=%2B37361249999">Viber</a>' +
+              '<a href="' + IG_URL + '" target="_blank" rel="noopener">Instagram</a>' +
+            '</div>' +
+          '</div>' +
+          '<div class="rail-hr"></div>' +
+          '<div class="rail-col">' +
+            '<a class="rail-btn sm" href="' + waFor('wa_reserve', c) + '" target="_blank" rel="noopener">' + t('rail_reserve') + '</a>' +
+            '<a class="rail-btn sm" href="' + waFor('wa_view', c) + '" target="_blank" rel="noopener">' + t('rail_view') + '</a>' +
+          '</div>' +
+          '<div class="rail-fine">' + t('rail_fine') + '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="pk-mbar">' +
+        '<div class="mbar-info">' +
+          '<div class="mbar-price">' + fmtEur(c.price) + '</div>' +
+          '<div class="mbar-name">' + esc(c.name) + '</div>' +
+        '</div>' +
+        '<a class="mbar-call" href="' + PHONE_TEL + '">' + t('rail_call') + '</a>' +
+        '<a class="mbar-wa" href="' + waFor('wa_hi', c) + '" target="_blank" rel="noopener">WhatsApp</a>' +
+      '</div>' +
+      '<div class="pk-mbar-spacer"></div>' +
+    '</div>';
+  }
+
+  /* ---------- lightbox ---------- */
+  function lbHtml(c) {
+    var gal = c.images;
+    var gi = Math.min(state.gi, gal.length - 1);
+    return '' +
+      '<div class="lb" id="pk-lb-in">' +
+        '<img src="' + esc(img900(gal[gi])) + '" alt="' + esc(c.name) + '">' +
+        '<button class="x" id="pk-lb-x" aria-label="Close">✕</button>' +
+        '<button class="p" id="pk-lb-p" aria-label="Prev">←</button>' +
+        '<button class="n" id="pk-lb-n" aria-label="Next">→</button>' +
+        '<div class="lb-count">' + (gi + 1) + ' / ' + gal.length + '</div>' +
+      '</div>';
+  }
+  function renderLb() {
+    var host = document.getElementById('pk-lb');
+    var c = state.route.page === 'car' && carById(state.route.carId);
+    host.innerHTML = (state.lb && c) ? lbHtml(c) : '';
+    document.body.style.overflow = (state.lb && c) ? 'hidden' : '';
+    if (state.lb && c) {
+      document.getElementById('pk-lb-in').addEventListener('click', function (e) { if (e.target === this) closeLb(); });
+      document.getElementById('pk-lb-x').addEventListener('click', closeLb);
+      document.getElementById('pk-lb-p').addEventListener('click', function (e) { e.stopPropagation(); stepImg(-1); });
+      document.getElementById('pk-lb-n').addEventListener('click', function (e) { e.stopPropagation(); stepImg(1); });
+    }
+  }
+  function closeLb() { state.lb = false; renderLb(); }
+
+  /* ---------- gallery ---------- */
+  function stepImg(d) {
+    var c = carById(state.route.carId);
+    if (!c) return;
+    var n = c.images.length;
+    state.gi = (state.gi + d + n) % n;
+    updateGallery(c);
+    if (state.lb) renderLb();
+  }
+  function updateGallery(c) {
+    var im = document.getElementById('pk-gal-img');
+    var cn = document.getElementById('pk-gal-count');
+    if (im) im.src = img900(c.images[state.gi]);
+    if (cn) cn.textContent = (state.gi + 1) + ' / ' + c.images.length;
+    var thumbs = document.querySelectorAll('#pk-thumbs .thumb');
+    for (var i = 0; i < thumbs.length; i++) thumbs[i].classList.toggle('on', i === state.gi);
+    var on = document.querySelector('#pk-thumbs .thumb.on');
+    if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
+
+  /* ---------- render root ---------- */
+  function render(opts) {
+    var view = document.getElementById('pk-view');
+    var page = state.route.page;
+    if (page === 'home') view.innerHTML = homeHtml();
+    else if (page === 'inventory') view.innerHTML = invHtml(!!(opts && opts.loading));
+    else {
+      var c = carById(state.route.carId);
+      if (!c) { state.route = { page: 'inventory', carId: null }; view.innerHTML = invHtml(false); }
+      else view.innerHTML = carHtml(c);
+    }
+    bindView();
+    syncHeader();
+    initTicks();
+    renderLb();
+  }
+
+  function bindView() {
+    var view = document.getElementById('pk-view');
+
+    view.querySelectorAll('[data-car]').forEach(function (el) {
+      el.addEventListener('click', function () { goto('car', el.getAttribute('data-car')); });
+    });
+    view.querySelectorAll('[data-nav]').forEach(bindNav);
+
+    view.querySelectorAll('[data-brand]').forEach(function (el) {
+      el.addEventListener('click', function () { state.brand = el.getAttribute('data-brand'); render(); });
+    });
+    var fb = document.getElementById('pk-f-body');
+    if (fb) fb.addEventListener('change', function () { state.body = fb.value; render(); });
+    var ff = document.getElementById('pk-f-fuel');
+    if (ff) ff.addEventListener('change', function () { state.fuel = ff.value; render(); });
+    var fs = document.getElementById('pk-f-sort');
+    if (fs) fs.addEventListener('change', function () { state.sort = fs.value; render(); });
+    var rs = document.getElementById('pk-reset');
+    if (rs) rs.addEventListener('click', function () { state.brand = 'all'; state.body = 'all'; state.fuel = 'all'; state.sort = 'new'; render(); });
+
+    var gal = document.getElementById('pk-gal');
+    if (gal) {
+      gal.addEventListener('click', function (e) {
+        if (e.target.closest('button')) return;
+        state.lb = true; renderLb();
+      });
+      document.getElementById('pk-prev').addEventListener('click', function (e) { e.stopPropagation(); stepImg(-1); });
+      document.getElementById('pk-next').addEventListener('click', function (e) { e.stopPropagation(); stepImg(1); });
+      document.querySelectorAll('#pk-thumbs .thumb').forEach(function (th) {
+        th.addEventListener('click', function () {
+          state.gi = +th.getAttribute('data-gi');
+          updateGallery(carById(state.route.carId));
+        });
+      });
+    }
+
+    var rd = document.getElementById('pk-r-down'), rt = document.getElementById('pk-r-term');
+    if (rd && rt) {
+      var recalc = function () {
+        var c = carById(state.route.carId);
+        state.calcDown = +rd.value; state.calcTerm = +rt.value;
+        document.getElementById('pk-down-pct').textContent = state.calcDown;
+        document.getElementById('pk-down-eur').textContent = fmtEur(Math.round(c.price * state.calcDown / 100));
+        document.getElementById('pk-term').textContent = state.calcTerm;
+        document.getElementById('pk-calc-mo').textContent = fmtNum(monthly(c.price, state.calcDown, state.calcTerm));
+      };
+      rd.addEventListener('input', recalc);
+      rt.addEventListener('input', recalc);
+    }
+  }
+
+  function bindNav(el) {
+    el.addEventListener('click', function (e) {
+      var kind = el.getAttribute('data-nav');
+      if (kind === 'home') { e.preventDefault(); goto('home'); }
+      else if (kind === 'inventory') { e.preventDefault(); goto('inventory'); }
+      else if (kind === 'services') { e.preventDefault(); scrollHome('servicii'); }
+      else if (kind === 'showroom') { e.preventDefault(); scrollHome('showroom'); }
+      else if (kind === 'contact') { e.preventDefault(); var f = document.getElementById('contact'); if (f) f.scrollIntoView({ behavior: 'smooth' }); }
+    });
+  }
+
+  /* ---------- navigation ---------- */
+  function goto(page, carId) {
+    state.route = { page: page, carId: carId || null };
+    state.gi = 0; state.lb = false;
+    var h = page === 'home' ? '#/' : page === 'inventory' ? '#/automobile' : '#/auto/' + carId;
+    if (location.hash !== h) { silentHash = true; location.hash = h; }
+    if (page === 'inventory') {
+      render({ loading: true });
+      clearTimeout(skelTimer);
+      skelTimer = setTimeout(function () { render(); window.scrollTo(0, 0); }, 450);
+    } else {
+      render();
+    }
+    window.scrollTo(0, 0);
+  }
+  function scrollHome(anchor) {
+    var go = function () {
+      var el = document.getElementById(anchor);
+      if (el) { var y = el.getBoundingClientRect().top + window.scrollY - 80; window.scrollTo({ top: y, behavior: 'smooth' }); }
+    };
+    if (state.route.page !== 'home') { goto('home'); setTimeout(go, 140); } else go();
+  }
+  function onHash() {
+    if (silentHash) { silentHash = false; return; }
+    var m = location.hash.match(/^#\/auto\/(.+)$/);
+    if (m) goto('car', m[1]);
+    else if (location.hash === '#/automobile') goto('inventory');
+    else goto('home');
+  }
+
+  /* ---------- header / langs ---------- */
+  function syncHeader() {
+    document.querySelectorAll('.langs button').forEach(function (b) {
+      b.classList.toggle('on', b.getAttribute('data-lang') === state.lang);
+    });
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      el.innerHTML = t(el.getAttribute('data-i18n'));
+    });
+    document.documentElement.lang = state.lang;
+    var nav = { home: null, inventory: 'inventory' }[state.route.page];
+    document.querySelectorAll('.hdr-nav a').forEach(function (a) {
+      a.classList.toggle('on', a.getAttribute('data-nav') === nav);
+    });
+  }
+
+  /* ---------- fx ---------- */
+  function initTicks() {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelectorAll('[data-tick]').forEach(function (el) {
+      if (el.dataset.done) return;
+      el.dataset.done = '1';
+      var target = parseFloat(el.dataset.tick), dec = +(el.dataset.dec || 0);
+      if (reduce || !('IntersectionObserver' in window)) { el.textContent = target.toFixed(dec); return; }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          io.disconnect();
+          var t0 = performance.now(), dur = 1100;
+          var step = function (ts) {
+            var p = Math.min(1, (ts - t0) / dur), e2 = 1 - Math.pow(1 - p, 3);
+            el.textContent = (target * e2).toFixed(dec);
+            if (p < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        });
+      }, { threshold: 0.4 });
+      io.observe(el);
+    });
+  }
+
+  function onScroll() {
+    var h = document.getElementById('pk-header');
+    if (h) h.classList.toggle('on', window.scrollY > 40);
+
+    var story = document.getElementById('pk-story');
+    if (story) {
+      var r = story.getBoundingClientRect();
+      var total = r.height - window.innerHeight;
+      var p = Math.min(1, Math.max(0, -r.top / total));
+      var w = 0.09;
+      story.querySelectorAll('[data-scene]').forEach(function (el) {
+        var i = +el.dataset.scene, o = 0;
+        if (i === 0) o = p < 0.33 ? 1 : Math.max(0, 1 - (p - 0.33) / w);
+        else if (i === 1) o = p < 0.33 ? 0 : p < 0.66 ? Math.min(1, (p - 0.33) / w) : Math.max(0, 1 - (p - 0.66) / w);
+        else o = p < 0.66 ? 0 : Math.min(1, (p - 0.66) / w);
+        el.style.opacity = o;
+        el.style.pointerEvents = o > 0.5 ? 'auto' : 'none';
+      });
+      var bar = document.getElementById('pk-story-bar');
+      if (bar) bar.style.width = (p * 100) + '%';
+    }
+  }
+
+  /* ---------- boot ---------- */
+  document.querySelectorAll('.langs button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.lang = b.getAttribute('data-lang');
+      try { localStorage.setItem('pk-lang', state.lang); } catch (e) {}
+      render();
+    });
+  });
+  document.querySelectorAll('.hdr [data-nav], footer [data-nav]').forEach(bindNav);
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('hashchange', onHash);
+  window.addEventListener('keydown', function (e) {
+    if (state.route.page !== 'car') return;
+    if (e.key === 'Escape' && state.lb) closeLb();
+    if (e.key === 'ArrowRight') stepImg(1);
+    if (e.key === 'ArrowLeft') stepImg(-1);
+  });
+
+  try { var saved = localStorage.getItem('pk-lang'); if (saved && T[saved]) state.lang = saved; } catch (e) {}
+
+  /* preloader once per session */
+  try {
+    if (!sessionStorage.getItem('pk-intro')) {
+      var pre = document.getElementById('pk-pre');
+      pre.hidden = false;
+      setTimeout(function () {
+        pre.classList.add('out');
+        try { sessionStorage.setItem('pk-intro', '1'); } catch (e) {}
+        setTimeout(function () { pre.hidden = true; }, 500);
+      }, 1400);
+    }
+  } catch (e) {}
+
+  onHash();
+  onScroll();
+})();

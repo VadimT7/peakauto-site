@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;300;400;500;600;700;800&amp;family=Cormorant+Garamond:ital,wght@1,400;1,500&amp;display=swap" rel="stylesheet">
+<style>
+html{scroll-behavior:smooth}
+body{margin:0;background:#0A0A0B;color:#F4F1EC;font-family:'Archivo',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#F4F1EC;text-decoration:none}
+a:hover{color:#E10600}
+::selection{background:#E10600;color:#fff}
+button{font-family:'Archivo',sans-serif}
+input[type=range]{accent-color:#E10600;width:100%}
+select{background:transparent;color:#F4F1EC;border:none;border-bottom:1px solid rgba(255,255,255,.18);font:500 13px 'Archivo',sans-serif;padding:10px 2px;outline:none;cursor:pointer}
+select option{background:#141416;color:#F4F1EC}
+@keyframes pkDrift{from{transform:scale(1.03)}to{transform:scale(1.1) translateX(-1.2%)}}
+@keyframes pkSweep{0%{transform:translateX(-160%);opacity:0}10%{opacity:1}85%{opacity:1}100%{transform:translateX(520%);opacity:0}}
+@keyframes pkFadeUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes pkShimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+@keyframes pkPulse{0%,100%{box-shadow:0 0 0 0 rgba(225,6,0,.5)}50%{box-shadow:0 0 0 12px rgba(225,6,0,0)}}
+.pk-cars{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.09);border-top:1px solid rgba(255,255,255,.09);border-bottom:1px solid rgba(255,255,255,.09)}
+@media(max-width:1100px){.pk-cars{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.pk-cars{grid-template-columns:1fr}}
+.pk-detail{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:64px;align-items:start}
+.pk-specs{display:grid;grid-template-columns:1fr 1fr;gap:0 56px}
+.pk-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:48px}
+.pk-mbar{display:none}
+@media(max-width:960px){.pk-detail{grid-template-columns:1fr}.pk-rail{position:static !important}.pk-mbar{display:flex}.pk-hide-m{display:none !important}.pk-steps{grid-template-columns:1fr;gap:0}}
+@media(max-width:760px){.pk-specs{grid-template-columns:1fr}}
+@media(min-width:961px){.pk-hide-d{display:none !important}}
+.pk-serv:hover .pk-arrow{transform:translateX(12px)}
+.pk-serv:hover{background:#111113}
+.pk-thumbs::-webkit-scrollbar{display:none}
+@media(prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+
+<sc-if value="{{ intro }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:#0A0A0B;z-index:200;display:flex;align-items:center;justify-content:center" data-screen-label="Preloader">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:18px">
+      <div style="font-weight:800;font-size:26px;letter-spacing:.08em;color:#E10600">PEAKAUTO</div>
+      <div style="width:220px;height:1px;background:rgba(255,255,255,.12);overflow:hidden;position:relative">
+        <div style="position:absolute;top:0;left:0;width:70px;height:1px;background:#E10600;animation:pkSweep 1.3s ease-in-out infinite"></div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<div id="pk-header" style="position:fixed;top:0;left:0;right:0;z-index:90;display:flex;align-items:center;justify-content:space-between;padding:0 4vw;height:72px;transition:background .4s ease,border-color .4s ease;background:transparent;border-bottom:1px solid transparent">
+  <div onClick="{{ goHome }}" style="cursor:pointer;font-weight:800;font-size:19px;letter-spacing:.08em;color:#E10600;user-select:none">PEAKAUTO</div>
+  <nav class="pk-hide-m" style="display:flex;gap:36px;align-items:center">
+    <a href="#/automobile" onClick="{{ goInventory }}" style="font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#F4F1EC">Automobile</a>
+    <a href="#servicii" onClick="{{ goServices }}" style="font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(244,241,236,.6)">Servicii</a>
+    <a href="#showroom" onClick="{{ goShowroom }}" style="font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(244,241,236,.6)">Showroom</a>
+    <a href="#contact" onClick="{{ goContact }}" style="font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(244,241,236,.6)">Contact</a>
+  </nav>
+  <div style="display:flex;align-items:center;gap:24px">
+    <div style="display:flex;gap:2px;font-size:11px;font-weight:600;letter-spacing:.12em">
+      <button onClick="{{ setRo }}" style="background:none;border:none;cursor:pointer;padding:6px 7px;color:{{ roColor }}">RO</button>
+      <button onClick="{{ setRu }}" style="background:none;border:none;cursor:pointer;padding:6px 7px;color:{{ ruColor }}">RU</button>
+      <button onClick="{{ setEn }}" style="background:none;border:none;cursor:pointer;padding:6px 7px;color:{{ enColor }}">EN</button>
+    </div>
+    <a href="tel:+37300000000" class="pk-hide-m" style="font-size:13px;font-weight:500;letter-spacing:.06em;color:#F4F1EC">{{ phone }}</a>
+  </div>
+</div>
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Home">
+
+  <section style="position:relative;height:100vh;min-height:640px;overflow:hidden" data-screen-label="Hero">
+    <img src="https://images.unsplash.com/photo-1485291571150-772bcfc10da5?w=2200&amp;q=80&amp;auto=format&amp;fit=crop" alt="Mercedes-Benz S 450 — Obsidian Black" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 42%;filter:saturate(.8) contrast(1.07) brightness(.88);animation:pkDrift 22s ease-in-out infinite alternate">
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,11,.55) 0%,rgba(10,10,11,.05) 34%,rgba(10,10,11,.12) 58%,rgba(10,10,11,.92) 100%)"></div>
+    <div style="position:absolute;left:0;right:0;top:56%;height:1px;overflow:hidden;pointer-events:none">
+      <div style="position:absolute;top:0;left:0;width:34vw;height:1px;background:linear-gradient(90deg,transparent,#E10600 30%,#FF3B30 55%,transparent);animation:pkSweep 2.6s cubic-bezier(.6,0,.2,1) .4s 1 both"></div>
+    </div>
+    <div style="position:absolute;left:4vw;right:4vw;bottom:9vh;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:40px">
+      <div style="max-width:900px;animation:pkFadeUp 1s ease .5s both">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:rgba(244,241,236,.55);margin-bottom:22px">Peak Auto — Chișinău</div>
+        <sc-if value="{{ isRo }}" hint-placeholder-val="{{ true }}">
+          <h1 style="margin:0 0 14px;font-weight:600;font-size:clamp(38px,6vw,86px);line-height:1.02;letter-spacing:-.025em">Premium &amp; business class.</h1>
+          <p style="margin:0 0 36px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:clamp(20px,2.4vw,32px);color:rgba(244,241,236,.72)">Importate. Verificate. În Chișinău.</p>
+        </sc-if>
+        <sc-if value="{{ isRu }}" hint-placeholder-val="{{ false }}">
+          <h1 style="margin:0 0 14px;font-weight:600;font-size:clamp(38px,6vw,86px);line-height:1.02;letter-spacing:-.025em">Премиум и бизнес-класс.</h1>
+          <p style="margin:0 0 36px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:clamp(20px,2.4vw,32px);color:rgba(244,241,236,.72)">Импортированы. Проверены. В Кишинёве.</p>
+        </sc-if>
+        <sc-if value="{{ isEn }}" hint-placeholder-val="{{ false }}">
+          <h1 style="margin:0 0 14px;font-weight:600;font-size:clamp(38px,6vw,86px);line-height:1.02;letter-spacing:-.025em">Premium &amp; business class.</h1>
+          <p style="margin:0 0 36px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:clamp(20px,2.4vw,32px);color:rgba(244,241,236,.72)">Imported. Verified. In Chișinău.</p>
+        </sc-if>
+        <div style="display:flex;flex-wrap:wrap;gap:16px">
+          <button onClick="{{ goInventory }}" style="display:inline-flex;align-items:center;gap:14px;background:#E10600;color:#fff;border:none;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:19px 34px" style-hover="background:#C00500">Explorează stocul <span style="font-weight:400">→</span></button>
+          <a href="https://wa.me/37300000000" style="display:inline-flex;align-items:center;background:transparent;color:#F4F1EC;border:1px solid rgba(255,255,255,.28);font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:18px 34px" style-hover="border-color:#F4F1EC;color:#F4F1EC">WhatsApp</a>
+        </div>
+      </div>
+      <div class="pk-hide-m" style="text-align:right;animation:pkFadeUp 1s ease .8s both">
+        <div style="width:64px;height:1px;background:rgba(255,255,255,.3);margin:0 0 14px auto"></div>
+        <div style="font-size:13px;font-weight:500;letter-spacing:.06em">Mercedes-Benz S 450 4MATIC</div>
+        <div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:rgba(244,241,236,.45);margin-top:6px">2024 · Obsidian Black</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:clamp(56px,7vw,96px) 4vw;border-bottom:1px solid rgba(255,255,255,.09)" data-screen-label="Trust strip">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:40px">
+      <div>
+        <div style="font-weight:250;font-size:clamp(44px,4.6vw,68px);line-height:1;color:#F4F1EC"><span data-tick="3">3</span>+</div>
+        <div style="margin-top:12px;font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(244,241,236,.45)">Ani pe piață</div>
+      </div>
+      <div>
+        <div style="font-weight:250;font-size:clamp(44px,4.6vw,68px);line-height:1;color:#F4F1EC"><span data-tick="80">80</span>+</div>
+        <div style="margin-top:12px;font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(244,241,236,.45)">Automobile în stoc</div>
+      </div>
+      <div>
+        <div style="font-weight:250;font-size:clamp(44px,4.6vw,68px);line-height:1;color:#F4F1EC"><span data-tick="500">500</span>+</div>
+        <div style="margin-top:12px;font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(244,241,236,.45)">Automobile livrate</div>
+      </div>
+      <div>
+        <div style="font-weight:250;font-size:clamp(44px,4.6vw,68px);line-height:1;color:#F4F1EC"><span data-tick="7.8" data-dec="1">7.8</span>k</div>
+        <div style="margin-top:12px;font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(244,241,236,.45)">Urmăritori Instagram</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:clamp(72px,9vw,130px) 4vw 0" data-screen-label="Stoc curent">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-bottom:44px;flex-wrap:wrap">
+      <div style="display:flex;align-items:baseline;gap:18px">
+        <span style="font-size:12px;font-weight:600;color:#E10600;letter-spacing:.1em">01</span>
+        <h2 style="margin:0;font-weight:600;font-size:clamp(26px,3vw,42px);letter-spacing:-.02em">Stoc curent</h2>
+      </div>
+      <a href="#/automobile" onClick="{{ goInventory }}" style="font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(244,241,236,.6)" style-hover="color:#F4F1EC">Vezi toate cele 80+ →</a>
+    </div>
+    <div class="pk-cars">
+      <sc-for list="{{ teaserCars }}" as="car" hint-placeholder-count="6">
+        <div onClick="{{ car.open }}" style="background:#0A0A0B;cursor:pointer;position:relative">
+          <div style="position:relative;aspect-ratio:16/10;overflow:hidden">
+            <img src="{{ car.img }}" alt="{{ car.name }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:saturate(.68) contrast(1.12) brightness(.76);transition:transform .9s cubic-bezier(.2,.6,.2,1)" style-hover="transform:scale(1.045)">
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,11,.34) 0%,rgba(10,10,11,.08) 40%,rgba(10,10,11,.58) 100%);pointer-events:none"></div>
+            <sc-if value="{{ car.showBadge }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;top:16px;left:16px;display:flex;align-items:center;gap:8px;background:rgba(10,10,11,.72);padding:7px 12px">
+                <span style="width:5px;height:5px;border-radius:50%;background:{{ car.badgeDot }}"></span>
+                <span style="font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#F4F1EC">{{ car.badge }}</span>
+              </div>
+            </sc-if>
+            <sc-if value="{{ car.sold }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;inset:0;background:rgba(10,10,11,.66);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+                <span style="font-size:15px;font-weight:600;letter-spacing:.4em;text-transform:uppercase;color:#F4F1EC">{{ car.soldLabel }}</span>
+                <span style="width:40px;height:1px;background:#E10600"></span>
+              </div>
+            </sc-if>
+          </div>
+          <div style="padding:22px 22px 26px;display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px">
+              <span style="font-size:16px;font-weight:600;letter-spacing:-.01em">{{ car.name }}</span>
+              <span style="font-size:16px;font-weight:500;white-space:nowrap;color:#F4F1EC">{{ car.price }}</span>
+            </div>
+            <div style="font-size:11.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,241,236,.42)">{{ car.meta }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <div id="pk-story" style="height:300vh;position:relative;margin-top:clamp(72px,9vw,130px)" data-screen-label="Featured story">
+    <div style="position:sticky;top:0;height:100vh;overflow:hidden;background:#060607">
+      <div data-scene="0" style="position:absolute;inset:0;opacity:1">
+        <img src="https://images.unsplash.com/photo-1485291571150-772bcfc10da5?w=2200&amp;q=80&amp;auto=format&amp;fit=crop" alt="Exterior" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 45%;filter:saturate(.8) contrast(1.08) brightness(.82)">
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,7,.6),rgba(6,6,7,.1) 40%,rgba(6,6,7,.75))"></div>
+        <div style="position:absolute;left:4vw;bottom:10vh">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:rgba(244,241,236,.5);margin-bottom:12px">Exterior</div>
+          <div style="font-weight:500;font-size:clamp(22px,2.6vw,34px);letter-spacing:-.01em">Obsidian Black. Prezență fără efort.</div>
+        </div>
+      </div>
+      <div data-scene="1" style="position:absolute;inset:0;opacity:0">
+        <img src="https://images.unsplash.com/photo-1610647752706-3bb12232b3ab?w=2200&amp;q=80&amp;auto=format&amp;fit=crop" alt="Interior" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.75) contrast(1.06) brightness(.8)">
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,7,.6),rgba(6,6,7,.15) 40%,rgba(6,6,7,.75))"></div>
+        <div style="position:absolute;left:4vw;bottom:10vh">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:rgba(244,241,236,.5);margin-bottom:12px">Interior</div>
+          <div style="font-weight:500;font-size:clamp(22px,2.6vw,34px);letter-spacing:-.01em">Piele Nappa. Liniște de business class.</div>
+        </div>
+      </div>
+      <div data-scene="2" style="position:absolute;inset:0;opacity:0;background:#060607;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;text-align:center;padding:0 6vw">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:rgba(244,241,236,.5)">Mercedes-Benz S 450 4MATIC · 2024</div>
+        <div style="font-weight:250;font-size:clamp(56px,9vw,140px);line-height:1;letter-spacing:-.03em">185.000 <span style="font-weight:200;color:rgba(244,241,236,.6)">€</span></div>
+        <div style="font-size:14px;color:rgba(244,241,236,.55)">de la <span style="color:#F4F1EC;font-weight:600">2.690 € / lună</span> în leasing</div>
+        <button onClick="{{ openFlagship }}" style="margin-top:8px;display:inline-flex;align-items:center;gap:14px;background:#E10600;color:#fff;border:none;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:19px 34px" style-hover="background:#C00500">Vezi automobilul <span style="font-weight:400">→</span></button>
+      </div>
+      <div style="position:absolute;left:4vw;top:96px;display:flex;align-items:baseline;gap:18px">
+        <span style="font-size:12px;font-weight:600;color:#E10600;letter-spacing:.1em">02</span>
+        <span style="font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:rgba(244,241,236,.55)">În prim-plan</span>
+      </div>
+      <div id="pk-story-bar" style="position:absolute;left:0;bottom:0;height:2px;width:0%;background:#E10600"></div>
+    </div>
+  </div>
+
+  <section id="servicii" style="padding:clamp(72px,9vw,130px) 4vw" data-screen-label="How we work">
+    <div style="display:flex;align-items:baseline;gap:18px;margin-bottom:56px">
+      <span style="font-size:12px;font-weight:600;color:#E10600;letter-spacing:.1em">03</span>
+      <h2 style="margin:0;font-weight:600;font-size:clamp(26px,3vw,42px);letter-spacing:-.02em">Cum lucrăm</h2>
+    </div>
+    <div class="pk-steps">
+      <div style="border-top:1px solid rgba(255,255,255,.14);padding:32px 0 40px">
+        <div style="font-weight:200;font-size:56px;line-height:1;color:rgba(244,241,236,.28);margin-bottom:22px">01</div>
+        <h3 style="margin:0 0 12px;font-weight:600;font-size:19px;letter-spacing:-.01em">Alegem și verificăm</h3>
+        <p style="margin:0;font-size:14.5px;line-height:1.65;color:rgba(244,241,236,.55);max-width:38ch">Fiecare automobil trece prin verificare de istoric — VIN, raport AutoDNA, inspecție tehnică independentă. Fără surprize.</p>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,.14);padding:32px 0 40px">
+        <div style="font-weight:200;font-size:56px;line-height:1;color:rgba(244,241,236,.28);margin-bottom:22px">02</div>
+        <h3 style="margin:0 0 12px;font-weight:600;font-size:19px;letter-spacing:-.01em">Import în 30–45 de zile</h3>
+        <p style="margin:0;font-size:14.5px;line-height:1.65;color:rgba(244,241,236,.55);max-width:38ch">Sursăm din licitații și dealeri autorizați din Europa și SUA. Transport asigurat, urmărire pe tot parcursul.</p>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,.14);padding:32px 0 40px">
+        <div style="font-weight:200;font-size:56px;line-height:1;color:rgba(244,241,236,.28);margin-bottom:22px">03</div>
+        <h3 style="margin:0 0 12px;font-weight:600;font-size:19px;letter-spacing:-.01em">Acte la cheie</h3>
+        <p style="margin:0;font-size:14.5px;line-height:1.65;color:rgba(244,241,236,.55);max-width:38ch">Vămuire, înmatriculare, garanție contractuală. Primești cheile unui automobil gata de drum, în Chișinău.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-top:1px solid rgba(255,255,255,.09)" data-screen-label="Services">
+    <a class="pk-serv" href="https://wa.me/37300000000?text=Credit%20%C8%99i%20leasing" style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:44px 4vw;border-bottom:1px solid rgba(255,255,255,.09);transition:background .3s ease;color:#F4F1EC">
+      <div>
+        <div style="font-weight:600;font-size:clamp(22px,2.6vw,34px);letter-spacing:-.015em">Credit &amp; Leasing</div>
+        <div style="margin-top:8px;font-size:13px;color:rgba(244,241,236,.5)">Avans de la 20% · aprobare în 24–48h · bănci partenere din Moldova</div>
+      </div>
+      <span class="pk-arrow" style="font-size:26px;font-weight:200;transition:transform .35s ease;color:rgba(244,241,236,.6)">→</span>
+    </a>
+    <a class="pk-serv" href="https://wa.me/37300000000?text=Trade-In" style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:44px 4vw;border-bottom:1px solid rgba(255,255,255,.09);transition:background .3s ease;color:#F4F1EC">
+      <div>
+        <div style="font-weight:600;font-size:clamp(22px,2.6vw,34px);letter-spacing:-.015em">Trade-In</div>
+        <div style="margin-top:8px;font-size:13px;color:rgba(244,241,236,.5)">Evaluare în aceeași zi · predai vechiul, pleci cu noul</div>
+      </div>
+      <span class="pk-arrow" style="font-size:26px;font-weight:200;transition:transform .35s ease;color:rgba(244,241,236,.6)">→</span>
+    </a>
+    <a class="pk-serv" href="https://wa.me/37300000000?text=Auto%20la%20comand%C4%83" style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:44px 4vw;border-bottom:1px solid rgba(255,255,255,.09);transition:background .3s ease;color:#F4F1EC">
+      <div>
+        <div style="font-weight:600;font-size:clamp(22px,2.6vw,34px);letter-spacing:-.015em">Auto la Comandă</div>
+        <div style="margin-top:8px;font-size:13px;color:rgba(244,241,236,.5)">Specificația ta, sursată din UE/SUA · livrare în 30–45 de zile</div>
+      </div>
+      <span class="pk-arrow" style="font-size:26px;font-weight:200;transition:transform .35s ease;color:rgba(244,241,236,.6)">→</span>
+    </a>
+  </section>
+
+  <section id="showroom" style="padding:clamp(72px,9vw,130px) 4vw;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:64px;align-items:center" data-screen-label="Showroom">
+    <div>
+      <div style="display:flex;align-items:baseline;gap:18px;margin-bottom:36px">
+        <span style="font-size:12px;font-weight:600;color:#E10600;letter-spacing:.1em">04</span>
+        <h2 style="margin:0;font-weight:600;font-size:clamp(26px,3vw,42px);letter-spacing:-.02em">Showroom Chișinău</h2>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div style="display:flex;justify-content:space-between;gap:24px;padding:18px 0;border-top:1px solid rgba(255,255,255,.12);font-size:14px">
+          <span style="color:rgba(244,241,236,.45)">Adresă</span><span style="text-align:right">str. Grigore Ureche 64, Centru</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:24px;padding:18px 0;border-top:1px solid rgba(255,255,255,.12);font-size:14px">
+          <span style="color:rgba(244,241,236,.45)">Program</span><span style="text-align:right">Lun–Sâm 09:00–19:00 · Duminică închis</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:24px;padding:18px 0;border-top:1px solid rgba(255,255,255,.12);border-bottom:1px solid rgba(255,255,255,.12);font-size:14px">
+          <span style="color:rgba(244,241,236,.45)">Telefon</span><a href="tel:+37300000000" style="text-align:right">{{ phone }}</a>
+        </div>
+      </div>
+      <div style="display:flex;gap:28px;margin-top:32px">
+        <a href="https://maps.google.com/?q=Grigore+Ureche+64+Chisinau" target="_blank" rel="noopener" style="font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.3);padding-bottom:5px">Indicații rutiere</a>
+        <a href="https://wa.me/37300000000" style="font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.3);padding-bottom:5px">Scrie-ne</a>
+      </div>
+    </div>
+    <div style="position:relative;aspect-ratio:4/3;background:#0F0F11;border:1px solid rgba(255,255,255,.09);overflow:hidden">
+      <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:56px 56px"></div>
+      <div style="position:absolute;left:20%;top:-10%;bottom:-10%;width:1px;background:rgba(255,255,255,.1);transform:rotate(18deg)"></div>
+      <div style="position:absolute;left:60%;top:-10%;bottom:-10%;width:1px;background:rgba(255,255,255,.14);transform:rotate(-24deg)"></div>
+      <div style="position:absolute;top:48%;left:-5%;right:-5%;height:1px;background:rgba(255,255,255,.14);transform:rotate(-6deg)"></div>
+      <div style="position:absolute;left:52%;top:44%;width:10px;height:10px;border-radius:50%;background:#E10600;animation:pkPulse 2.4s ease infinite"></div>
+      <div style="position:absolute;left:52%;top:44%;transform:translate(18px,-6px);background:#0A0A0B;border:1px solid rgba(255,255,255,.16);padding:10px 14px">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase">Peak Auto</div>
+        <div style="font-size:11px;color:rgba(244,241,236,.5);margin-top:3px">Grigore Ureche 64</div>
+      </div>
+      <div style="position:absolute;right:14px;bottom:12px;font-size:10px;letter-spacing:.14em;color:rgba(244,241,236,.3);font-family:monospace">47.0345° N · 28.8389° E</div>
+    </div>
+  </section>
+
+  <section style="padding:0 4vw clamp(72px,9vw,130px)" data-screen-label="Instagram">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-bottom:36px;flex-wrap:wrap">
+      <div style="display:flex;align-items:baseline;gap:18px">
+        <span style="font-size:12px;font-weight:600;color:#E10600;letter-spacing:.1em">05</span>
+        <h2 style="margin:0;font-weight:600;font-size:clamp(26px,3vw,42px);letter-spacing:-.02em">@peakauto.md</h2>
+      </div>
+      <a href="https://instagram.com/peakauto.md" target="_blank" rel="noopener" style="font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(244,241,236,.6)" style-hover="color:#F4F1EC">7.800+ urmăritori →</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:rgba(255,255,255,.09)">
+      <div style="aspect-ratio:1;overflow:hidden;background:#0A0A0B"><img src="https://images.unsplash.com/photo-1563694983011-6f4d90358083?w=600&amp;h=600&amp;q=70&amp;auto=format&amp;fit=crop" alt="Instagram" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:saturate(.68) contrast(1.12) brightness(.76);transition:transform .8s ease" style-hover="transform:scale(1.05)"></div>
+      <div style="aspect-ratio:1;overflow:hidden;background:#0A0A0B"><img src="https://images.unsplash.com/photo-1611651338412-8403fa6e3599?w=600&amp;h=600&amp;q=70&amp;auto=format&amp;fit=crop" alt="Instagram" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:saturate(.68) contrast(1.12) brightness(.76);transition:transform .8s ease" style-hover="transform:scale(1.05)"></div>
+      <div style="aspect-ratio:1;overflow:hidden;background:#0A0A0B"><img src="https://images.unsplash.com/photo-1520031441872-265e4ff70366?w=600&amp;h=600&amp;q=70&amp;auto=format&amp;fit=crop" alt="Instagram" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:saturate(.68) contrast(1.12) brightness(.76);transition:transform .8s ease" style-hover="transform:scale(1.05)"></div>
+      <div style="aspect-ratio:1;overflow:hidden;background:#0A0A0B"><img src="https://images.unsplash.com/photo-1613214149922-f1809c99b414?w=600&amp;h=600&amp;q=70&amp;auto=format&amp;fit=crop" alt="Instagram" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:saturate(.68) contrast(1.12) brightness(.76);transition:transform .8s ease" style-hover="transform:scale(1.05)"></div>
+      <div style="aspect-ratio:1;overflow:hidden;background:#0A0A0B"><img src="https://images.unsplash.com/photo-1606152421802-db97b9c7a11b?w=600&amp;h=600&amp;q=70&amp;auto=format&amp;fit=crop" alt="Instagram" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:saturate(.68) contrast(1.12) brightness(.76);transition:transform .8s ease" style-hover="transform:scale(1.05)"></div>
+    </div>
+  </section>
+
+  <section style="padding:clamp(90px,12vw,170px) 4vw;border-top:1px solid rgba(255,255,255,.09);text-align:center" data-screen-label="Closing CTA">
+    <p style="margin:0 0 10px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(18px,2vw,24px);color:rgba(244,241,236,.55)">Mașina ta e deja în drum spre Chișinău.</p>
+    <h2 style="margin:0 auto 44px;font-weight:600;font-size:clamp(32px,4.6vw,64px);letter-spacing:-.025em;max-width:20ch">Spune-ne ce cauți. De restul ne ocupăm noi.</h2>
+    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:16px">
+      <a href="https://wa.me/37300000000" style="display:inline-flex;align-items:center;background:#E10600;color:#fff;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:19px 36px" style-hover="background:#C00500;color:#fff">Scrie-ne pe WhatsApp</a>
+      <a href="tel:+37300000000" style="display:inline-flex;align-items:center;background:transparent;color:#F4F1EC;border:1px solid rgba(255,255,255,.28);font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:18px 36px" style-hover="border-color:#F4F1EC;color:#F4F1EC">{{ phone }}</a>
+    </div>
+  </section>
+
+</div>
+</sc-if>
+
+<sc-if value="{{ isInventory }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Inventory" style="padding-top:72px;min-height:100vh">
+  <section style="padding:clamp(48px,6vw,80px) 4vw 36px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:24px">
+      <div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:rgba(244,241,236,.45);margin-bottom:16px">Stoc verificat · Chișinău</div>
+        <h1 style="margin:0;font-weight:600;font-size:clamp(40px,6vw,84px);letter-spacing:-.03em;line-height:1">Automobile</h1>
+      </div>
+      <div style="font-size:13px;color:rgba(244,241,236,.5)"><span style="color:#F4F1EC;font-weight:600">{{ invCount }}</span> {{ invCountLabel }}</div>
+    </div>
+  </section>
+
+  <div style="position:sticky;top:72px;z-index:40;background:rgba(10,10,11,.96);border-top:1px solid rgba(255,255,255,.09);border-bottom:1px solid rgba(255,255,255,.09);padding:16px 4vw;display:flex;align-items:center;gap:28px;flex-wrap:wrap" data-screen-label="Filters">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <sc-for list="{{ brandChips }}" as="chip" hint-placeholder-count="5">
+        <button onClick="{{ chip.set }}" style="cursor:pointer;background:{{ chip.bg }};color:{{ chip.color }};border:1px solid {{ chip.border }};font-size:11.5px;font-weight:600;letter-spacing:.1em;padding:9px 16px;transition:all .25s ease" style-hover="border-color:rgba(255,255,255,.5)">{{ chip.label }}</button>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;margin-left:auto;align-items:center">
+      <select onChange="{{ onBody }}" aria-label="Caroserie">
+        <option value="all">Caroserie: toate</option>
+        <option value="SUV">SUV</option>
+        <option value="Coupé">Coupé</option>
+        <option value="Limuzină">Limuzină</option>
+      </select>
+      <select onChange="{{ onStatus }}" aria-label="Status">
+        <option value="all">Status: toate</option>
+        <option value="disponibil">Disponibil</option>
+        <option value="tranzit">În tranzit</option>
+        <option value="rezervat">Rezervat</option>
+        <option value="vandut">Vândut</option>
+      </select>
+      <select onChange="{{ onSort }}" aria-label="Sortare">
+        <option value="new">Cele mai recente</option>
+        <option value="priceAsc">Preț crescător</option>
+        <option value="priceDesc">Preț descrescător</option>
+        <option value="year">An fabricație</option>
+      </select>
+    </div>
+  </div>
+
+  <section style="padding:0 4vw clamp(72px,9vw,120px);margin-top:44px">
+    <sc-if value="{{ invLoading }}" hint-placeholder-val="{{ false }}">
+      <div class="pk-cars">
+        <sc-for list="{{ skeletons }}" as="sk" hint-placeholder-count="6">
+          <div style="background:#0A0A0B">
+            <div style="aspect-ratio:16/10;background:linear-gradient(90deg,#101012 25%,#17171a 50%,#101012 75%);background-size:800px 100%;animation:pkShimmer 1.4s linear infinite"></div>
+            <div style="padding:22px"><div style="height:14px;width:60%;background:#141416"></div><div style="height:10px;width:40%;background:#101012;margin-top:12px"></div></div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ invReady }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ invEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:120px 0;text-align:center">
+          <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:26px;color:rgba(244,241,236,.6);margin-bottom:20px">Niciun automobil nu corespunde filtrelor.</div>
+          <button onClick="{{ resetFilters }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,.28);color:#F4F1EC;font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:15px 28px" style-hover="border-color:#F4F1EC">Resetează filtrele</button>
+        </div>
+      </sc-if>
+      <div class="pk-cars">
+        <sc-for list="{{ invCars }}" as="car" hint-placeholder-count="9">
+          <div onClick="{{ car.open }}" style="background:#0A0A0B;cursor:pointer;position:relative">
+            <div style="position:relative;aspect-ratio:16/10;overflow:hidden">
+              <img src="{{ car.img }}" alt="{{ car.name }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:saturate(.68) contrast(1.12) brightness(.76);transition:transform .9s cubic-bezier(.2,.6,.2,1)" style-hover="transform:scale(1.045)">
+              <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,11,.34) 0%,rgba(10,10,11,.08) 40%,rgba(10,10,11,.58) 100%);pointer-events:none"></div>
+              <sc-if value="{{ car.showBadge }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;top:16px;left:16px;display:flex;align-items:center;gap:8px;background:rgba(10,10,11,.72);padding:7px 12px">
+                  <span style="width:5px;height:5px;border-radius:50%;background:{{ car.badgeDot }}"></span>
+                  <span style="font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#F4F1EC">{{ car.badge }}</span>
+                </div>
+              </sc-if>
+              <sc-if value="{{ car.sold }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;inset:0;background:rgba(10,10,11,.66);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+                  <span style="font-size:15px;font-weight:600;letter-spacing:.4em;text-transform:uppercase;color:#F4F1EC">{{ car.soldLabel }}</span>
+                  <span style="width:40px;height:1px;background:#E10600"></span>
+                </div>
+              </sc-if>
+            </div>
+            <div style="padding:22px 22px 26px;display:flex;flex-direction:column;gap:9px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px">
+                <span style="font-size:16px;font-weight:600;letter-spacing:-.01em">{{ car.name }}</span>
+                <span style="font-size:16px;font-weight:500;white-space:nowrap">{{ car.price }}</span>
+              </div>
+              <div style="font-size:11.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,241,236,.42)">{{ car.meta }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </section>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCar }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Car detail" style="padding-top:72px;min-height:100vh">
+  <div style="padding:28px 4vw 0">
+    <button onClick="{{ goInventory }}" style="cursor:pointer;background:none;border:none;color:rgba(244,241,236,.55);font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:0" style-hover="color:#F4F1EC">← Automobile</button>
+  </div>
+  <div class="pk-detail" style="padding:28px 4vw clamp(72px,9vw,120px)">
+
+    <div style="min-width:0">
+      <div style="position:relative;aspect-ratio:16/10;overflow:hidden;background:#060607;cursor:zoom-in" onClick="{{ openLb }}" data-screen-label="Gallery">
+        {{ galleryImgMain }}
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,11,.12),rgba(10,10,11,0) 30%,rgba(10,10,11,.25));pointer-events:none"></div>
+        <div style="position:absolute;right:18px;bottom:16px;background:rgba(10,10,11,.72);padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:.18em">{{ giLabel }}</div>
+        <button onClick="{{ prevImg }}" aria-label="Anterior" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);width:46px;height:46px;background:rgba(10,10,11,.6);border:1px solid rgba(255,255,255,.18);color:#F4F1EC;cursor:pointer;font-size:16px" style-hover="border-color:#F4F1EC">←</button>
+        <button onClick="{{ nextImg }}" aria-label="Următor" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);width:46px;height:46px;background:rgba(10,10,11,.6);border:1px solid rgba(255,255,255,.18);color:#F4F1EC;cursor:pointer;font-size:16px" style-hover="border-color:#F4F1EC">→</button>
+      </div>
+      <div class="pk-thumbs" style="display:flex;gap:1px;margin-top:1px;overflow-x:auto;scrollbar-width:none">
+        <sc-for list="{{ thumbs }}" as="th" hint-placeholder-count="6">
+          <div onClick="{{ th.set }}" style="flex:0 0 110px;aspect-ratio:16/10;overflow:hidden;cursor:pointer;opacity:{{ th.opacity }};outline:{{ th.outline }};outline-offset:-1px;transition:opacity .25s ease">
+            <img src="{{ th.src }}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:saturate(.68) contrast(1.12) brightness(.76)">
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="margin-top:64px" data-screen-label="Specs">
+        <h2 style="margin:0 0 8px;font-weight:600;font-size:24px;letter-spacing:-.015em">Specificații</h2>
+        <div class="pk-specs">
+          <sc-for list="{{ specGroups }}" as="grp" hint-placeholder-count="4">
+            <div style="margin-top:32px">
+              <div style="font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(244,241,236,.42);padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.14)">{{ grp.title }}</div>
+              <sc-for list="{{ grp.rows }}" as="row" hint-placeholder-count="4">
+                <div style="display:flex;justify-content:space-between;gap:24px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:14px">
+                  <span style="color:rgba(244,241,236,.5)">{{ row.k }}</span>
+                  <span style="text-align:right;font-weight:500">{{ row.v }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="margin-top:64px" data-screen-label="Equipment">
+        <h2 style="margin:0 0 24px;font-weight:600;font-size:24px;letter-spacing:-.015em">Dotări</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0 40px">
+          <sc-for list="{{ equip }}" as="eq" hint-placeholder-count="8">
+            <div style="display:flex;gap:14px;align-items:baseline;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:14px">
+              <span style="color:rgba(244,241,236,.35);font-size:12px">—</span><span>{{ eq.label }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="margin-top:64px;border:1px solid rgba(255,255,255,.12);padding:36px clamp(24px,3vw,44px)" data-screen-label="History">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap">
+          <div>
+            <h2 style="margin:0 0 10px;font-weight:600;font-size:24px;letter-spacing:-.015em">Istoric vehicul</h2>
+            <div style="font-size:13px;color:rgba(244,241,236,.5)">VIN {{ vin }} · verificat înainte de import</div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.2);padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase">Raport AutoDNA ✓</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:24px;margin-top:32px">
+          <div><div style="font-size:14px;font-weight:600">Fără accidente</div><div style="font-size:12.5px;color:rgba(244,241,236,.5);margin-top:5px">istoric daune curat</div></div>
+          <div><div style="font-size:14px;font-weight:600">1 proprietar</div><div style="font-size:12.5px;color:rgba(244,241,236,.5);margin-top:5px">carte service completă</div></div>
+          <div><div style="font-size:14px;font-weight:600">Origine: Germania</div><div style="font-size:12.5px;color:rgba(244,241,236,.5);margin-top:5px">dealer autorizat</div></div>
+          <div><div style="font-size:14px;font-weight:600">Rulaj certificat</div><div style="font-size:12.5px;color:rgba(244,241,236,.5);margin-top:5px">confirmat prin raport</div></div>
+        </div>
+        <a href="https://wa.me/37300000000?text=Solicit%20raportul%20de%20istoric" style="display:inline-block;margin-top:28px;font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.3);padding-bottom:5px">Solicită raportul complet</a>
+      </div>
+
+      <div style="margin-top:64px" data-screen-label="Calculator">
+        <h2 style="margin:0 0 8px;font-weight:600;font-size:24px;letter-spacing:-.015em">Calculator finanțare</h2>
+        <div style="font-size:13px;color:rgba(244,241,236,.5);margin-bottom:36px">Estimare orientativă · leasing prin bănci partenere din Moldova</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:48px;align-items:end">
+          <div style="display:flex;flex-direction:column;gap:36px">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:14px">
+                <span style="color:rgba(244,241,236,.5)">Avans</span><span style="font-weight:600">{{ calcDownPct }}% · {{ calcDownEur }}</span>
+              </div>
+              <input type="range" min="10" max="70" step="5" value="{{ calcDown }}" onInput="{{ onDown }}" aria-label="Avans">
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:14px">
+                <span style="color:rgba(244,241,236,.5)">Perioadă</span><span style="font-weight:600">{{ calcTerm }} luni</span>
+              </div>
+              <input type="range" min="12" max="84" step="12" value="{{ calcTerm }}" onInput="{{ onTerm }}" aria-label="Perioada">
+            </div>
+          </div>
+          <div style="border-left:1px solid rgba(255,255,255,.14);padding-left:clamp(24px,3vw,48px)">
+            <div style="font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(244,241,236,.42);margin-bottom:14px">Rata lunară estimată</div>
+            <div style="font-weight:250;font-size:clamp(44px,4.6vw,64px);line-height:1">{{ calcMonthly }} <span style="font-weight:200;font-size:.6em;color:rgba(244,241,236,.55)">€ / lună</span></div>
+            <div style="font-size:12px;color:rgba(244,241,236,.4);margin-top:14px;max-width:36ch">Dobândă orientativă 9% anual. Oferta finală aparține băncii partenere.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:80px" data-screen-label="Similar">
+        <h2 style="margin:0 0 32px;font-weight:600;font-size:24px;letter-spacing:-.015em">Automobile similare</h2>
+        <div class="pk-cars">
+          <sc-for list="{{ similar }}" as="car" hint-placeholder-count="3">
+            <div onClick="{{ car.open }}" style="background:#0A0A0B;cursor:pointer">
+              <div style="position:relative;aspect-ratio:16/10;overflow:hidden">
+                <img src="{{ car.img }}" alt="{{ car.name }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:saturate(.68) contrast(1.12) brightness(.76);transition:transform .9s cubic-bezier(.2,.6,.2,1)" style-hover="transform:scale(1.045)">
+              </div>
+              <div style="padding:20px 20px 24px;display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px">
+                  <span style="font-size:15px;font-weight:600">{{ car.name }}</span>
+                  <span style="font-size:15px;font-weight:500;white-space:nowrap">{{ car.price }}</span>
+                </div>
+                <div style="font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,241,236,.42)">{{ car.meta }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div class="pk-rail" style="position:sticky;top:104px" data-screen-label="CTA rail">
+      <sc-if value="{{ carBadgeShow }}" hint-placeholder-val="{{ false }}">
+        <div style="display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.18);padding:8px 14px;margin-bottom:20px">
+          <span style="width:5px;height:5px;border-radius:50%;background:{{ carBadgeDot }}"></span>
+          <span style="font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase">{{ carBadge }}</span>
+        </div>
+      </sc-if>
+      <h1 style="margin:0 0 10px;font-weight:600;font-size:clamp(26px,2.4vw,34px);letter-spacing:-.02em;line-height:1.12">{{ carName }}</h1>
+      <div style="font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,241,236,.45)">{{ carMeta }}</div>
+      <div style="margin:30px 0 6px;font-weight:300;font-size:clamp(38px,3.4vw,48px);line-height:1;color:#E10600">{{ carPrice }}</div>
+      <sc-if value="{{ showMdl }}" hint-placeholder-val="{{ true }}">
+        <div style="font-size:12px;color:rgba(244,241,236,.4)">{{ carMdl }}</div>
+      </sc-if>
+      <div style="font-size:13px;color:rgba(244,241,236,.55);margin-top:14px">de la <span style="font-weight:600;color:#F4F1EC">{{ carMonthly }} € / lună</span> · <a href="#calc" style="border-bottom:1px solid rgba(255,255,255,.3)">calculează</a></div>
+      <div style="height:1px;background:rgba(255,255,255,.12);margin:30px 0"></div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <a href="{{ waLink }}" style="display:flex;justify-content:center;background:#E10600;color:#fff;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:18px 20px" style-hover="background:#C00500;color:#fff">Scrie pe WhatsApp</a>
+        <a href="tel:+37300000000" style="display:flex;justify-content:center;background:transparent;border:1px solid rgba(255,255,255,.28);color:#F4F1EC;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:17px 20px" style-hover="border-color:#F4F1EC;color:#F4F1EC">Sună&nbsp;{{ phone }}</a>
+        <div style="display:flex;gap:12px">
+          <a href="https://t.me/peakauto" style="flex:1;display:flex;justify-content:center;border:1px solid rgba(255,255,255,.16);color:rgba(244,241,236,.7);font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:13px 8px" style-hover="border-color:#F4F1EC;color:#F4F1EC">Telegram</a>
+          <a href="viber://chat?number=+37300000000" style="flex:1;display:flex;justify-content:center;border:1px solid rgba(255,255,255,.16);color:rgba(244,241,236,.7);font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:13px 8px" style-hover="border-color:#F4F1EC;color:#F4F1EC">Viber</a>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,.12);margin:30px 0"></div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <a href="{{ reserveLink }}" style="display:flex;justify-content:center;background:transparent;border:1px solid rgba(255,255,255,.28);color:#F4F1EC;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:15px 20px" style-hover="border-color:#F4F1EC;color:#F4F1EC">Rezervă acest automobil</a>
+        <a href="{{ viewingLink }}" style="display:flex;justify-content:center;background:transparent;border:1px solid rgba(255,255,255,.28);color:#F4F1EC;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:15px 20px" style-hover="border-color:#F4F1EC;color:#F4F1EC">Programează o vizionare</a>
+      </div>
+      <div style="margin-top:26px;font-size:11.5px;line-height:1.7;color:rgba(244,241,236,.4)">Istoric verificat AutoDNA · VIN disponibil la cerere · Vămuire și înmatriculare incluse în preț</div>
+    </div>
+  </div>
+
+  <div class="pk-mbar" style="position:fixed;left:0;right:0;bottom:0;z-index:80;background:rgba(10,10,11,.97);border-top:1px solid rgba(255,255,255,.12);padding:12px 16px;gap:12px;align-items:center">
+    <div style="flex:1;min-width:0">
+      <div style="font-size:16px;font-weight:600;color:#E10600;line-height:1">{{ carPrice }}</div>
+      <div style="font-size:10.5px;color:rgba(244,241,236,.5);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ carName }}</div>
+    </div>
+    <a href="tel:+37300000000" style="display:flex;align-items:center;border:1px solid rgba(255,255,255,.28);color:#F4F1EC;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:14px 18px">Sună</a>
+    <a href="{{ waLink }}" style="display:flex;align-items:center;background:#E10600;color:#fff;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:15px 20px">WhatsApp</a>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ lbOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:150;background:rgba(6,6,7,.97);display:flex;align-items:center;justify-content:center" onClick="{{ closeLb }}" data-screen-label="Lightbox">
+    {{ galleryImgLb }}
+    <button onClick="{{ closeLb }}" aria-label="Închide" style="position:absolute;top:24px;right:28px;width:48px;height:48px;background:none;border:1px solid rgba(255,255,255,.25);color:#F4F1EC;font-size:18px;cursor:pointer">✕</button>
+    <button onClick="{{ prevImgStop }}" aria-label="Anterior" style="position:absolute;left:24px;top:50%;transform:translateY(-50%);width:52px;height:52px;background:none;border:1px solid rgba(255,255,255,.25);color:#F4F1EC;font-size:18px;cursor:pointer">←</button>
+    <button onClick="{{ nextImgStop }}" aria-label="Următor" style="position:absolute;right:24px;top:50%;transform:translateY(-50%);width:52px;height:52px;background:none;border:1px solid rgba(255,255,255,.25);color:#F4F1EC;font-size:18px;cursor:pointer">→</button>
+    <div style="position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:600;letter-spacing:.2em">{{ giLabel }}</div>
+  </div>
+</sc-if>
+
+<footer id="contact" style="border-top:1px solid rgba(255,255,255,.09);padding:clamp(56px,7vw,90px) 4vw 40px" data-screen-label="Footer">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:48px">
+    <div>
+      <div style="font-weight:800;font-size:19px;letter-spacing:.08em;color:#E10600;margin-bottom:18px">PEAKAUTO</div>
+      <p style="margin:0;font-size:13.5px;line-height:1.7;color:rgba(244,241,236,.5);max-width:32ch">Automobile premium și business class, importate și verificate. Showroom în centrul Chișinăului.</p>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(244,241,236,.42);margin-bottom:20px">Navigare</div>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:14px">
+        <a href="#/automobile" onClick="{{ goInventory }}">Automobile</a>
+        <a href="#servicii" onClick="{{ goServices }}">Credit &amp; Leasing</a>
+        <a href="#servicii" onClick="{{ goServices }}">Trade-In</a>
+        <a href="#servicii" onClick="{{ goServices }}">Auto la Comandă</a>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(244,241,236,.42);margin-bottom:20px">Contact</div>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:14px">
+        <a href="tel:+37300000000">{{ phone }}</a>
+        <a href="https://wa.me/37300000000">WhatsApp</a>
+        <a href="https://t.me/peakauto">Telegram</a>
+        <a href="https://instagram.com/peakauto.md" target="_blank" rel="noopener">Instagram · @peakauto.md</a>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(244,241,236,.42);margin-bottom:20px">Showroom</div>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:14px;color:rgba(244,241,236,.8)">
+        <span>str. Grigore Ureche 64, Centru, Chișinău</span>
+        <span>Lun–Sâm 09:00–19:00</span>
+        <span>Duminică închis</span>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-top:64px;padding-top:24px;border-top:1px solid rgba(255,255,255,.07);font-size:12px;color:rgba(244,241,236,.35)">
+    <span>© 2026 Peak Auto SRL. Toate drepturile rezervate.</span>
+    <span>Prețuri în EUR · TVA inclus unde este cazul</span>
+  </div>
+</footer>
+
+<a href="https://wa.me/37300000000" aria-label="WhatsApp" style="position:fixed;right:24px;bottom:24px;z-index:85;display:flex;align-items:center;gap:10px;background:#141416;border:1px solid rgba(255,255,255,.16);padding:14px 20px;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#F4F1EC" style-hover="border-color:#F4F1EC;color:#F4F1EC" class="pk-hide-m">
+  <span style="width:6px;height:6px;border-radius:50%;background:#25D366"></span> WhatsApp
+</a>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;phone&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;+373 XX XXX XXX&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contact&quot;},&quot;showMdl&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Prețuri&quot;},&quot;soldVisible&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Stoc&quot;}}">
+class Component extends DCLogic {
+  state = {
+    intro: false,
+    route: { page: 'home', carId: null },
+    lang: 'ro',
+    brand: 'all', body: 'all', status: 'all', sort: 'new',
+    invLoading: false,
+    gi: 0, lbOpen: false,
+    calcDown: 30, calcTerm: 60,
+  };
+
+  CARS = [
+    { id:'s450', make:'Mercedes-Benz', name:'Mercedes-Benz S 450 4MATIC', year:2024, price:185000, km:8500, cp:367, fuel:'Benzină', box:'9G-TRONIC', drive:'4MATIC', body:'Limuzină', status:'disponibil', vin:'W1K223…64', img:'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?w=1400&q=75&auto=format&fit=crop' },
+    { id:'lx600', make:'Lexus', name:'Lexus LX 600 Luxury', year:2023, price:139500, km:21000, cp:415, fuel:'Benzină', box:'Automată 10', drive:'4x4', body:'SUV', status:'disponibil', vin:'JTJHY7…31', img:'https://images.unsplash.com/photo-1563720223185-11003d516935?w=1400&q=75&auto=format&fit=crop' },
+    { id:'gle53', make:'Mercedes-Benz', name:'Mercedes-AMG GLE 53 Coupé', year:2023, price:112000, km:18500, cp:435, fuel:'Benzină MHEV', box:'9G-TRONIC', drive:'4MATIC+', body:'SUV', status:'rezervat', vin:'W1N167…88', img:'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=1400&q=75&auto=format&fit=crop' },
+    { id:'cayenne', make:'Porsche', name:'Porsche Cayenne S', year:2019, price:68500, km:74000, cp:440, fuel:'Benzină', box:'Tiptronic S', drive:'4x4', body:'SUV', status:'disponibil', vin:'WP1ZZZ…12', img:'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1400&q=75&auto=format&fit=crop' },
+    { id:'etrongt', make:'Audi', name:'Audi e-tron GT quattro', year:2022, price:89900, km:27000, cp:476, fuel:'Electric', box:'Automată', drive:'quattro', body:'Coupé', status:'tranzit', vin:'WAUZZZ…07', img:'https://images.unsplash.com/photo-1606152421802-db97b9c7a11b?w=1400&q=75&auto=format&fit=crop' },
+    { id:'g63', make:'Mercedes-Benz', name:'Mercedes-AMG G 63', year:2022, price:178000, km:31000, cp:585, fuel:'Benzină', box:'9G-TRONIC', drive:'4x4', body:'SUV', status:'disponibil', vin:'W1N463…29', img:'https://images.unsplash.com/photo-1520031441872-265e4ff70366?w=1400&q=75&auto=format&fit=crop' },
+    { id:'911', make:'Porsche', name:'Porsche 911 Carrera 4S', year:2020, price:124000, km:38000, cp:450, fuel:'Benzină', box:'PDK', drive:'4x4', body:'Coupé', status:'disponibil', vin:'WP0ZZZ…44', img:'https://images.unsplash.com/photo-1611651338412-8403fa6e3599?w=1400&q=75&auto=format&fit=crop' },
+    { id:'sq5', make:'Audi', name:'Audi SQ5 TDI', year:2021, price:54900, km:62000, cp:341, fuel:'Diesel', box:'Tiptronic', drive:'quattro', body:'SUV', status:'disponibil', vin:'WAUZZZ…73', img:'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=1400&q=75&auto=format&fit=crop' },
+    { id:'amggt', make:'Mercedes-Benz', name:'Mercedes-AMG GT S', year:2020, price:98000, km:29000, cp:522, fuel:'Benzină', box:'AMG DCT', drive:'RWD', body:'Coupé', status:'vandut', vin:'WDD190…18', img:'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1400&h=875&q=75&auto=format&fit=crop&crop=bottom&sat=-20&exp=-6' },
+    { id:'cls450', make:'Mercedes-Benz', name:'Mercedes-Benz CLS 450', year:2021, price:61500, km:47000, cp:367, fuel:'Benzină MHEV', box:'9G-TRONIC', drive:'4MATIC', body:'Coupé', status:'disponibil', vin:'WDD257…90', img:'https://images.unsplash.com/photo-1583267746897-2cf415887172?w=1400&q=75&auto=format&fit=crop&sat=-35&exp=-11' },
+    { id:'gt53', make:'Mercedes-Benz', name:'Mercedes-AMG GT 53 4-Door', year:2021, price:105000, km:33000, cp:435, fuel:'Benzină MHEV', box:'9G-TRONIC', drive:'4MATIC+', body:'Coupé', status:'rezervat', vin:'W1K290…55', img:'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1400&q=75&auto=format&fit=crop' },
+    { id:'bmw640', make:'BMW', name:'BMW 640i Gran Coupé', year:2019, price:43900, km:68000, cp:340, fuel:'Benzină', box:'Steptronic', drive:'xDrive', body:'Coupé', status:'disponibil', vin:'WBA6D0…21', img:'https://images.unsplash.com/photo-1523983388277-336a66bf9bcd?w=1400&q=75&auto=format&fit=crop' },
+  ];
+
+  DETAIL_SHOTS = [
+    'https://images.unsplash.com/photo-1563694983011-6f4d90358083?w=1600&q=78&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1610647752706-3bb12232b3ab?w=1600&q=78&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1600&q=78&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1613214149922-f1809c99b414?w=1600&q=78&auto=format&fit=crop',
+  ];
+
+  STATUS = {
+    disponibil: { ro:'Disponibil', ru:'В наличии', en:'Available', dot:'#C8BFAE', show:false },
+    rezervat:   { ro:'Rezervat', ru:'Бронь', en:'Reserved', dot:'#C8BFAE', show:true },
+    tranzit:    { ro:'În tranzit', ru:'В пути', en:'In transit', dot:'#F4F1EC', show:true },
+    vandut:     { ro:'Vândut', ru:'Продано', en:'Sold', dot:'#E10600', show:false },
+  };
+
+  fmtEur(n) { return n.toLocaleString('ro-RO').replace(/\u00a0/g, '.') + ' €'; }
+  fmtNum(n) { return n.toLocaleString('ro-RO'); }
+
+  monthly(price, downPct, term) {
+    const p = price * (1 - downPct / 100), r = 0.09 / 12;
+    const f = Math.pow(1 + r, term);
+    return Math.round(p * r * f / (f - 1));
+  }
+
+  mapCar(c) {
+    const st = this.STATUS[c.status], lang = this.state.lang;
+    return {
+      img: c.img, name: c.name,
+      price: this.fmtEur(c.price),
+      meta: c.year + ' · ' + this.fmtNum(c.km) + ' km · ' + c.cp + ' CP',
+      badge: st[lang], badgeDot: st.dot,
+      showBadge: st.show && c.status !== 'vandut',
+      sold: c.status === 'vandut',
+      soldLabel: this.STATUS.vandut[lang],
+      open: () => this.goto('car', c.id),
+    };
+  }
+
+  goto(page, carId) {
+    this.setState({ route: { page, carId: carId || null }, gi: 0, lbOpen: false, invLoading: page === 'inventory' }, () => {
+      window.scrollTo(0, 0);
+      const h = page === 'home' ? '#/' : page === 'inventory' ? '#/automobile' : '#/auto/' + carId;
+      if (location.hash !== h) { this._silent = true; location.hash = h; }
+      if (page === 'inventory') {
+        clearTimeout(this._skelT);
+        this._skelT = setTimeout(() => this.setState({ invLoading: false }), 450);
+      }
+      requestAnimationFrame(() => this.initFx());
+    });
+  }
+
+  scrollHome(anchor) {
+    const go = () => {
+      const el = document.getElementById(anchor);
+      if (el) { const y = el.getBoundingClientRect().top + window.scrollY - 80; window.scrollTo({ top: y, behavior: 'smooth' }); }
+    };
+    if (this.state.route.page !== 'home') { this.goto('home'); setTimeout(go, 120); } else go();
+  }
+
+  componentDidMount() {
+    try {
+      if (!sessionStorage.getItem('pk-intro')) {
+        this.setState({ intro: true });
+        setTimeout(() => { this.setState({ intro: false }); try { sessionStorage.setItem('pk-intro', '1'); } catch (e) {} }, 1500);
+      }
+    } catch (e) {}
+
+    this._onScroll = () => {
+      const h = document.getElementById('pk-header');
+      if (h) {
+        const on = window.scrollY > 40;
+        h.style.background = on ? 'rgba(10,10,11,.94)' : 'transparent';
+        h.style.borderBottomColor = on ? 'rgba(255,255,255,.09)' : 'transparent';
+      }
+      const story = document.getElementById('pk-story');
+      if (story) {
+        const r = story.getBoundingClientRect();
+        const total = r.height - window.innerHeight;
+        const p = Math.min(1, Math.max(0, -r.top / total));
+        const scenes = story.querySelectorAll('[data-scene]');
+        const w = 0.09;
+        scenes.forEach((el) => {
+          const i = +el.dataset.scene;
+          let o = 0;
+          if (i === 0) o = p < 0.33 ? 1 : Math.max(0, 1 - (p - 0.33) / w);
+          else if (i === 1) o = p < 0.33 ? 0 : p < 0.66 ? Math.min(1, (p - 0.33) / w) : Math.max(0, 1 - (p - 0.66) / w);
+          else o = p < 0.66 ? 0 : Math.min(1, (p - 0.66) / w);
+          el.style.opacity = o;
+          el.style.pointerEvents = o > 0.5 ? 'auto' : 'none';
+        });
+        const bar = document.getElementById('pk-story-bar');
+        if (bar) bar.style.width = (p * 100) + '%';
+      }
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+    this._onScroll();
+
+    this._onHash = () => {
+      if (this._silent) { this._silent = false; return; }
+      const m = location.hash.match(/^#\/auto\/(.+)$/);
+      if (m) this.goto('car', m[1]);
+      else if (location.hash === '#/automobile') this.goto('inventory');
+      else if (location.hash === '#/' || location.hash === '') this.goto('home');
+    };
+    window.addEventListener('hashchange', this._onHash);
+    this._onHash();
+
+    this._onKey = (e) => {
+      if (this.state.route.page !== 'car') return;
+      if (e.key === 'Escape' && this.state.lbOpen) this.setState({ lbOpen: false });
+      if (e.key === 'ArrowRight') this.stepImg(1);
+      if (e.key === 'ArrowLeft') this.stepImg(-1);
+    };
+    window.addEventListener('keydown', this._onKey);
+
+    this.initFx();
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this._onScroll);
+    window.removeEventListener('hashchange', this._onHash);
+    window.removeEventListener('keydown', this._onKey);
+  }
+
+  initFx() {
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelectorAll('[data-tick]').forEach((el) => {
+      if (el.dataset.done) return;
+      el.dataset.done = '1';
+      const target = parseFloat(el.dataset.tick), dec = +(el.dataset.dec || 0);
+      if (reduce) { el.textContent = target.toFixed(dec); return; }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((en) => {
+          if (!en.isIntersecting) return;
+          io.disconnect();
+          const t0 = performance.now(), dur = 1100;
+          const step = (t) => {
+            const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+            el.textContent = (target * e).toFixed(dec);
+            if (p < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        });
+      }, { threshold: 0.4 });
+      io.observe(el);
+    });
+  }
+
+  activeCar() {
+    return this.CARS.find((c) => c.id === this.state.route.carId) || this.CARS[0];
+  }
+
+  gallery(c) { return [c.img].concat(this.DETAIL_SHOTS); }
+
+  stepImg(d) {
+    const n = this.gallery(this.activeCar()).length;
+    this.setState((s) => ({ gi: (s.gi + d + n) % n }));
+  }
+
+  renderVals() {
+    const s = this.state, lang = s.lang;
+    const page = s.route.page;
+    const phone = this.props.phone ?? '+373 XX XXX XXX';
+    const showMdl = this.props.showMdl ?? true;
+    const soldVisible = this.props.soldVisible ?? true;
+
+    const teaserIds = ['s450', 'lx600', 'gle53', 'cayenne', 'etrongt', 'g63'];
+    const teaserCars = teaserIds.map((id) => this.mapCar(this.CARS.find((c) => c.id === id)));
+
+    let inv = this.CARS.filter((c) =>
+      (soldVisible || c.status !== 'vandut') &&
+      (s.brand === 'all' || c.make === s.brand) &&
+      (s.body === 'all' || c.body === s.body || (s.body === 'Coupé' && c.body === 'Coupé')) &&
+      (s.status === 'all' || c.status === s.status)
+    );
+    if (s.sort === 'priceAsc') inv = inv.slice().sort((a, b) => a.price - b.price);
+    else if (s.sort === 'priceDesc') inv = inv.slice().sort((a, b) => b.price - a.price);
+    else if (s.sort === 'year') inv = inv.slice().sort((a, b) => b.year - a.year);
+
+    const brands = ['all', 'Mercedes-Benz', 'Audi', 'Porsche', 'Lexus', 'BMW'];
+    const brandChips = brands.map((b) => ({
+      label: b === 'all' ? (lang === 'ru' ? 'Все марки' : lang === 'en' ? 'All makes' : 'Toate mărcile') : b,
+      bg: s.brand === b ? '#F4F1EC' : 'transparent',
+      color: s.brand === b ? '#0A0A0B' : 'rgba(244,241,236,.7)',
+      border: s.brand === b ? '#F4F1EC' : 'rgba(255,255,255,.2)',
+      set: () => this.setState({ brand: b }),
+    }));
+
+    const car = this.activeCar();
+    const st = this.STATUS[car.status];
+    const gal = this.gallery(car);
+    const gi = Math.min(s.gi, gal.length - 1);
+    const monthlyDefault = this.monthly(car.price, 30, 60);
+    const calcMonthly = this.monthly(car.price, s.calcDown, s.calcTerm);
+
+    const specGroups = [
+      { title: 'Motor & performanță', rows: [
+        { k: 'Putere', v: car.cp + ' CP' },
+        { k: 'Combustibil', v: car.fuel },
+        { k: 'Cutie de viteze', v: car.box },
+        { k: 'Tracțiune', v: car.drive },
+      ]},
+      { title: 'Stare & istoric', rows: [
+        { k: 'An fabricație', v: String(car.year) },
+        { k: 'Rulaj', v: this.fmtNum(car.km) + ' km' },
+        { k: 'Proprietari', v: '1' },
+        { k: 'Origine', v: 'Germania' },
+      ]},
+      { title: 'Caroserie', rows: [
+        { k: 'Tip', v: car.body },
+        { k: 'Exterior', v: 'Obsidian Black metalizat' },
+        { k: 'Interior', v: 'Piele Nappa, negru' },
+        { k: 'Locuri', v: '5' },
+      ]},
+      { title: 'Garanții', rows: [
+        { k: 'Istoric', v: 'AutoDNA verificat' },
+        { k: 'Accidente', v: 'Fără' },
+        { k: 'Garanție', v: '12 luni contractuală' },
+        { k: 'Acte', v: 'Vămuit, gata de înmatriculare' },
+      ]},
+    ];
+
+    const equip = ['Pachet AMG Line', 'Sistem audio Burmester 3D', 'Faruri DIGITAL LIGHT', 'Trapă panoramică', 'Scaune ventilate cu masaj', 'Suspensie AIRMATIC', 'Keyless-Go', 'Head-Up Display', 'Cameră 360°', 'DISTRONIC adaptiv', 'Volan încălzit', 'Ambient light 64 culori'].map((e) => ({ label: e }));
+
+    let simList = this.CARS.filter((c) => c.id !== car.id && (c.make === car.make || c.body === car.body) && c.status !== 'vandut');
+    if (simList.length < 3) {
+      const extra = this.CARS.filter((c) => c.id !== car.id && c.status !== 'vandut' && simList.indexOf(c) === -1);
+      simList = simList.concat(extra);
+    }
+    const similar = simList.slice(0, 3).map((c) => this.mapCar(c));
+
+    const waText = encodeURIComponent('Bună ziua! Mă interesează ' + car.name + ' (' + car.year + ').');
+
+    return {
+      intro: s.intro,
+      isHome: page === 'home', isInventory: page === 'inventory', isCar: page === 'car',
+      isRo: lang === 'ro', isRu: lang === 'ru', isEn: lang === 'en',
+      setRo: () => this.setState({ lang: 'ro' }),
+      setRu: () => this.setState({ lang: 'ru' }),
+      setEn: () => this.setState({ lang: 'en' }),
+      roColor: lang === 'ro' ? '#F4F1EC' : 'rgba(244,241,236,.38)',
+      ruColor: lang === 'ru' ? '#F4F1EC' : 'rgba(244,241,236,.38)',
+      enColor: lang === 'en' ? '#F4F1EC' : 'rgba(244,241,236,.38)',
+      phone, showMdl,
+
+      goHome: (e) => { if (e && e.preventDefault) e.preventDefault(); this.goto('home'); },
+      goInventory: (e) => { if (e && e.preventDefault) e.preventDefault(); this.goto('inventory'); },
+      goServices: (e) => { if (e && e.preventDefault) e.preventDefault(); this.scrollHome('servicii'); },
+      goShowroom: (e) => { if (e && e.preventDefault) e.preventDefault(); this.scrollHome('showroom'); },
+      goContact: (e) => { if (e && e.preventDefault) e.preventDefault(); this.scrollHome('contact'); },
+      openFlagship: () => this.goto('car', 's450'),
+
+      teaserCars,
+      invCars: inv.map((c) => this.mapCar(c)),
+      invCount: inv.length,
+      invCountLabel: lang === 'ru' ? 'автомобилей в наличии' : lang === 'en' ? 'cars in stock' : 'automobile în stoc',
+      invLoading: s.invLoading,
+      invReady: !s.invLoading,
+      invEmpty: inv.length === 0,
+      skeletons: [1, 2, 3, 4, 5, 6],
+      onBody: (e) => this.setState({ body: e.target.value }),
+      onStatus: (e) => this.setState({ status: e.target.value }),
+      onSort: (e) => this.setState({ sort: e.target.value }),
+      resetFilters: () => this.setState({ brand: 'all', body: 'all', status: 'all', sort: 'new' }),
+      brandChips,
+
+      carName: car.name,
+      carMeta: car.year + ' · ' + this.fmtNum(car.km) + ' km · ' + car.cp + ' CP · ' + car.fuel,
+      carPrice: this.fmtEur(car.price),
+      carMdl: '≈ ' + this.fmtNum(Math.round(car.price * 19.3 / 1000) * 1000) + ' MDL',
+      carMonthly: this.fmtNum(monthlyDefault),
+      carBadge: st[lang], carBadgeDot: st.dot,
+      carBadgeShow: car.status !== 'disponibil',
+      vin: car.vin,
+      galleryReady: true,
+      galleryMain: gal[gi],
+      galleryImgMain: React.createElement('img', { src: gal[gi], alt: car.name, style: { width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(.68) contrast(1.12) brightness(.78)' } }),
+      galleryImgLb: React.createElement('img', { src: gal[gi], alt: car.name, style: { maxWidth: '92vw', maxHeight: '86vh', objectFit: 'contain', filter: 'saturate(.8) contrast(1.07) brightness(.95)' } }),
+      giLabel: (gi + 1) + ' / ' + gal.length,
+      nextImg: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.stepImg(1); },
+      prevImg: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.stepImg(-1); },
+      nextImgStop: (e) => { e.stopPropagation(); this.stepImg(1); },
+      prevImgStop: (e) => { e.stopPropagation(); this.stepImg(-1); },
+      thumbs: gal.map((src, i) => ({
+        src, opacity: i === gi ? 1 : 0.45,
+        outline: i === gi ? '1px solid #E10600' : 'none',
+        set: () => this.setState({ gi: i }),
+      })),
+      openLb: () => this.setState({ lbOpen: true }),
+      closeLb: () => this.setState({ lbOpen: false }),
+      lbOpen: s.lbOpen,
+      specGroups, equip, similar,
+      waLink: 'https://wa.me/37300000000?text=' + waText,
+      reserveLink: 'https://wa.me/37300000000?text=' + encodeURIComponent('Vreau să rezerv ' + car.name + '.'),
+      viewingLink: 'https://wa.me/37300000000?text=' + encodeURIComponent('Vreau să programez o vizionare pentru ' + car.name + '.'),
+
+      calcDown: s.calcDown, calcTerm: s.calcTerm,
+      calcDownPct: s.calcDown,
+      calcDownEur: this.fmtEur(Math.round(car.price * s.calcDown / 100)),
+      calcMonthly: this.fmtNum(calcMonthly),
+      onDown: (e) => this.setState({ calcDown: +e.target.value }),
+      onTerm: (e) => this.setState({ calcTerm: +e.target.value }),
+    };
+  }
+}
+</script>
+</body>
+</html>
