@@ -4,6 +4,81 @@
    "count": 80,
    "ads": [
     {
+     "id": "102939198",
+     "title": "BMW X6",
+     "price": {
+      "value": {
+       "bargain": false,
+       "down_payment": 0,
+       "measurement": "UNIT_EUR",
+       "mode": "PM_FIXED",
+       "unit": "UNIT_EUR",
+       "value": 60000
+      }
+     },
+     "images": {
+      "value": [
+       "bc0ae699d54339155d37a1494484efc5.jpg",
+       "ef26d8ef60ed900f31d8709d3e6a5c44.jpg",
+       "afd4bc82c4e096624f67fd9fecc5d467.jpg",
+       "785fc57d86acc3d18f57d54bf7c4ba93.jpg",
+       "de70e1f750ece8a528464a5a86e9301c.jpg",
+       "7990f77216b1901cfb0ba5337aeacc9e.jpg",
+       "3a3f00a9d2915fe392161ae45ef94f3b.jpg",
+       "68102805a600405a38149f1012be7e28.jpg",
+       "069d505d19593f40ffb841f531df6356.jpg",
+       "ba102a344628fd3287189fbe0b2a4b08.jpg",
+       "da720adff6527d50ed010775b70c0862.jpg",
+       "0383c8363423e9d1658587da2abb99c2.jpg",
+       "155327306ed6cdffdc260c44f63508ce.jpg",
+       "2fd3fb804503f62f16a83f71a3694f2a.jpg",
+       "bc08736af636226faff4e4b1131d0f1a.jpg",
+       "1b5f55a5efc327d30a157df0a041eb35.jpg",
+       "73ddbc56685a804a56d2913a6c15be69.jpg",
+       "238c1f0c30408deafba66187fa9eecae.jpg",
+       "3714fd3bb3d464987b0fbd29bb534089.jpg",
+       "2bd7e818886f54329e24593d904de3ca.jpg"
+      ]
+     },
+     "carFuel": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Diesel",
+        "mobile": "Dsl"
+       },
+       "translated": "Diesel",
+       "value": 24
+      }
+     },
+     "carDrive": {
+      "value": {
+       "abbreviations": {},
+       "translated": "4x4",
+       "value": 17
+      }
+     },
+     "carTransmission": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Aut.",
+        "mobile": "Aut."
+       },
+       "translated": "Automată",
+       "value": 16
+      }
+     },
+     "mileage": {
+      "value": {
+       "unit": "UNIT_KILOMETER",
+       "value": 89715
+      }
+     },
+     "engineVolume": null,
+     "transportYear": {
+      "value": 2020
+     }
+    },
+    {
      "id": "102753765",
      "title": "Mercedes S-Class",
      "price": {
@@ -74,6 +149,663 @@
      "engineVolume": null,
      "transportYear": {
       "value": 2024
+     }
+    },
+    {
+     "id": "104147294",
+     "title": "BMW X7",
+     "price": {
+      "value": {
+       "bargain": false,
+       "down_payment": 0,
+       "measurement": "UNIT_EUR",
+       "mode": "PM_FIXED",
+       "unit": "UNIT_EUR",
+       "value": 65000
+      }
+     },
+     "images": {
+      "value": [
+       "b6dbf3fbb1ed2349c8e62957e61bf88a.jpg",
+       "e4b3dc62b953a504e8bff8a21dae876f.jpg",
+       "b3efafe20de5e7a818a881db90c37f7d.jpg",
+       "9723ddf2d9350c2c24c27ece048e2f0b.jpg",
+       "3de0660f0ccf62c2e60909c1dc68a38f.jpg",
+       "61662c437f08f50b6765783e78d63ae4.jpg",
+       "cd11bdd906228930966e718ec47cf6d5.jpg",
+       "fb83bcb62535b981f9423145f4b06983.jpg",
+       "93534c9789dd7776c63a4d3e5a00553a.jpg",
+       "1be97489ecc8ce2511c1325c981a442e.jpg",
+       "53b2242e2c4490d2f5cf0fc15a5ecfc6.jpg",
+       "eff1d1753baeae4611a5c31ab2b737e7.jpg",
+       "f09f043ced55db6a75415021e4eaecf9.jpg",
+       "6b045b580c8c22b196e6d949f3725a7f.jpg",
+       "20f2d056d4f4d7d50d16043b2f9102b0.jpg",
+       "7bbccf017110c8d6f25e863d68a73f69.jpg"
+      ]
+     },
+     "carFuel": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Diesel",
+        "mobile": "Dsl"
+       },
+       "translated": "Diesel",
+       "value": 24
+      }
+     },
+     "carDrive": {
+      "value": {
+       "abbreviations": {},
+       "translated": "4x4",
+       "value": 17
+      }
+     },
+     "carTransmission": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Aut.",
+        "mobile": "Aut."
+       },
+       "translated": "Automată",
+       "value": 16
+      }
+     },
+     "mileage": {
+      "value": {
+       "unit": "UNIT_KILOMETER",
+       "value": 71561
+      }
+     },
+     "engineVolume": null,
+     "transportYear": {
+      "value": 2020
+     }
+    },
+    {
+     "id": "104153436",
+     "title": "Mercedes S-Class",
+     "price": {
+      "value": {
+       "bargain": false,
+       "down_payment": 0,
+       "measurement": "UNIT_EUR",
+       "mode": "PM_FIXED",
+       "unit": "UNIT_EUR",
+       "value": 49000
+      }
+     },
+     "images": {
+      "value": [
+       "4c04f29353eac23dc063fe6113456691.jpg",
+       "0d971903023ebc8b8e164751ec6d3ddb.jpg",
+       "8090864a49bba8a986847c5118e84a62.jpg",
+       "72a5b9fee87b9432800a1e2d8ecc8111.jpg",
+       "b8cf4c50ff73597fc9dfaf736070caf6.jpg",
+       "3be8e41647f37c5020ec550076783009.jpg",
+       "698df6a4db710c00bbd8aca1f071710d.jpg",
+       "3a4e253e342842a1a96270023ab20c94.jpg",
+       "14bbdc50f6f87801c39ba6a7a49b18a0.jpg",
+       "9dd1d6499f9847b32fce466408a44309.jpg",
+       "31ea792954d512d0ef2dd15794722e8f.jpg",
+       "1d65e6577d8e42e75ef09035832157ba.jpg",
+       "b5e6ab48e126630554d08c0e1bcf7e27.jpg",
+       "8c4efefd3e3212c5931ad186cb824590.jpg",
+       "ebd0072ba963fcba221eeca72c22f921.jpg",
+       "34a838d86a0186bfd5981527e14e18a3.jpg",
+       "2685c7e1b8afef97eaca79f846fafa1c.jpg"
+      ]
+     },
+     "carFuel": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Diesel",
+        "mobile": "Dsl"
+       },
+       "translated": "Diesel",
+       "value": 24
+      }
+     },
+     "carDrive": {
+      "value": {
+       "abbreviations": {},
+       "translated": "4x4",
+       "value": 17
+      }
+     },
+     "carTransmission": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Aut.",
+        "mobile": "Aut."
+       },
+       "translated": "Automată",
+       "value": 16
+      }
+     },
+     "mileage": {
+      "value": {
+       "unit": "UNIT_KILOMETER",
+       "value": 135712
+      }
+     },
+     "engineVolume": null,
+     "transportYear": {
+      "value": 2017
+     }
+    },
+    {
+     "id": "104548893",
+     "title": "Skoda Kodiaq",
+     "price": {
+      "value": {
+       "bargain": false,
+       "down_payment": 0,
+       "measurement": "UNIT_EUR",
+       "mode": "PM_FIXED",
+       "unit": "UNIT_EUR",
+       "value": 43499
+      }
+     },
+     "images": {
+      "value": [
+       "e9245e11c36696f6757a9ce5f9e98df2.jpg",
+       "b7e2f48c819326403d489f494fa6678e.jpg",
+       "54872371f3cc9d59f294ff50e2df4bbe.jpg",
+       "1b257b9d29131ef480ab9b2d5d94993f.jpg",
+       "455636ee9895c8c6b18cbfda2033ef54.jpg",
+       "ffab93569b8d4cbbec49f0118496fdca.jpg",
+       "43a3e7d79a6f6e60ac41eba9dca4a07b.jpg",
+       "c780ccbfb4164261aa9753cfa7f64727.jpg",
+       "00636625d1a51c29e2b15ba8a3e9c4c7.jpg",
+       "3fd6d685894eeff19293bdd128ef5bdd.jpg",
+       "139d1c66b196407366a1b3394849232f.jpg",
+       "f47b2d9fd2342329ab1375d3927ea62d.jpg",
+       "86bdcc2367daf3653ff80225170fc6c0.jpg",
+       "ec8517659bf7cecc65b015f32ec1ce3c.jpg",
+       "6c937710cd85e457fccd239156606ca9.jpg",
+       "13dba94d273d859bc115cb6a7735ecf8.jpg",
+       "5df2c450bdd2b7604214a9fe7f707403.jpg"
+      ]
+     },
+     "carFuel": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Diesel",
+        "mobile": "Dsl"
+       },
+       "translated": "Diesel",
+       "value": 24
+      }
+     },
+     "carDrive": {
+      "value": {
+       "abbreviations": {},
+       "translated": "4x4",
+       "value": 17
+      }
+     },
+     "carTransmission": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Aut.",
+        "mobile": "Aut."
+       },
+       "translated": "Automată",
+       "value": 16
+      }
+     },
+     "mileage": {
+      "value": {
+       "unit": "UNIT_KILOMETER",
+       "value": 14688
+      }
+     },
+     "engineVolume": null,
+     "transportYear": {
+      "value": 2025
+     }
+    },
+    {
+     "id": "102588905",
+     "title": "Land Rover Range Rover Velar",
+     "price": {
+      "value": {
+       "bargain": false,
+       "down_payment": 0,
+       "measurement": "UNIT_EUR",
+       "mode": "PM_FIXED",
+       "unit": "UNIT_EUR",
+       "value": 35000
+      }
+     },
+     "images": {
+      "value": [
+       "9743932bd66ff4edbf2a1c35133ddbd2.jpg",
+       "aff3f458454351f00079e76ba4f25045.jpg",
+       "3e4c6fb87f06ff5228b29ed0746cffd8.jpg",
+       "cba116f494e6efcb3ed82edf1ae47685.jpg",
+       "3c72edafe7dbf4a35641833593ac4795.jpg",
+       "ff5de32e59cf3689bd8e3afce4a02e4d.jpg",
+       "e3c81bc7707a76ebdd068dabb00afdb2.jpg",
+       "ed3e83ae8b11702b60f5a21eee3264f9.jpg",
+       "4e79b35f132e8fd5f0f52a834186ed3f.jpg",
+       "799e94d32193587df94798438fa422c7.jpg",
+       "6ddafd9cdd5102572109a5dfec7cfdd4.jpg",
+       "2980b4e97ed58300e15709a50f326ab9.jpg",
+       "0836f5019b7b4d6974855250860e6c3b.jpg",
+       "8a30d4afe1538272be572ce88b295814.jpg",
+       "a45007370107ea10bf350392423fd7a2.jpg",
+       "bbd3185bbcd7918b6e362f66d1e1feef.jpg"
+      ]
+     },
+     "carFuel": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Benzină",
+        "mobile": "Benz. "
+       },
+       "translated": "Benzină",
+       "value": 10
+      }
+     },
+     "carDrive": {
+      "value": {
+       "abbreviations": {},
+       "translated": "4x4",
+       "value": 17
+      }
+     },
+     "carTransmission": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Aut.",
+        "mobile": "Aut."
+       },
+       "translated": "Automată",
+       "value": 16
+      }
+     },
+     "mileage": {
+      "value": {
+       "unit": "UNIT_KILOMETER",
+       "value": 79633
+      }
+     },
+     "engineVolume": null,
+     "transportYear": {
+      "value": 2017
+     }
+    },
+    {
+     "id": "104153976",
+     "title": "Land Rover Discovery",
+     "price": {
+      "value": {
+       "bargain": false,
+       "down_payment": 0,
+       "measurement": "UNIT_EUR",
+       "mode": "PM_FIXED",
+       "unit": "UNIT_EUR",
+       "value": 27000
+      }
+     },
+     "images": {
+      "value": [
+       "cf4be733f6299470cc703371c14f6c97.jpg",
+       "c2bf6aeb91e68e81442b8dffcb5dd996.jpg",
+       "dbc4366165551f313ec442609b38ae0d.jpg",
+       "97fc82db05b452c7e46b5fcb148bed18.jpg",
+       "2b76802563fff20fc2a6d066483ee3e5.jpg",
+       "9a22f503501f4d3412eff1b6e3134a4e.jpg",
+       "1cb2a664b395dedb2ab0a0fd323d5b2c.jpg",
+       "7d9ee65034bfdf3d5ab8aa20fb7c1a59.jpg",
+       "e859616bcf832acec344b1894e656eba.jpg",
+       "fc7d5284fb18d50bb82cb4630dd0d973.jpg",
+       "78138f763035a4712e22aa29cd8d7525.jpg",
+       "f33a73b1db5c94ebf25cef8d80b71900.jpg",
+       "0356c12fa92aa1b8ee3d19d46fb2498b.jpg",
+       "71836f7e30c47b341d1f7ce8f6c4f6fc.jpg",
+       "b1755ed7f48d4cc2e53586ff49867c26.jpg",
+       "c64488459fee7925e3ee187f1a2e2a6a.jpg",
+       "5d511d72a966b98e188c950b3c1aa9ac.jpg"
+      ]
+     },
+     "carFuel": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Benzină",
+        "mobile": "Benz. "
+       },
+       "translated": "Benzină",
+       "value": 10
+      }
+     },
+     "carDrive": {
+      "value": {
+       "abbreviations": {},
+       "translated": "4x4",
+       "value": 17
+      }
+     },
+     "carTransmission": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Aut.",
+        "mobile": "Aut."
+       },
+       "translated": "Automată",
+       "value": 16
+      }
+     },
+     "mileage": {
+      "value": {
+       "unit": "UNIT_KILOMETER",
+       "value": 84631
+      }
+     },
+     "engineVolume": null,
+     "transportYear": {
+      "value": 2018
+     }
+    },
+    {
+     "id": "103756216",
+     "title": "Audi Q5 Sportback",
+     "price": {
+      "value": {
+       "bargain": false,
+       "down_payment": 0,
+       "measurement": "UNIT_EUR",
+       "mode": "PM_FIXED",
+       "unit": "UNIT_EUR",
+       "value": 45000
+      }
+     },
+     "images": {
+      "value": [
+       "c74d8acacb9986bf5517cb31183c0db2.jpg",
+       "6f2f730c7a3840e7be923e9c31c2163c.jpg",
+       "96f8d9f91f3371879aff447483656f39.jpg",
+       "aa17a6ca800d6d15daf11d8504664244.jpg",
+       "e591f2975a625a46895cac215c30e630.jpg",
+       "8c5e41f71939f0a06f67badcb39deda5.jpg",
+       "8c498937e3b5351fa2161452b142ba12.jpg",
+       "ab71c34c5772711ebe04dc692aaadf45.jpg",
+       "1d9bbd259a4bd2199e34280f67c1012a.jpg",
+       "690a649cdcbb3ef0f48bd3bec5d335f1.jpg",
+       "b474405f188cec8860191061b0a3f16a.jpg",
+       "9975c64280455c5238a8365ac269cee4.jpg",
+       "843e8b81fb22533d1302fffe46c4532e.jpg",
+       "3f8866e2eef187fd3b68fe57d81fe44a.jpg",
+       "fa9732a8de664b774f3286568b928549.jpg"
+      ]
+     },
+     "carFuel": {
+      "value": {
+       "abbreviations": {
+        "desktop": "PHEV",
+        "mobile": "PHEV"
+       },
+       "translated": "Plug-in Hybrid (benzină)",
+       "value": 22987
+      }
+     },
+     "carDrive": {
+      "value": {
+       "abbreviations": {},
+       "translated": "4x4",
+       "value": 17
+      }
+     },
+     "carTransmission": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Aut.",
+        "mobile": "Aut."
+       },
+       "translated": "Automată",
+       "value": 16
+      }
+     },
+     "mileage": {
+      "value": {
+       "unit": "UNIT_KILOMETER",
+       "value": 11187
+      }
+     },
+     "engineVolume": null,
+     "transportYear": {
+      "value": 2023
+     }
+    },
+    {
+     "id": "88547819",
+     "title": "Mercedes S-Class",
+     "price": {
+      "value": {
+       "bargain": false,
+       "down_payment": 0,
+       "measurement": "UNIT_EUR",
+       "mode": "PM_FIXED",
+       "unit": "UNIT_EUR",
+       "value": 74900
+      }
+     },
+     "images": {
+      "value": [
+       "6ebcfd1134ab47dc42ad2a83ea0b1e63.jpg",
+       "d108dd4806df545b83067ab95d99bfad.jpg",
+       "08108b8cc9a84dc0b6629d6cd3adf076.jpg",
+       "4835f855679743ed212d327975d092b2.jpg",
+       "981f2a1bc3575f123fab83f4d015d75b.jpg",
+       "6dcfefa6ee287b01f81d54622e9cbd2f.jpg",
+       "c255c7f741ffeccd2df069778f7920db.jpg",
+       "85b83ea7a3c66549f7cde4d0237882b2.jpg",
+       "fbc619398465c961842d30646eb6c845.jpg",
+       "c55af14cc65084b5fed460c7f7a675c7.jpg",
+       "751bf017cd51795f3ae026acd4944887.jpg",
+       "c118bb42732dd01d045dc219f5ff1ea3.jpg",
+       "8cf9092901cc2cd9af1c6e8f6404eb9e.jpg",
+       "bbf9c6411ac2cb87194ccd8c3cd16235.jpg",
+       "9995566626a7a2cee4ef64e6fe5b96d3.jpg",
+       "ea581023b94517fd60e65b156ad9b7b2.jpg",
+       "fe2d22a1e84b8e94eef43367b0c0e93c.jpg",
+       "4a76d3f8fb88cda5da25cfbc56e51a79.jpg",
+       "d90cc37f5d9bb0cbf0685dcd33d69bec.jpg",
+       "25063da9803014637e03298106698803.jpg"
+      ]
+     },
+     "carFuel": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Diesel",
+        "mobile": "Dsl"
+       },
+       "translated": "Diesel",
+       "value": 24
+      }
+     },
+     "carDrive": {
+      "value": {
+       "abbreviations": {},
+       "translated": "4x4",
+       "value": 17
+      }
+     },
+     "carTransmission": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Aut.",
+        "mobile": "Aut."
+       },
+       "translated": "Automată",
+       "value": 16
+      }
+     },
+     "mileage": {
+      "value": {
+       "unit": "UNIT_KILOMETER",
+       "value": 116000
+      }
+     },
+     "engineVolume": {
+      "value": {
+       "unit": "UNIT_CENTIMETER_CUBE",
+       "value": 3000
+      }
+     },
+     "transportYear": {
+      "value": 2019
+     }
+    },
+    {
+     "id": "89103084",
+     "title": "Mercedes S-Class",
+     "price": {
+      "value": {
+       "bargain": false,
+       "down_payment": 0,
+       "measurement": "UNIT_EUR",
+       "mode": "PM_FIXED",
+       "unit": "UNIT_EUR",
+       "value": 50000
+      }
+     },
+     "images": {
+      "value": [
+       "ba260744b83ffed1079c73c77a00aee3.jpg",
+       "89ea81fce6cb27bda90451dde555884b.jpg",
+       "5b5dc97992eab312425ab7c6b9401ce1.jpg",
+       "4738e79506eaa2ea6f739d7789f5f9aa.jpg",
+       "e8344aab7253bc4d5e63d55224ba1904.jpg",
+       "e1e52974f09f0e1b105afddb3b12c3d5.jpg",
+       "f0eb902d34fd21b63104cd4bcc2d6c56.jpg",
+       "79018aa0f6ea3eac1437dd774ecd2350.jpg",
+       "adc0a911807fa77d820edfe1257cd0f5.jpg",
+       "8fbbb46dd42b68f3c749cd83e900974f.jpg",
+       "1683b9deb8d4cae9370db0d24864449a.jpg",
+       "7d2b683f00d2e8a5464bebfe6e548202.jpg",
+       "b65764a011e7bfa2e6022999fedc1b05.jpg",
+       "150135d4125a91db81007aed76cda6f0.jpg",
+       "73e227e2c982377ce39183f219618398.jpg",
+       "fab2277976450ebd34386dfa4cee0672.jpg",
+       "51e7c7719693a9215ccecd9a6a054b8b.jpg",
+       "744112694232689fe89cd11ce3c8209e.jpg",
+       "d6607577153a3d67f37c251cf9273f93.jpg",
+       "c6a10d1a68c6bfa1a78272d43642a6a0.jpg"
+      ]
+     },
+     "carFuel": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Benzină",
+        "mobile": "Benz. "
+       },
+       "translated": "Benzină",
+       "value": 10
+      }
+     },
+     "carDrive": {
+      "value": {
+       "abbreviations": {},
+       "translated": "4x4",
+       "value": 17
+      }
+     },
+     "carTransmission": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Aut.",
+        "mobile": "Aut."
+       },
+       "translated": "Automată",
+       "value": 16
+      }
+     },
+     "mileage": {
+      "value": {
+       "unit": "UNIT_KILOMETER",
+       "value": 91000
+      }
+     },
+     "engineVolume": null,
+     "transportYear": {
+      "value": 2017
+     }
+    },
+    {
+     "id": "89880139",
+     "title": "Mercedes E-Class",
+     "price": {
+      "value": {
+       "bargain": false,
+       "down_payment": 0,
+       "measurement": "UNIT_EUR",
+       "mode": "PM_FIXED",
+       "unit": "UNIT_EUR",
+       "value": 35999
+      }
+     },
+     "images": {
+      "value": [
+       "b953d503aec5b41901919e6dd6f6a3d6.jpg",
+       "69d8699ae04ddf2fc3afac6397f7107c.jpg",
+       "2669c3b7c481e5055338f94dac9065dd.jpg",
+       "f4cb86450a627bfeae60e25e07b484ec.jpg",
+       "97507ded3682e126b6de8cd40e3ea257.jpg",
+       "9f7516cb48477087ba64a53078538811.jpg",
+       "3232576ee6be14be7bd23a155fae3127.jpg",
+       "a80e785329a1328ea82aab4120697190.jpg",
+       "64b3c2a7e6beed0ad3af70595f548727.jpg",
+       "c89dc821c1ccb3544dd251c44a83b84c.jpg",
+       "2c88af1500bf2d67996b6fdbd3355a90.jpg",
+       "ba6ead2eecd23d1f759d6fa43f00e8c7.jpg",
+       "1dab68927801ab83654f5982fbc10476.jpg",
+       "5288e892b5ead064a97ced7f55161031.jpg"
+      ]
+     },
+     "carFuel": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Diesel",
+        "mobile": "Dsl"
+       },
+       "translated": "Diesel",
+       "value": 24
+      }
+     },
+     "carDrive": {
+      "value": {
+       "abbreviations": {},
+       "translated": "Din spate",
+       "value": 25
+      }
+     },
+     "carTransmission": {
+      "value": {
+       "abbreviations": {
+        "desktop": "Aut.",
+        "mobile": "Aut."
+       },
+       "translated": "Automată",
+       "value": 16
+      }
+     },
+     "mileage": {
+      "value": {
+       "unit": "UNIT_KILOMETER",
+       "value": 50000
+      }
+     },
+     "engineVolume": {
+      "value": {
+       "unit": "UNIT_CENTIMETER_CUBE",
+       "value": 1950
+      }
+     },
+     "transportYear": {
+      "value": 2019
      }
     },
     {
@@ -593,77 +1325,6 @@
      }
     },
     {
-     "id": "104147294",
-     "title": "BMW X7",
-     "price": {
-      "value": {
-       "bargain": false,
-       "down_payment": 0,
-       "measurement": "UNIT_EUR",
-       "mode": "PM_FIXED",
-       "unit": "UNIT_EUR",
-       "value": 65000
-      }
-     },
-     "images": {
-      "value": [
-       "b6dbf3fbb1ed2349c8e62957e61bf88a.jpg",
-       "e4b3dc62b953a504e8bff8a21dae876f.jpg",
-       "b3efafe20de5e7a818a881db90c37f7d.jpg",
-       "9723ddf2d9350c2c24c27ece048e2f0b.jpg",
-       "3de0660f0ccf62c2e60909c1dc68a38f.jpg",
-       "61662c437f08f50b6765783e78d63ae4.jpg",
-       "cd11bdd906228930966e718ec47cf6d5.jpg",
-       "fb83bcb62535b981f9423145f4b06983.jpg",
-       "93534c9789dd7776c63a4d3e5a00553a.jpg",
-       "1be97489ecc8ce2511c1325c981a442e.jpg",
-       "53b2242e2c4490d2f5cf0fc15a5ecfc6.jpg",
-       "eff1d1753baeae4611a5c31ab2b737e7.jpg",
-       "f09f043ced55db6a75415021e4eaecf9.jpg",
-       "6b045b580c8c22b196e6d949f3725a7f.jpg",
-       "20f2d056d4f4d7d50d16043b2f9102b0.jpg",
-       "7bbccf017110c8d6f25e863d68a73f69.jpg"
-      ]
-     },
-     "carFuel": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Diesel",
-        "mobile": "Dsl"
-       },
-       "translated": "Diesel",
-       "value": 24
-      }
-     },
-     "carDrive": {
-      "value": {
-       "abbreviations": {},
-       "translated": "4x4",
-       "value": 17
-      }
-     },
-     "carTransmission": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Aut.",
-        "mobile": "Aut."
-       },
-       "translated": "Automată",
-       "value": 16
-      }
-     },
-     "mileage": {
-      "value": {
-       "unit": "UNIT_KILOMETER",
-       "value": 71561
-      }
-     },
-     "engineVolume": null,
-     "transportYear": {
-      "value": 2020
-     }
-    },
-    {
      "id": "104009059",
      "title": "Mercedes GLE Coupe",
      "price": {
@@ -732,78 +1393,6 @@
      "engineVolume": null,
      "transportYear": {
       "value": 2021
-     }
-    },
-    {
-     "id": "104153436",
-     "title": "Mercedes S-Class",
-     "price": {
-      "value": {
-       "bargain": false,
-       "down_payment": 0,
-       "measurement": "UNIT_EUR",
-       "mode": "PM_FIXED",
-       "unit": "UNIT_EUR",
-       "value": 49000
-      }
-     },
-     "images": {
-      "value": [
-       "4c04f29353eac23dc063fe6113456691.jpg",
-       "0d971903023ebc8b8e164751ec6d3ddb.jpg",
-       "8090864a49bba8a986847c5118e84a62.jpg",
-       "72a5b9fee87b9432800a1e2d8ecc8111.jpg",
-       "b8cf4c50ff73597fc9dfaf736070caf6.jpg",
-       "3be8e41647f37c5020ec550076783009.jpg",
-       "698df6a4db710c00bbd8aca1f071710d.jpg",
-       "3a4e253e342842a1a96270023ab20c94.jpg",
-       "14bbdc50f6f87801c39ba6a7a49b18a0.jpg",
-       "9dd1d6499f9847b32fce466408a44309.jpg",
-       "31ea792954d512d0ef2dd15794722e8f.jpg",
-       "1d65e6577d8e42e75ef09035832157ba.jpg",
-       "b5e6ab48e126630554d08c0e1bcf7e27.jpg",
-       "8c4efefd3e3212c5931ad186cb824590.jpg",
-       "ebd0072ba963fcba221eeca72c22f921.jpg",
-       "34a838d86a0186bfd5981527e14e18a3.jpg",
-       "2685c7e1b8afef97eaca79f846fafa1c.jpg"
-      ]
-     },
-     "carFuel": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Diesel",
-        "mobile": "Dsl"
-       },
-       "translated": "Diesel",
-       "value": 24
-      }
-     },
-     "carDrive": {
-      "value": {
-       "abbreviations": {},
-       "translated": "4x4",
-       "value": 17
-      }
-     },
-     "carTransmission": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Aut.",
-        "mobile": "Aut."
-       },
-       "translated": "Automată",
-       "value": 16
-      }
-     },
-     "mileage": {
-      "value": {
-       "unit": "UNIT_KILOMETER",
-       "value": 135712
-      }
-     },
-     "engineVolume": null,
-     "transportYear": {
-      "value": 2017
      }
     },
     {
@@ -947,148 +1536,6 @@
      "engineVolume": null,
      "transportYear": {
       "value": 2019
-     }
-    },
-    {
-     "id": "104548893",
-     "title": "Skoda Kodiaq",
-     "price": {
-      "value": {
-       "bargain": false,
-       "down_payment": 0,
-       "measurement": "UNIT_EUR",
-       "mode": "PM_FIXED",
-       "unit": "UNIT_EUR",
-       "value": 43499
-      }
-     },
-     "images": {
-      "value": [
-       "e9245e11c36696f6757a9ce5f9e98df2.jpg",
-       "b7e2f48c819326403d489f494fa6678e.jpg",
-       "54872371f3cc9d59f294ff50e2df4bbe.jpg",
-       "1b257b9d29131ef480ab9b2d5d94993f.jpg",
-       "455636ee9895c8c6b18cbfda2033ef54.jpg",
-       "ffab93569b8d4cbbec49f0118496fdca.jpg",
-       "43a3e7d79a6f6e60ac41eba9dca4a07b.jpg",
-       "c780ccbfb4164261aa9753cfa7f64727.jpg",
-       "00636625d1a51c29e2b15ba8a3e9c4c7.jpg",
-       "3fd6d685894eeff19293bdd128ef5bdd.jpg",
-       "139d1c66b196407366a1b3394849232f.jpg",
-       "f47b2d9fd2342329ab1375d3927ea62d.jpg",
-       "86bdcc2367daf3653ff80225170fc6c0.jpg",
-       "ec8517659bf7cecc65b015f32ec1ce3c.jpg",
-       "6c937710cd85e457fccd239156606ca9.jpg",
-       "13dba94d273d859bc115cb6a7735ecf8.jpg",
-       "5df2c450bdd2b7604214a9fe7f707403.jpg"
-      ]
-     },
-     "carFuel": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Diesel",
-        "mobile": "Dsl"
-       },
-       "translated": "Diesel",
-       "value": 24
-      }
-     },
-     "carDrive": {
-      "value": {
-       "abbreviations": {},
-       "translated": "4x4",
-       "value": 17
-      }
-     },
-     "carTransmission": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Aut.",
-        "mobile": "Aut."
-       },
-       "translated": "Automată",
-       "value": 16
-      }
-     },
-     "mileage": {
-      "value": {
-       "unit": "UNIT_KILOMETER",
-       "value": 14688
-      }
-     },
-     "engineVolume": null,
-     "transportYear": {
-      "value": 2025
-     }
-    },
-    {
-     "id": "103756216",
-     "title": "Audi Q5 Sportback",
-     "price": {
-      "value": {
-       "bargain": false,
-       "down_payment": 0,
-       "measurement": "UNIT_EUR",
-       "mode": "PM_FIXED",
-       "unit": "UNIT_EUR",
-       "value": 45000
-      }
-     },
-     "images": {
-      "value": [
-       "c74d8acacb9986bf5517cb31183c0db2.jpg",
-       "6f2f730c7a3840e7be923e9c31c2163c.jpg",
-       "96f8d9f91f3371879aff447483656f39.jpg",
-       "aa17a6ca800d6d15daf11d8504664244.jpg",
-       "e591f2975a625a46895cac215c30e630.jpg",
-       "8c5e41f71939f0a06f67badcb39deda5.jpg",
-       "8c498937e3b5351fa2161452b142ba12.jpg",
-       "ab71c34c5772711ebe04dc692aaadf45.jpg",
-       "1d9bbd259a4bd2199e34280f67c1012a.jpg",
-       "690a649cdcbb3ef0f48bd3bec5d335f1.jpg",
-       "b474405f188cec8860191061b0a3f16a.jpg",
-       "9975c64280455c5238a8365ac269cee4.jpg",
-       "843e8b81fb22533d1302fffe46c4532e.jpg",
-       "3f8866e2eef187fd3b68fe57d81fe44a.jpg",
-       "fa9732a8de664b774f3286568b928549.jpg"
-      ]
-     },
-     "carFuel": {
-      "value": {
-       "abbreviations": {
-        "desktop": "PHEV",
-        "mobile": "PHEV"
-       },
-       "translated": "Plug-in Hybrid (benzină)",
-       "value": 22987
-      }
-     },
-     "carDrive": {
-      "value": {
-       "abbreviations": {},
-       "translated": "4x4",
-       "value": 17
-      }
-     },
-     "carTransmission": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Aut.",
-        "mobile": "Aut."
-       },
-       "translated": "Automată",
-       "value": 16
-      }
-     },
-     "mileage": {
-      "value": {
-       "unit": "UNIT_KILOMETER",
-       "value": 11187
-      }
-     },
-     "engineVolume": null,
-     "transportYear": {
-      "value": 2023
      }
     },
     {
@@ -1452,78 +1899,6 @@
      "engineVolume": null,
      "transportYear": {
       "value": 2025
-     }
-    },
-    {
-     "id": "104153976",
-     "title": "Land Rover Discovery",
-     "price": {
-      "value": {
-       "bargain": false,
-       "down_payment": 0,
-       "measurement": "UNIT_EUR",
-       "mode": "PM_FIXED",
-       "unit": "UNIT_EUR",
-       "value": 27000
-      }
-     },
-     "images": {
-      "value": [
-       "cf4be733f6299470cc703371c14f6c97.jpg",
-       "c2bf6aeb91e68e81442b8dffcb5dd996.jpg",
-       "dbc4366165551f313ec442609b38ae0d.jpg",
-       "97fc82db05b452c7e46b5fcb148bed18.jpg",
-       "2b76802563fff20fc2a6d066483ee3e5.jpg",
-       "9a22f503501f4d3412eff1b6e3134a4e.jpg",
-       "1cb2a664b395dedb2ab0a0fd323d5b2c.jpg",
-       "7d9ee65034bfdf3d5ab8aa20fb7c1a59.jpg",
-       "e859616bcf832acec344b1894e656eba.jpg",
-       "fc7d5284fb18d50bb82cb4630dd0d973.jpg",
-       "78138f763035a4712e22aa29cd8d7525.jpg",
-       "f33a73b1db5c94ebf25cef8d80b71900.jpg",
-       "0356c12fa92aa1b8ee3d19d46fb2498b.jpg",
-       "71836f7e30c47b341d1f7ce8f6c4f6fc.jpg",
-       "b1755ed7f48d4cc2e53586ff49867c26.jpg",
-       "c64488459fee7925e3ee187f1a2e2a6a.jpg",
-       "5d511d72a966b98e188c950b3c1aa9ac.jpg"
-      ]
-     },
-     "carFuel": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Benzină",
-        "mobile": "Benz. "
-       },
-       "translated": "Benzină",
-       "value": 10
-      }
-     },
-     "carDrive": {
-      "value": {
-       "abbreviations": {},
-       "translated": "4x4",
-       "value": 17
-      }
-     },
-     "carTransmission": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Aut.",
-        "mobile": "Aut."
-       },
-       "translated": "Automată",
-       "value": 16
-      }
-     },
-     "mileage": {
-      "value": {
-       "unit": "UNIT_KILOMETER",
-       "value": 84631
-      }
-     },
-     "engineVolume": null,
-     "transportYear": {
-      "value": 2018
      }
     },
     {
@@ -1892,8 +2267,8 @@
      }
     },
     {
-     "id": "104206626",
-     "title": "Skoda Superb",
+     "id": "104210460",
+     "title": "BMW 5 Series",
      "price": {
       "value": {
        "bargain": false,
@@ -1901,29 +2276,28 @@
        "measurement": "UNIT_EUR",
        "mode": "PM_FIXED",
        "unit": "UNIT_EUR",
-       "value": 43000
+       "value": 33000
       }
      },
      "images": {
       "value": [
-       "177b32835d5a6d89515256f2a4a98031.jpg",
-       "bbd9ab75027d1e88e1717d106ae2c7df.jpg",
-       "58efd825b4acb4077fda52c9f3283f57.jpg",
-       "ead589c98a23669971d10b3a1d46b4ab.jpg",
-       "46f70d2a9de7aa393ac8cc469361ba5a.jpg",
-       "16993eabef93f570ad4b065e14e4c5dc.jpg",
-       "2ee9a9023a9dbfab4d95cd8b1aac229d.jpg",
-       "fb14ef94478a380bc4dc7955d6b0bf2e.jpg",
-       "1e27bf525c05df414a4eb8ffc9b237b0.jpg",
-       "613a69bb00a2a2e01b541556abfe087d.jpg",
-       "8a24f0e6480b603bb6c41fd6e3edbb30.jpg",
-       "0de359a72de9e29d19c02dbbd8ee9351.jpg",
-       "7833aaa6708b3581f9f8bd5b0f1f5aa8.jpg",
-       "bc6e4c009a714d20dd1c6234991d19ab.jpg",
-       "acb8756d7ec6cc62a9f62546667f49b6.jpg",
-       "310f41f0b481aa330163e16d672d5e59.jpg",
-       "cd874a8fcf56e090e450d9f20d64c71c.jpg",
-       "dd9c9e4f6db9c7b3d06498d3566413b5.jpg"
+       "504b787afe82dd0a2730657a28b08d52.jpg",
+       "cdf74ca5a940560bce95efbbac65a477.jpg",
+       "0110cf1355abc3d0437ecc3c8ee2fe5e.jpg",
+       "8201febd65681af3ae785d4f2b47ed78.jpg",
+       "ce0a29a750618cc298dc1c08342310dd.jpg",
+       "af52630e5c555e43528fde0ee640d7f4.jpg",
+       "65a9d7148da26d6d7dd7958805e469bc.jpg",
+       "d7c8c62dfcaa7aa66b0f9e17350aa60a.jpg",
+       "8455bab9dd91b409616de0b41c6d0ad0.jpg",
+       "41563dda17e9419f78d78216bf80fb73.jpg",
+       "1cf56d5d3a4b3bba5aa886400e48b5de.jpg",
+       "d860bdc91e7c586c66171c6391a1f332.jpg",
+       "185f22e566d0ebea5a42341efc543f46.jpg",
+       "74ea0fffaecd24ebaacdc01513f5f782.jpg",
+       "4fc6a8297bd823005ed95f732bc433cf.jpg",
+       "3b14458f997b72483a7b7d5f1373471e.jpg",
+       "ed6c6b77a0a27a840ecef5a4e388eb13.jpg"
       ]
      },
      "carFuel": {
@@ -1939,8 +2313,8 @@
      "carDrive": {
       "value": {
        "abbreviations": {},
-       "translated": "4x4",
-       "value": 17
+       "translated": "Din spate",
+       "value": 25
       }
      },
      "carTransmission": {
@@ -1956,12 +2330,12 @@
      "mileage": {
       "value": {
        "unit": "UNIT_KILOMETER",
-       "value": 11620
+       "value": 93169
       }
      },
      "engineVolume": null,
      "transportYear": {
-      "value": 2025
+      "value": 2021
      }
     },
     {
@@ -2038,8 +2412,8 @@
      }
     },
     {
-     "id": "104210460",
-     "title": "BMW 5 Series",
+     "id": "104206626",
+     "title": "Skoda Superb",
      "price": {
       "value": {
        "bargain": false,
@@ -2047,28 +2421,29 @@
        "measurement": "UNIT_EUR",
        "mode": "PM_FIXED",
        "unit": "UNIT_EUR",
-       "value": 33000
+       "value": 43000
       }
      },
      "images": {
       "value": [
-       "504b787afe82dd0a2730657a28b08d52.jpg",
-       "cdf74ca5a940560bce95efbbac65a477.jpg",
-       "0110cf1355abc3d0437ecc3c8ee2fe5e.jpg",
-       "8201febd65681af3ae785d4f2b47ed78.jpg",
-       "ce0a29a750618cc298dc1c08342310dd.jpg",
-       "af52630e5c555e43528fde0ee640d7f4.jpg",
-       "65a9d7148da26d6d7dd7958805e469bc.jpg",
-       "d7c8c62dfcaa7aa66b0f9e17350aa60a.jpg",
-       "8455bab9dd91b409616de0b41c6d0ad0.jpg",
-       "41563dda17e9419f78d78216bf80fb73.jpg",
-       "1cf56d5d3a4b3bba5aa886400e48b5de.jpg",
-       "d860bdc91e7c586c66171c6391a1f332.jpg",
-       "185f22e566d0ebea5a42341efc543f46.jpg",
-       "74ea0fffaecd24ebaacdc01513f5f782.jpg",
-       "4fc6a8297bd823005ed95f732bc433cf.jpg",
-       "3b14458f997b72483a7b7d5f1373471e.jpg",
-       "ed6c6b77a0a27a840ecef5a4e388eb13.jpg"
+       "177b32835d5a6d89515256f2a4a98031.jpg",
+       "bbd9ab75027d1e88e1717d106ae2c7df.jpg",
+       "58efd825b4acb4077fda52c9f3283f57.jpg",
+       "ead589c98a23669971d10b3a1d46b4ab.jpg",
+       "46f70d2a9de7aa393ac8cc469361ba5a.jpg",
+       "16993eabef93f570ad4b065e14e4c5dc.jpg",
+       "2ee9a9023a9dbfab4d95cd8b1aac229d.jpg",
+       "fb14ef94478a380bc4dc7955d6b0bf2e.jpg",
+       "1e27bf525c05df414a4eb8ffc9b237b0.jpg",
+       "613a69bb00a2a2e01b541556abfe087d.jpg",
+       "8a24f0e6480b603bb6c41fd6e3edbb30.jpg",
+       "0de359a72de9e29d19c02dbbd8ee9351.jpg",
+       "7833aaa6708b3581f9f8bd5b0f1f5aa8.jpg",
+       "bc6e4c009a714d20dd1c6234991d19ab.jpg",
+       "acb8756d7ec6cc62a9f62546667f49b6.jpg",
+       "310f41f0b481aa330163e16d672d5e59.jpg",
+       "cd874a8fcf56e090e450d9f20d64c71c.jpg",
+       "dd9c9e4f6db9c7b3d06498d3566413b5.jpg"
       ]
      },
      "carFuel": {
@@ -2084,8 +2459,8 @@
      "carDrive": {
       "value": {
        "abbreviations": {},
-       "translated": "Din spate",
-       "value": 25
+       "translated": "4x4",
+       "value": 17
       }
      },
      "carTransmission": {
@@ -2101,12 +2476,12 @@
      "mileage": {
       "value": {
        "unit": "UNIT_KILOMETER",
-       "value": 93169
+       "value": 11620
       }
      },
      "engineVolume": null,
      "transportYear": {
-      "value": 2021
+      "value": 2025
      }
     },
     {
@@ -2469,81 +2844,6 @@
      "engineVolume": null,
      "transportYear": {
       "value": 2021
-     }
-    },
-    {
-     "id": "102939198",
-     "title": "BMW X6",
-     "price": {
-      "value": {
-       "bargain": false,
-       "down_payment": 0,
-       "measurement": "UNIT_EUR",
-       "mode": "PM_FIXED",
-       "unit": "UNIT_EUR",
-       "value": 60000
-      }
-     },
-     "images": {
-      "value": [
-       "bc0ae699d54339155d37a1494484efc5.jpg",
-       "ef26d8ef60ed900f31d8709d3e6a5c44.jpg",
-       "afd4bc82c4e096624f67fd9fecc5d467.jpg",
-       "785fc57d86acc3d18f57d54bf7c4ba93.jpg",
-       "de70e1f750ece8a528464a5a86e9301c.jpg",
-       "7990f77216b1901cfb0ba5337aeacc9e.jpg",
-       "3a3f00a9d2915fe392161ae45ef94f3b.jpg",
-       "68102805a600405a38149f1012be7e28.jpg",
-       "069d505d19593f40ffb841f531df6356.jpg",
-       "ba102a344628fd3287189fbe0b2a4b08.jpg",
-       "da720adff6527d50ed010775b70c0862.jpg",
-       "0383c8363423e9d1658587da2abb99c2.jpg",
-       "155327306ed6cdffdc260c44f63508ce.jpg",
-       "2fd3fb804503f62f16a83f71a3694f2a.jpg",
-       "bc08736af636226faff4e4b1131d0f1a.jpg",
-       "1b5f55a5efc327d30a157df0a041eb35.jpg",
-       "73ddbc56685a804a56d2913a6c15be69.jpg",
-       "238c1f0c30408deafba66187fa9eecae.jpg",
-       "3714fd3bb3d464987b0fbd29bb534089.jpg",
-       "2bd7e818886f54329e24593d904de3ca.jpg"
-      ]
-     },
-     "carFuel": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Diesel",
-        "mobile": "Dsl"
-       },
-       "translated": "Diesel",
-       "value": 24
-      }
-     },
-     "carDrive": {
-      "value": {
-       "abbreviations": {},
-       "translated": "4x4",
-       "value": 17
-      }
-     },
-     "carTransmission": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Aut.",
-        "mobile": "Aut."
-       },
-       "translated": "Automată",
-       "value": 16
-      }
-     },
-     "mileage": {
-      "value": {
-       "unit": "UNIT_KILOMETER",
-       "value": 89715
-      }
-     },
-     "engineVolume": null,
-     "transportYear": {
-      "value": 2020
      }
     },
     {
@@ -3647,77 +3947,6 @@
      }
     },
     {
-     "id": "102588905",
-     "title": "Land Rover Range Rover Velar",
-     "price": {
-      "value": {
-       "bargain": false,
-       "down_payment": 0,
-       "measurement": "UNIT_EUR",
-       "mode": "PM_FIXED",
-       "unit": "UNIT_EUR",
-       "value": 35000
-      }
-     },
-     "images": {
-      "value": [
-       "9743932bd66ff4edbf2a1c35133ddbd2.jpg",
-       "aff3f458454351f00079e76ba4f25045.jpg",
-       "3e4c6fb87f06ff5228b29ed0746cffd8.jpg",
-       "cba116f494e6efcb3ed82edf1ae47685.jpg",
-       "3c72edafe7dbf4a35641833593ac4795.jpg",
-       "ff5de32e59cf3689bd8e3afce4a02e4d.jpg",
-       "e3c81bc7707a76ebdd068dabb00afdb2.jpg",
-       "ed3e83ae8b11702b60f5a21eee3264f9.jpg",
-       "4e79b35f132e8fd5f0f52a834186ed3f.jpg",
-       "799e94d32193587df94798438fa422c7.jpg",
-       "6ddafd9cdd5102572109a5dfec7cfdd4.jpg",
-       "2980b4e97ed58300e15709a50f326ab9.jpg",
-       "0836f5019b7b4d6974855250860e6c3b.jpg",
-       "8a30d4afe1538272be572ce88b295814.jpg",
-       "a45007370107ea10bf350392423fd7a2.jpg",
-       "bbd3185bbcd7918b6e362f66d1e1feef.jpg"
-      ]
-     },
-     "carFuel": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Benzină",
-        "mobile": "Benz. "
-       },
-       "translated": "Benzină",
-       "value": 10
-      }
-     },
-     "carDrive": {
-      "value": {
-       "abbreviations": {},
-       "translated": "4x4",
-       "value": 17
-      }
-     },
-     "carTransmission": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Aut.",
-        "mobile": "Aut."
-       },
-       "translated": "Automată",
-       "value": 16
-      }
-     },
-     "mileage": {
-      "value": {
-       "unit": "UNIT_KILOMETER",
-       "value": 79633
-      }
-     },
-     "engineVolume": null,
-     "transportYear": {
-      "value": 2017
-     }
-    },
-    {
      "id": "103244718",
      "title": "BMW 7 Series",
      "price": {
@@ -3865,86 +4094,6 @@
      }
     },
     {
-     "id": "88547819",
-     "title": "Mercedes S-Class",
-     "price": {
-      "value": {
-       "bargain": false,
-       "down_payment": 0,
-       "measurement": "UNIT_EUR",
-       "mode": "PM_FIXED",
-       "unit": "UNIT_EUR",
-       "value": 74900
-      }
-     },
-     "images": {
-      "value": [
-       "6ebcfd1134ab47dc42ad2a83ea0b1e63.jpg",
-       "d108dd4806df545b83067ab95d99bfad.jpg",
-       "08108b8cc9a84dc0b6629d6cd3adf076.jpg",
-       "4835f855679743ed212d327975d092b2.jpg",
-       "981f2a1bc3575f123fab83f4d015d75b.jpg",
-       "6dcfefa6ee287b01f81d54622e9cbd2f.jpg",
-       "c255c7f741ffeccd2df069778f7920db.jpg",
-       "85b83ea7a3c66549f7cde4d0237882b2.jpg",
-       "fbc619398465c961842d30646eb6c845.jpg",
-       "c55af14cc65084b5fed460c7f7a675c7.jpg",
-       "751bf017cd51795f3ae026acd4944887.jpg",
-       "c118bb42732dd01d045dc219f5ff1ea3.jpg",
-       "8cf9092901cc2cd9af1c6e8f6404eb9e.jpg",
-       "bbf9c6411ac2cb87194ccd8c3cd16235.jpg",
-       "9995566626a7a2cee4ef64e6fe5b96d3.jpg",
-       "ea581023b94517fd60e65b156ad9b7b2.jpg",
-       "fe2d22a1e84b8e94eef43367b0c0e93c.jpg",
-       "4a76d3f8fb88cda5da25cfbc56e51a79.jpg",
-       "d90cc37f5d9bb0cbf0685dcd33d69bec.jpg",
-       "25063da9803014637e03298106698803.jpg"
-      ]
-     },
-     "carFuel": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Diesel",
-        "mobile": "Dsl"
-       },
-       "translated": "Diesel",
-       "value": 24
-      }
-     },
-     "carDrive": {
-      "value": {
-       "abbreviations": {},
-       "translated": "4x4",
-       "value": 17
-      }
-     },
-     "carTransmission": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Aut.",
-        "mobile": "Aut."
-       },
-       "translated": "Automată",
-       "value": 16
-      }
-     },
-     "mileage": {
-      "value": {
-       "unit": "UNIT_KILOMETER",
-       "value": 116000
-      }
-     },
-     "engineVolume": {
-      "value": {
-       "unit": "UNIT_CENTIMETER_CUBE",
-       "value": 3000
-      }
-     },
-     "transportYear": {
-      "value": 2019
-     }
-    },
-    {
      "id": "88678872",
      "title": "Audi A5",
      "price": {
@@ -4011,81 +4160,6 @@
       "value": {
        "unit": "UNIT_KILOMETER",
        "value": 217000
-      }
-     },
-     "engineVolume": null,
-     "transportYear": {
-      "value": 2017
-     }
-    },
-    {
-     "id": "89103084",
-     "title": "Mercedes S-Class",
-     "price": {
-      "value": {
-       "bargain": false,
-       "down_payment": 0,
-       "measurement": "UNIT_EUR",
-       "mode": "PM_FIXED",
-       "unit": "UNIT_EUR",
-       "value": 50000
-      }
-     },
-     "images": {
-      "value": [
-       "ba260744b83ffed1079c73c77a00aee3.jpg",
-       "89ea81fce6cb27bda90451dde555884b.jpg",
-       "5b5dc97992eab312425ab7c6b9401ce1.jpg",
-       "4738e79506eaa2ea6f739d7789f5f9aa.jpg",
-       "e8344aab7253bc4d5e63d55224ba1904.jpg",
-       "e1e52974f09f0e1b105afddb3b12c3d5.jpg",
-       "f0eb902d34fd21b63104cd4bcc2d6c56.jpg",
-       "79018aa0f6ea3eac1437dd774ecd2350.jpg",
-       "adc0a911807fa77d820edfe1257cd0f5.jpg",
-       "8fbbb46dd42b68f3c749cd83e900974f.jpg",
-       "1683b9deb8d4cae9370db0d24864449a.jpg",
-       "7d2b683f00d2e8a5464bebfe6e548202.jpg",
-       "b65764a011e7bfa2e6022999fedc1b05.jpg",
-       "150135d4125a91db81007aed76cda6f0.jpg",
-       "73e227e2c982377ce39183f219618398.jpg",
-       "fab2277976450ebd34386dfa4cee0672.jpg",
-       "51e7c7719693a9215ccecd9a6a054b8b.jpg",
-       "744112694232689fe89cd11ce3c8209e.jpg",
-       "d6607577153a3d67f37c251cf9273f93.jpg",
-       "c6a10d1a68c6bfa1a78272d43642a6a0.jpg"
-      ]
-     },
-     "carFuel": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Benzină",
-        "mobile": "Benz. "
-       },
-       "translated": "Benzină",
-       "value": 10
-      }
-     },
-     "carDrive": {
-      "value": {
-       "abbreviations": {},
-       "translated": "4x4",
-       "value": 17
-      }
-     },
-     "carTransmission": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Aut.",
-        "mobile": "Aut."
-       },
-       "translated": "Automată",
-       "value": 16
-      }
-     },
-     "mileage": {
-      "value": {
-       "unit": "UNIT_KILOMETER",
-       "value": 91000
       }
      },
      "engineVolume": null,
@@ -4686,80 +4760,6 @@
      },
      "transportYear": {
       "value": 2020
-     }
-    },
-    {
-     "id": "89880139",
-     "title": "Mercedes E-Class",
-     "price": {
-      "value": {
-       "bargain": false,
-       "down_payment": 0,
-       "measurement": "UNIT_EUR",
-       "mode": "PM_FIXED",
-       "unit": "UNIT_EUR",
-       "value": 35999
-      }
-     },
-     "images": {
-      "value": [
-       "b953d503aec5b41901919e6dd6f6a3d6.jpg",
-       "69d8699ae04ddf2fc3afac6397f7107c.jpg",
-       "2669c3b7c481e5055338f94dac9065dd.jpg",
-       "f4cb86450a627bfeae60e25e07b484ec.jpg",
-       "97507ded3682e126b6de8cd40e3ea257.jpg",
-       "9f7516cb48477087ba64a53078538811.jpg",
-       "3232576ee6be14be7bd23a155fae3127.jpg",
-       "a80e785329a1328ea82aab4120697190.jpg",
-       "64b3c2a7e6beed0ad3af70595f548727.jpg",
-       "c89dc821c1ccb3544dd251c44a83b84c.jpg",
-       "2c88af1500bf2d67996b6fdbd3355a90.jpg",
-       "ba6ead2eecd23d1f759d6fa43f00e8c7.jpg",
-       "1dab68927801ab83654f5982fbc10476.jpg",
-       "5288e892b5ead064a97ced7f55161031.jpg"
-      ]
-     },
-     "carFuel": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Diesel",
-        "mobile": "Dsl"
-       },
-       "translated": "Diesel",
-       "value": 24
-      }
-     },
-     "carDrive": {
-      "value": {
-       "abbreviations": {},
-       "translated": "Din spate",
-       "value": 25
-      }
-     },
-     "carTransmission": {
-      "value": {
-       "abbreviations": {
-        "desktop": "Aut.",
-        "mobile": "Aut."
-       },
-       "translated": "Automată",
-       "value": 16
-      }
-     },
-     "mileage": {
-      "value": {
-       "unit": "UNIT_KILOMETER",
-       "value": 50000
-      }
-     },
-     "engineVolume": {
-      "value": {
-       "unit": "UNIT_CENTIMETER_CUBE",
-       "value": 1950
-      }
-     },
-     "transportYear": {
-      "value": 2019
      }
     },
     {
