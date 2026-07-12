@@ -3,3 +3,4 @@ node_modules/
 .claude/
 .vercel
 .env*
+ADMIN-ACCESS.local.txt

@@ -1,22 +1,18 @@
-/* PEAK AUTO admin — the system of record. Edits data/inventory.js + uploads photos
-   to the GitHub repo in ONE batch commit (Git Data API); Vercel redeploys on push. */
+/* PEAK AUTO admin — Supabase-backed system of record.
+   Auth: Supabase email/password. Data: PostgREST (cars, settings). Photos: Storage bucket car-photos.
+   Every save is live on the site within seconds — no deploys involved. */
 (function () {
   'use strict';
 
-  var REPO = 'VadimT7/peakauto-site';
-  var FILE = 'data/inventory.js';
-  var API = 'https://api.github.com';
+  var SB = window.PK_SB || {};
   var CDN = 'https://i.simpalsmedia.com/999.md/BoardImages/';
   var MAX_DIM = 1400, JPEG_Q = 0.8;
 
-  var base = window.PK_INVENTORY || { cars: [], featured: [] };
-  var inv = JSON.parse(JSON.stringify({ cars: base.cars || [], featured: base.featured || [] }));
-  var pending = {};        // repo path -> base64 (photos staged for upload)
-  var dirty = false;
-  var dirtyIds = {};
-  var newIds = {};
-  var editingId = null;    // car id being edited, or '__new'
-  var draft = null;        // working copy inside the editor
+  var cars = [];          // [{id, data, position}]
+  var featured = [];
+  var editingId = null;   // car id or '__new'
+  var draft = null;
+  var pendingBlobs = {};  // public URL -> Blob (photos staged in the open editor)
   var q = '', fStatus = 'all';
 
   var $ = function (id) { return document.getElementById(id); };
@@ -36,7 +32,6 @@
     wheel: ['Stânga', 'Dreapta']
   };
 
-  function token() { try { return localStorage.getItem('pk-admin-token') || ''; } catch (e) { return ''; } }
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -44,8 +39,9 @@
   }
   function fmtEur(n) { return Number(n || 0).toLocaleString('ro-RO').replace(/ /g, '.') + ' €'; }
   function imgUrl(entry) {
-    if (pending[entry]) return 'data:image/jpeg;base64,' + pending[entry];
-    return entry.indexOf('/') !== -1 ? '/' + entry : CDN + '320x240/' + entry;
+    if (/^https?:/.test(entry)) return entry;
+    if (entry.indexOf('/') !== -1) return '/' + entry;
+    return CDN + '320x240/' + entry;
   }
   function msg(text, cls) {
     var m = $('msg');
@@ -55,45 +51,134 @@
     clearTimeout(msg._t);
     msg._t = setTimeout(function () { m.style.display = 'none'; }, 6000);
   }
-  function markDirty(id) {
-    dirty = true;
-    if (id) dirtyIds[id] = 1;
-    $('btn-publish').disabled = false;
-    renderStats();
+
+  /* ---------- auth ---------- */
+  function sess() {
+    try { return JSON.parse(localStorage.getItem('pk-adm-sess') || 'null'); } catch (e) { return null; }
   }
-  function carById(id) {
-    for (var i = 0; i < inv.cars.length; i++) if (inv.cars[i].id === id) return inv.cars[i];
-    return null;
+  function setSess(s) {
+    try {
+      if (s) localStorage.setItem('pk-adm-sess', JSON.stringify(s));
+      else localStorage.removeItem('pk-adm-sess');
+    } catch (e) {}
+  }
+  function login(email, pass) {
+    return fetch(SB.url + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: { apikey: SB.anon, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: pass })
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (!res.ok) throw new Error(res.j.error_description || res.j.msg || 'Email sau parolă greșită.');
+        setSess({ at: res.j.access_token, rt: res.j.refresh_token, exp: Date.now() + (res.j.expires_in - 60) * 1000 });
+      });
+  }
+  function refreshSession() {
+    var s = sess();
+    if (!s) return Promise.reject(new Error('no session'));
+    return fetch(SB.url + '/auth/v1/token?grant_type=refresh_token', {
+      method: 'POST',
+      headers: { apikey: SB.anon, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: s.rt })
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (!res.ok) throw new Error('refresh failed');
+        setSess({ at: res.j.access_token, rt: res.j.refresh_token, exp: Date.now() + (res.j.expires_in - 60) * 1000 });
+      });
+  }
+  function authed(path, opts) {
+    opts = opts || {};
+    var run = function () {
+      var s = sess();
+      opts.headers = Object.assign({}, opts.headers || {}, {
+        apikey: SB.anon,
+        Authorization: 'Bearer ' + (s ? s.at : SB.anon)
+      });
+      return fetch(SB.url + path, opts);
+    };
+    var s = sess();
+    var pre = (s && s.exp < Date.now()) ? refreshSession().catch(function () {}) : Promise.resolve();
+    return pre.then(run).then(function (r) {
+      if (r.status !== 401) return r;
+      return refreshSession().then(run).catch(function () {
+        setSess(null); show();
+        throw new Error('Sesiune expirată — intră din nou.');
+      });
+    });
+  }
+
+  /* ---------- data ---------- */
+  function loadAll() {
+    return Promise.all([
+      authed('/rest/v1/cars?select=id,data,position&order=position.asc').then(function (r) { return r.json(); }),
+      authed('/rest/v1/settings?key=eq.featured&select=value').then(function (r) { return r.ok ? r.json() : []; })
+    ]).then(function (res) {
+      cars = res[0];
+      featured = (res[1][0] && res[1][0].value) || [];
+    });
+  }
+  function saveCarRow(id, data, position) {
+    return authed('/rest/v1/cars', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify([{ id: id, data: data, position: position }])
+    }).then(function (r) {
+      if (!r.ok) return r.text().then(function (t) { throw new Error('Salvare eșuată: ' + t.slice(0, 120)); });
+    });
+  }
+  function deleteCarRow(id) {
+    return authed('/rest/v1/cars?id=eq.' + encodeURIComponent(id), { method: 'DELETE' })
+      .then(function (r) { if (!r.ok) throw new Error('Ștergere eșuată (' + r.status + ')'); });
+  }
+  function saveFeatured() {
+    return authed('/rest/v1/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify([{ key: 'featured', value: featured }])
+    }).then(function (r) { if (!r.ok) throw new Error('Salvarea featured a eșuat'); });
+  }
+  function uploadPhoto(publicUrl, blob) {
+    var path = publicUrl.split('/object/public/car-photos/')[1];
+    return authed('/storage/v1/object/car-photos/' + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'image/jpeg', 'x-upsert': 'true' },
+      body: blob
+    }).then(function (r) {
+      if (!r.ok) return r.text().then(function (t) { throw new Error('Upload poză eșuat: ' + t.slice(0, 100)); });
+    });
   }
 
   /* ---------- stats + list ---------- */
+  function carData(id) {
+    for (var i = 0; i < cars.length; i++) if (cars[i].id === id) return cars[i];
+    return null;
+  }
   function renderStats() {
     var vis = 0, sold = 0, hidden = 0;
-    inv.cars.forEach(function (c) {
-      var s = c.status || 'disponibil';
+    cars.forEach(function (row) {
+      var s = row.data.status || 'disponibil';
       if (s === 'ascuns') hidden++;
       else { vis++; if (s === 'vandut') sold++; }
     });
     $('stats').innerHTML =
-      '<div class="stat"><b>' + inv.cars.length + '</b><span>Total</span></div>' +
+      '<div class="stat"><b>' + cars.length + '</b><span>Total</span></div>' +
       '<div class="stat"><b>' + vis + '</b><span>Pe site</span></div>' +
       '<div class="stat"><b>' + sold + '</b><span>Vândute</span></div>' +
       '<div class="stat"><b>' + hidden + '</b><span>Ascunse</span></div>' +
-      '<div class="stat"><b>' + inv.featured.length + '</b><span>Featured ★</span></div>' +
-      '<div class="stat"><b>' + Object.keys(pending).length + '</b><span>Poze noi</span></div>' +
-      '<div class="stat"><b>' + (dirty ? 'DA' : 'nu') + '</b><span>Nepublicat</span></div>';
+      '<div class="stat"><b>' + featured.length + '</b><span>Featured ★</span></div>';
   }
-
   function renderRows() {
     var needle = q.toLowerCase();
-    var html = inv.cars.filter(function (c) {
+    var html = cars.filter(function (row) {
+      var c = row.data;
       if (fStatus !== 'all' && (c.status || 'disponibil') !== fStatus) return false;
       return !needle || ((c.name || '') + ' ' + c.year).toLowerCase().indexOf(needle) !== -1;
-    }).map(function (c) {
+    }).map(function (row) {
+      var c = row.data;
       var s = c.status || 'disponibil';
       var stLabel = (STATUSES.filter(function (x) { return x[0] === s; })[0] || STATUSES[0])[1].split(' (')[0];
-      var starred = inv.featured.indexOf(c.id) !== -1;
-      return '<div class="row' + (dirtyIds[c.id] ? ' dirty' : '') + (newIds[c.id] ? ' is-new' : '') + '" data-id="' + esc(c.id) + '">' +
+      var starred = featured.indexOf(row.id) !== -1;
+      return '<div class="row" data-id="' + esc(row.id) + '">' +
         '<img src="' + (c.images && c.images.length ? esc(imgUrl(c.images[0])) : '') + '" alt="" loading="lazy">' +
         '<div class="nm"><b>' + esc(c.name || '(fără nume)') + '</b><span>' + esc((c.year || '—') + ' · ' + Number(c.km || 0).toLocaleString('ro-RO') + ' km · ' + (c.images ? c.images.length : 0) + ' poze') + '</span></div>' +
         '<div class="price">' + fmtEur(c.price) + '</div>' +
@@ -108,27 +193,36 @@
     }).join('');
     $('rows').innerHTML = html || '<p style="color:rgba(244,241,236,.5);padding:30px 0">Niciun rezultat.</p>';
 
-    $('rows').querySelectorAll('.row').forEach(function (row) {
-      var id = row.getAttribute('data-id');
-      row.querySelector('[data-act="edit"]').addEventListener('click', function () { openEditor(id); });
-      row.querySelector('[data-act="star"]').addEventListener('click', function () {
-        var i = inv.featured.indexOf(id);
+    $('rows').querySelectorAll('.row').forEach(function (rowEl) {
+      var id = rowEl.getAttribute('data-id');
+      rowEl.querySelector('[data-act="edit"]').addEventListener('click', function () { openEditor(id); });
+      rowEl.querySelector('[data-act="star"]').addEventListener('click', function () {
+        var i = featured.indexOf(id);
         if (i === -1) {
-          if (inv.featured.length >= 6) { msg('Maxim 6 mașini featured.', 'err'); return; }
-          inv.featured.push(id);
-        } else inv.featured.splice(i, 1);
-        markDirty(id);
-        renderRows();
+          if (featured.length >= 6) { msg('Maxim 6 mașini featured.', 'err'); return; }
+          featured.push(id);
+        } else featured.splice(i, 1);
+        rowEl.classList.add('saving');
+        saveFeatured().then(function () {
+          rowEl.classList.remove('saving');
+          renderStats(); renderRows();
+          msg('Featured actualizat — live pe site.', 'ok');
+        }).catch(function (e) { rowEl.classList.remove('saving'); msg(e.message, 'err'); });
       });
-      row.querySelector('[data-act="del"]').addEventListener('click', function () {
-        var c = carById(id);
-        if (!confirm('Ștergi definitiv „' + (c.name || id) + '" din inventar?\n(Dacă vrei doar să dispară de pe site, folosește statusul „Ascuns".)')) return;
-        inv.cars = inv.cars.filter(function (x) { return x.id !== id; });
-        inv.featured = inv.featured.filter(function (x) { return x !== id; });
-        (c.images || []).forEach(function (im) { delete pending[im]; });
-        if (editingId === id) closeEditor();
-        markDirty();
-        renderRows();
+      rowEl.querySelector('[data-act="del"]').addEventListener('click', function () {
+        var c = carData(id).data;
+        if (!confirm('Ștergi definitiv „' + (c.name || id) + '"?\n(Dacă vrei doar să dispară de pe site, folosește statusul „Ascuns".)')) return;
+        rowEl.classList.add('saving');
+        deleteCarRow(id).then(function () {
+          cars = cars.filter(function (x) { return x.id !== id; });
+          var fi = featured.indexOf(id);
+          var p = fi !== -1 ? (featured.splice(fi, 1), saveFeatured()) : Promise.resolve();
+          return p;
+        }).then(function () {
+          if (editingId === id) closeEditor();
+          renderStats(); renderRows();
+          msg('Șters. Live pe site.', 'ok');
+        }).catch(function (e) { rowEl.classList.remove('saving'); msg(e.message, 'err'); });
       });
     });
   }
@@ -149,26 +243,21 @@
 
   function openEditor(id) {
     editingId = id;
+    pendingBlobs = {};
     if (id === '__new') {
       draft = { id: 'a' + Date.now().toString(36), make: '', model: '', name: '', gen: '', year: new Date().getFullYear(),
         price: null, km: 0, power: null, engine: '', fuel: '', box: '', drive: '', body: '', seats: '5', doors: '5',
         wheel: 'Stânga', vin: '', reg: '', origin: '', status: 'disponibil', prose: '', equip: [], images: [] };
     } else {
-      draft = JSON.parse(JSON.stringify(carById(id)));
+      draft = JSON.parse(JSON.stringify(carData(id).data));
     }
     renderEditor();
     $('editor-host').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-
   function closeEditor() {
-    // drop pending photos that only the abandoned draft referenced
-    if (draft && editingId === '__new') {
-      (draft.images || []).forEach(function (im) { delete pending[im]; });
-    }
-    editingId = null;
-    draft = null;
+    Object.keys(pendingBlobs).forEach(function (u) { delete pendingBlobs[u]; });
+    editingId = null; draft = null;
     $('editor-host').innerHTML = '';
-    renderStats();
   }
 
   function renderEditor() {
@@ -195,7 +284,7 @@
         '<div class="ph-head"><label>Poze (' + (draft.images || []).length + ') — prima e coperta</label></div>' +
         '<div class="ph-grid" id="ph-grid">' + phGridHtml() + '</div>' +
         '<div class="ed-foot">' +
-          '<button class="btn red" id="ed-save">Salvează în listă</button>' +
+          '<button class="btn red" id="ed-save">Salvează pe site</button>' +
           '<button class="btn" id="ed-cancel">Renunță</button>' +
         '</div>' +
       '</div>';
@@ -215,8 +304,8 @@
 
   function phGridHtml() {
     return (draft.images || []).map(function (im, i) {
-      return '<div class="ph' + (pending[im] ? ' pending' : '') + '" data-i="' + i + '">' +
-        '<img src="' + esc(imgUrl(im)) + '" alt="" loading="lazy">' +
+      return '<div class="ph' + (pendingBlobs[im] ? ' pending' : '') + '" data-i="' + i + '">' +
+        '<img src="' + esc(pendingBlobs[im] ? pendingBlobs[im].preview : imgUrl(im)) + '" alt="" loading="lazy">' +
         (i === 0 ? '<span class="cover-tag">Copertă</span>' : '') +
         '<div class="tools">' +
           '<button data-ph="left" title="Mută în stânga">←</button>' +
@@ -228,14 +317,12 @@
     }).join('') +
     '<div class="ph-add" id="ph-add"><b>+</b>Adaugă poze</div>';
   }
-
   function refreshPhotoGrid() {
     $('ph-grid').innerHTML = phGridHtml();
     bindPhotoGrid();
     var lbl = $('editor-host').querySelector('.ph-head label');
     if (lbl) lbl.textContent = 'Poze (' + (draft.images || []).length + ') — prima e coperta';
   }
-
   function bindPhotoGrid() {
     $('ph-add').addEventListener('click', function () { $('file-in').click(); });
     $('ph-grid').querySelectorAll('.ph').forEach(function (ph) {
@@ -244,7 +331,7 @@
         b.addEventListener('click', function () {
           var act = b.getAttribute('data-ph');
           var ims = draft.images;
-          if (act === 'del') { var rm = ims.splice(i, 1)[0]; delete pending[rm]; }
+          if (act === 'del') { var rm = ims.splice(i, 1)[0]; delete pendingBlobs[rm]; }
           else if (act === 'cover') { ims.unshift(ims.splice(i, 1)[0]); }
           else if (act === 'left' && i > 0) { ims.splice(i - 1, 0, ims.splice(i, 1)[0]); }
           else if (act === 'right' && i < ims.length - 1) { ims.splice(i + 1, 0, ims.splice(i, 1)[0]); }
@@ -254,10 +341,10 @@
     });
   }
 
-  /* photo intake: resize to <=1400px JPEG in the browser, stage as base64 */
+  /* photo intake: resize in browser, stage Blob + preview; upload happens on save */
   function handleFiles(files) {
     var list = [].slice.call(files);
-    if (!list.length) return;
+    if (!list.length || !draft) return;
     msg('Se procesează ' + list.length + ' poze…');
     var done = 0;
     list.forEach(function (file, idx) {
@@ -265,17 +352,19 @@
       fr.onload = function () {
         var img = new Image();
         img.onload = function () {
-          var w = img.width, h = img.height;
-          var k = Math.min(1, MAX_DIM / Math.max(w, h));
+          var k = Math.min(1, MAX_DIM / Math.max(img.width, img.height));
           var cv = document.createElement('canvas');
-          cv.width = Math.round(w * k); cv.height = Math.round(h * k);
+          cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
           cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-          var b64 = cv.toDataURL('image/jpeg', JPEG_Q).split(',')[1];
-          var path = 'assets/cars/' + draft.id + '/' + Date.now().toString(36) + '-' + idx + '.jpg';
-          pending[path] = b64;
-          draft.images.push(path);
-          done++;
-          if (done === list.length) { refreshPhotoGrid(); renderStats(); msg(list.length + ' poze adăugate. Nu uita „Salvează în listă" apoi „Publică pe site".', 'ok'); }
+          cv.toBlob(function (blob) {
+            var name = Date.now().toString(36) + '-' + idx + '.jpg';
+            var publicUrl = SB.url + '/storage/v1/object/public/car-photos/' + draft.id + '/' + name;
+            blob.preview = URL.createObjectURL(blob);
+            pendingBlobs[publicUrl] = blob;
+            draft.images.push(publicUrl);
+            done++;
+            if (done === list.length) { refreshPhotoGrid(); msg(list.length + ' poze pregătite — apasă „Salvează pe site".', 'ok'); }
+          }, 'image/jpeg', JPEG_Q);
         };
         img.onerror = function () { done++; msg('O poză nu a putut fi citită.', 'err'); };
         img.src = fr.result;
@@ -288,141 +377,76 @@
     if (!draft.make || !draft.model) { msg('Completează marca și modelul.', 'err'); return; }
     if (!draft.year || !draft.price) { msg('Completează anul și prețul.', 'err'); return; }
     draft.name = (draft.make + ' ' + draft.model).trim();
-    if (!draft.images.length) msg('Atenție: mașina nu are nicio poză.', 'err');
-    var isNew = editingId === '__new';
-    if (isNew) {
-      inv.cars.unshift(draft);
-      newIds[draft.id] = 1;
-    } else {
-      for (var i = 0; i < inv.cars.length; i++) if (inv.cars[i].id === draft.id) inv.cars[i] = draft;
-    }
-    markDirty(draft.id);
-    editingId = null; draft = null;
-    $('editor-host').innerHTML = '';
-    renderRows();
-    msg('Salvat în listă. Apasă „Publică pe site" când ești gata.', 'ok');
-  }
-
-  /* ---------- publish: one batch commit via Git Data API ---------- */
-  function gh(path, opts) {
-    opts = opts || {};
-    opts.headers = {
-      'Authorization': 'Bearer ' + token(),
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28'
-    };
-    return fetch(API + path, opts).then(function (r) {
-      if (r.status === 401 || r.status === 403) throw new Error('Token invalid sau fără permisiunea Contents: Read and write.');
-      if (!r.ok && r.status !== 409) return r.json().catch(function () { return {}; }).then(function (j) {
-        throw new Error('GitHub: ' + (j.message || ('HTTP ' + r.status)));
-      });
-      return r.json();
-    });
-  }
-
-  function inventorySource() {
-    var payload = { cars: inv.cars, featured: inv.featured, updatedAt: new Date().toISOString() };
-    return '// Managed by /admin.html — do not edit by hand.\nwindow.PK_INVENTORY = ' + JSON.stringify(payload) + ';\n';
-  }
-
-  function publish() {
-    if (editingId) { msg('Ai un automobil deschis în editor — apasă întâi „Salvează în listă" sau „Renunță".', 'err'); return; }
-    var btn = $('btn-publish');
+    var btn = $('ed-save');
     btn.disabled = true;
-    btn.textContent = 'Se publică…';
 
-    // only upload photos still referenced by the inventory
-    var referenced = {};
-    inv.cars.forEach(function (c) { (c.images || []).forEach(function (im) { referenced[im] = 1; }); });
-    var uploads = Object.keys(pending).filter(function (p) { return referenced[p]; });
-
-    var headSha, treeItems = [];
-    gh('/repos/' + REPO + '/git/ref/heads/main')
-      .then(function (ref) {
-        headSha = ref.object.sha;
-        var chain = Promise.resolve();
-        uploads.forEach(function (path, n) {
-          chain = chain.then(function () {
-            btn.textContent = 'Poze ' + (n + 1) + '/' + uploads.length + '…';
-            return gh('/repos/' + REPO + '/git/blobs', {
-              method: 'POST',
-              body: JSON.stringify({ content: pending[path], encoding: 'base64' })
-            }).then(function (b) { treeItems.push({ path: path, mode: '100644', type: 'blob', sha: b.sha }); });
-          });
-        });
-        return chain;
-      })
-      .then(function () {
-        btn.textContent = 'Se salvează…';
-        return gh('/repos/' + REPO + '/git/blobs', {
-          method: 'POST',
-          body: JSON.stringify({ content: inventorySource(), encoding: 'utf-8' })
-        });
-      })
-      .then(function (b) {
-        treeItems.push({ path: FILE, mode: '100644', type: 'blob', sha: b.sha });
-        return gh('/repos/' + REPO + '/git/trees', {
-          method: 'POST',
-          body: JSON.stringify({ base_tree: headSha, tree: treeItems })
-        });
-      })
-      .then(function (tree) {
-        var n = inv.cars.length;
-        return gh('/repos/' + REPO + '/git/commits', {
-          method: 'POST',
-          body: JSON.stringify({
-            message: 'admin: update inventory (' + n + ' cars' + (uploads.length ? ', +' + uploads.length + ' photos' : '') + ')',
-            tree: tree.sha,
-            parents: [headSha]
-          })
-        });
-      })
-      .then(function (commit) {
-        return gh('/repos/' + REPO + '/git/refs/heads/main', {
-          method: 'PATCH',
-          body: JSON.stringify({ sha: commit.sha })
-        });
-      })
-      .then(function () {
-        uploads.forEach(function (p) { delete pending[p]; });
-        dirty = false; dirtyIds = {}; newIds = {};
-        renderStats(); renderRows();
-        btn.textContent = 'Publicat ✓';
-        msg('Publicat. Site-ul se actualizează în ~1 minut.', 'ok');
-        setTimeout(function () { btn.textContent = 'Publică pe site'; btn.disabled = true; }, 2600);
-      })
-      .catch(function (e) {
-        btn.disabled = false;
-        btn.textContent = 'Publică pe site';
-        msg(e.message, 'err');
+    var uploads = Object.keys(pendingBlobs).filter(function (u) { return draft.images.indexOf(u) !== -1; });
+    var chain = Promise.resolve();
+    uploads.forEach(function (u, n) {
+      chain = chain.then(function () {
+        btn.textContent = 'Poze ' + (n + 1) + '/' + uploads.length + '…';
+        return uploadPhoto(u, pendingBlobs[u]);
       });
+    });
+
+    var isNew = editingId === '__new';
+    var position;
+    if (isNew) {
+      position = cars.length ? Math.min.apply(null, cars.map(function (r) { return r.position; })) - 1 : 0;
+    } else {
+      position = carData(draft.id) ? carData(draft.id).position : 0;
+    }
+
+    chain.then(function () {
+      btn.textContent = 'Se salvează…';
+      return saveCarRow(draft.id, draft, position);
+    }).then(function () {
+      if (isNew) cars.unshift({ id: draft.id, data: draft, position: position });
+      else carData(draft.id).data = draft;
+      closeEditor();
+      renderStats(); renderRows();
+      msg('Salvat — live pe site în câteva secunde.', 'ok');
+    }).catch(function (e) {
+      btn.disabled = false;
+      btn.textContent = 'Salvează pe site';
+      msg(e.message, 'err');
+    });
   }
 
   /* ---------- boot ---------- */
   function show() {
-    var has = !!token();
-    $('setup').style.display = has ? 'none' : 'block';
-    $('panel').style.display = has ? 'block' : 'none';
-    if (has) { renderStats(); renderRows(); }
+    var logged = !!sess();
+    $('login').style.display = logged ? 'none' : 'block';
+    $('panel').style.display = logged ? 'block' : 'none';
+    $('btn-add').style.display = logged ? '' : 'none';
+    $('live-dot').style.display = logged ? '' : 'none';
+    if (logged) {
+      loadAll().then(function () { renderStats(); renderRows(); })
+        .catch(function (e) { msg('Nu s-au putut încărca datele: ' + e.message, 'err'); });
+    }
   }
 
-  $('token-save').addEventListener('click', function () {
-    var v = $('token-in').value.trim();
-    if (!v) { msg('Introdu tokenul.', 'err'); return; }
-    try { localStorage.setItem('pk-admin-token', v); } catch (e) {}
-    show();
-  });
-  $('btn-logout').addEventListener('click', function () {
-    try { localStorage.removeItem('pk-admin-token'); } catch (e) {}
-    show();
-  });
+  $('l-go').addEventListener('click', doLogin);
+  $('l-pass').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+  function doLogin() {
+    var err = $('l-err');
+    err.style.display = 'none';
+    $('l-go').disabled = true;
+    login($('l-email').value.trim(), $('l-pass').value)
+      .then(function () { $('l-go').disabled = false; show(); })
+      .catch(function (e) {
+        $('l-go').disabled = false;
+        err.textContent = e.message;
+        err.style.display = 'block';
+      });
+  }
+  $('btn-logout').addEventListener('click', function () { setSess(null); show(); });
   $('btn-add').addEventListener('click', function () { openEditor('__new'); });
-  $('btn-publish').addEventListener('click', publish);
   $('q').addEventListener('input', function () { q = this.value; renderRows(); });
   $('f-status').addEventListener('change', function () { fStatus = this.value; renderRows(); });
   $('file-in').addEventListener('change', function () { handleFiles(this.files); this.value = ''; });
   window.addEventListener('beforeunload', function (e) {
-    if (dirty || Object.keys(pending).length) { e.preventDefault(); e.returnValue = ''; }
+    if (editingId) { e.preventDefault(); e.returnValue = ''; }
   });
 
   show();

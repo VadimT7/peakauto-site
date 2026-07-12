@@ -2,16 +2,22 @@
 (function () {
   'use strict';
 
-  /* data/inventory.js is the system of record, managed by /admin.html */
-  var INV = window.PK_INVENTORY || { cars: [], featured: [] };
-  var CARS = (INV.cars || []).map(function (c) {
-    var out = {};
-    for (var k in c) out[k] = c[k];
-    out.st = c.status || 'disponibil';
-    return out;
-  }).filter(function (c) { return c.st !== 'ascuns'; });
-  /* LIVE = sellable stock used for hero/featured/teaser curation; sold cars stay in inventory with an overlay */
-  var LIVE = CARS.filter(function (c) { return c.st !== 'vandut'; });
+  /* Supabase is the system of record (public read via anon key; admin writes via /admin.html) */
+  var SB = window.PK_SB || {};
+  var INV = { cars: [], featured: [] };
+  var CARS = [], LIVE = [];
+  function initData(inv) {
+    INV = inv || { cars: [], featured: [] };
+    CARS = (INV.cars || []).map(function (c) {
+      var out = {};
+      for (var k in c) out[k] = c[k];
+      out.st = c.status || 'disponibil';
+      return out;
+    }).filter(function (c) { return c.st !== 'ascuns'; });
+    /* LIVE = sellable stock for hero/featured/teaser curation; sold cars stay in inventory with an overlay */
+    LIVE = CARS.filter(function (c) { return c.st !== 'vandut'; });
+    computePools();
+  }
   var PHONE_DISPLAY = '+373 61 249 999';
   var PHONE_TEL = 'tel:+37361249999';
   var WA = 'https://wa.me/37361249999';
@@ -19,9 +25,8 @@
   var EUR_MDL = 20.07;
   var CDN = 'https://i.simpalsmedia.com/999.md/BoardImages/';
 
-  function isRepoImg(e) { return e.indexOf('/') !== -1; }
-  function img900(e) { return isRepoImg(e) ? '/' + e : CDN + '900x900/' + e; }
-  function img320(e) { return isRepoImg(e) ? '/' + e : CDN + '320x240/' + e; }
+  function img900(e) { return /^https?:/.test(e) ? e : (e.indexOf('/') !== -1 ? '/' + e : CDN + '900x900/' + e); }
+  function img320(e) { return /^https?:/.test(e) ? e : (e.indexOf('/') !== -1 ? '/' + e : CDN + '320x240/' + e); }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -308,9 +313,9 @@
     return s;
   }
 
-  /* ---------- curation (LIVE stock only) ---------- */
-  var byPrice = LIVE.slice().sort(function (a, b) { return b.price - a.price; });
-  var FLAGSHIP = byPrice[0];
+  /* ---------- curation pools (recomputed on every data refresh) ---------- */
+  var byPrice, FLAGSHIP, TEASER, IG_CELLS, HERO_SLIDES, FEATURED;
+  var makeCounts, TOP_MAKES, BODIES, FUELS, XP_MAKES, CATS, BANDS;
   function distinctMakeTop(n) {
     var seen = {}, out = [];
     for (var i = 0; i < byPrice.length && out.length < n; i++) {
@@ -319,10 +324,13 @@
     }
     return out;
   }
-  var TEASER = distinctMakeTop(9);
-  var IG_CELLS = distinctMakeTop(5);
-  /* hero rotates evergreen stock; the flagship tier lives in the featured spotlight */
-  var HERO_SLIDES = (function () {
+  function computePools() {
+    byPrice = LIVE.slice().sort(function (a, b) { return b.price - a.price; });
+    FLAGSHIP = byPrice[0];
+    TEASER = distinctMakeTop(9);
+    IG_CELLS = distinctMakeTop(5);
+    /* hero rotates evergreen stock; the flagship tier lives in the featured spotlight */
+    HERO_SLIDES = (function () {
     var seen = {}, out = [];
     for (var i = 0; i < byPrice.length && out.length < 5; i++) {
       var c = byPrice[i];
@@ -330,45 +338,46 @@
       seen[c.make] = 1; out.push(c);
     }
     return out;
-  })();
-  /* featured spotlight: admin-picked ids first, else top of the stock */
-  var FEATURED = (function () {
+    })();
+    /* featured spotlight: admin-picked ids first, else top of the stock */
+    FEATURED = (function () {
     var picked = (INV.featured || []).map(function (id) {
       return LIVE.filter(function (c) { return c.id === id; })[0];
     }).filter(Boolean);
     if (picked.length >= 2) return picked.slice(0, 6);
     return byPrice.slice(0, 4);
-  })();
+    })();
 
-  var makeCounts = {};
-  LIVE.forEach(function (c) { makeCounts[c.make] = (makeCounts[c.make] || 0) + 1; });
-  var TOP_MAKES = Object.keys(makeCounts).sort(function (a, b) { return makeCounts[b] - makeCounts[a]; }).slice(0, 5);
-  var BODIES = Object.keys(CARS.reduce(function (m, c) { if (c.body) m[c.body] = 1; return m; }, {}));
-  var FUELS = Object.keys(CARS.reduce(function (m, c) { if (c.fuel) m[c.fuel] = 1; return m; }, {}));
+    makeCounts = {};
+    LIVE.forEach(function (c) { makeCounts[c.make] = (makeCounts[c.make] || 0) + 1; });
+    TOP_MAKES = Object.keys(makeCounts).sort(function (a, b) { return makeCounts[b] - makeCounts[a]; }).slice(0, 5);
+    BODIES = Object.keys(CARS.reduce(function (m, c) { if (c.body) m[c.body] = 1; return m; }, {}));
+    FUELS = Object.keys(CARS.reduce(function (m, c) { if (c.fuel) m[c.fuel] = 1; return m; }, {}));
 
-  var XP_MAKES = Object.keys(makeCounts).sort(function (a, b) { return makeCounts[b] - makeCounts[a]; }).slice(0, 6)
+    XP_MAKES = Object.keys(makeCounts).sort(function (a, b) { return makeCounts[b] - makeCounts[a]; }).slice(0, 6)
     .map(function (m) {
       var cars = LIVE.filter(function (c) { return c.make === m; });
       return { make: m, count: cars.length, minPrice: Math.min.apply(null, cars.map(function (c) { return c.price; })) };
     });
-  var CATS = [
+    CATS = [
     { key: 'suv', bodies: ['SUV', 'Crossover', 'Camionetă'] },
     { key: 'sedan', bodies: ['Sedan'] },
     { key: 'sport', bodies: ['Coupe', 'Cabriolet'] }
-  ].map(function (g) {
+    ].map(function (g) {
     var cars = LIVE.filter(function (c) { return g.bodies.indexOf(c.body) !== -1; })
       .sort(function (a, b) { return b.price - a.price; });
     return { key: g.key, bodies: g.bodies, count: cars.length, img: cars.length ? cars[0].images[0] : null };
-  }).filter(function (g) { return g.count > 0; });
-  var BANDS = [
+    }).filter(function (g) { return g.count > 0; });
+    BANDS = [
     { min: 0, max: 40000, label: '< 40.000 €' },
     { min: 40000, max: 80000, label: '40–80.000 €' },
     { min: 80000, max: 150000, label: '80–150.000 €' },
     { min: 150000, max: Infinity, label: '150.000 € +' }
-  ].map(function (b) {
+    ].map(function (b) {
     b.count = LIVE.filter(function (c) { return c.price >= b.min && c.price < b.max; }).length;
     return b;
-  }).filter(function (b) { return b.count > 0; });
+    }).filter(function (b) { return b.count > 0; });
+  }
 
   /* status presentation (design's badge system, driven by admin overrides) */
   var ST = {
@@ -1260,6 +1269,22 @@
 
   }
 
+  /* ---------- data layer (Supabase PostgREST) ---------- */
+  function sbHeaders() { return { apikey: SB.anon, Authorization: 'Bearer ' + SB.anon }; }
+  function fetchInventory() {
+    return Promise.all([
+      fetch(SB.url + '/rest/v1/cars?select=data,position&order=position.asc', { headers: sbHeaders() })
+        .then(function (r) { if (!r.ok) throw new Error('cars ' + r.status); return r.json(); }),
+      fetch(SB.url + '/rest/v1/settings?key=eq.featured&select=value', { headers: sbHeaders() })
+        .then(function (r) { return r.ok ? r.json() : []; })
+    ]).then(function (res) {
+      return {
+        cars: res[0].map(function (row) { return row.data; }),
+        featured: (res[1][0] && res[1][0].value) || []
+      };
+    });
+  }
+
   /* ---------- boot ---------- */
   document.querySelectorAll('.langs button').forEach(function (b) {
     b.addEventListener('click', function () {
@@ -1281,19 +1306,56 @@
 
   try { var saved = localStorage.getItem('pk-lang'); if (saved && T[saved]) state.lang = saved; } catch (e) {}
 
-  /* preloader once per session */
-  try {
-    if (!sessionStorage.getItem('pk-intro')) {
-      var pre = document.getElementById('pk-pre');
-      pre.hidden = false;
-      setTimeout(function () {
-        pre.classList.add('out');
-        try { sessionStorage.setItem('pk-intro', '1'); } catch (e) {}
-        setTimeout(function () { pre.hidden = true; }, 500);
-      }, 1400);
-    }
-  } catch (e) {}
+  /* preloader: shown on first visit or while waiting for first data */
+  var preAt = Date.now();
+  function showPre() {
+    var pre = document.getElementById('pk-pre');
+    if (pre.hidden) { pre.hidden = false; pre.classList.remove('out'); preAt = Date.now(); }
+  }
+  function hidePre() {
+    var pre = document.getElementById('pk-pre');
+    if (pre.hidden) return;
+    var wait = Math.max(0, 900 - (Date.now() - preAt));
+    setTimeout(function () {
+      pre.classList.add('out');
+      try { sessionStorage.setItem('pk-intro', '1'); } catch (e) {}
+      setTimeout(function () { pre.hidden = true; }, 500);
+    }, wait);
+  }
 
-  onHash();
-  onScroll();
+  var booted = false;
+  function boot(inv) {
+    initData(inv);
+    if (!booted) { booted = true; onHash(); } else { render(); }
+    onScroll();
+  }
+
+  var cached = null;
+  try { cached = JSON.parse(localStorage.getItem('pk-inv-cache') || 'null'); } catch (e) {}
+  var introSeen = false;
+  try { introSeen = !!sessionStorage.getItem('pk-intro'); } catch (e) {}
+
+  if (cached && cached.cars && cached.cars.length) {
+    if (!introSeen) showPre();
+    boot(cached);
+    if (!introSeen) hidePre();
+  } else {
+    showPre();
+  }
+
+  fetchInventory().then(function (inv) {
+    var raw = JSON.stringify(inv);
+    try { localStorage.setItem('pk-inv-cache', raw); } catch (e) {}
+    if (!booted) { boot(inv); hidePre(); }
+    else if (raw !== JSON.stringify(cached)) { initData(inv); render(); }
+  }).catch(function () {
+    if (!booted) {
+      if (cached && cached.cars) { boot(cached); }
+      else {
+        document.getElementById('pk-view').innerHTML =
+          '<div style="padding:38vh 6vw;text-align:center;color:rgba(244,241,236,.55);font-size:15px">Stocul nu a putut fi încărcat. Verifică conexiunea și reîncearcă.</div>';
+      }
+      hidePre();
+    }
+  });
 })();
