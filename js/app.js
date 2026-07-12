@@ -2,7 +2,18 @@
 (function () {
   'use strict';
 
-  var CARS = window.PK_CARS || [];
+  /* merge admin overrides (data/overrides.js) over the scraped stock */
+  var OVR = window.PK_OVERRIDES || { cars: {}, featured: [] };
+  var CARS = (window.PK_CARS || []).map(function (c) {
+    var o = (OVR.cars || {})[c.id] || {};
+    var out = {};
+    for (var k in c) out[k] = c[k];
+    out.st = o.status || 'disponibil';
+    if (o.price != null && o.price !== '' && isFinite(+o.price)) out.price = +o.price;
+    return out;
+  }).filter(function (c) { return c.st !== 'ascuns'; });
+  /* LIVE = sellable stock used for hero/featured/teaser curation; sold cars stay in inventory with an overlay */
+  var LIVE = CARS.filter(function (c) { return c.st !== 'vandut'; });
   var PHONE_DISPLAY = '+373 61 249 999';
   var PHONE_TEL = 'tel:+37361249999';
   var WA = 'https://wa.me/37361249999';
@@ -77,6 +88,9 @@
       wa_hi: 'Bună ziua! Mă interesează {car} ({year}).',
       wa_reserve: 'Vreau să rezerv {car}.', wa_view: 'Vreau să programez o vizionare pentru {car}.',
       wa_credit: 'Credit și leasing', wa_trade: 'Trade-In', wa_order: 'Auto la comandă', wa_report: 'Solicit raportul de istoric pentru {car}.',
+      st_reserved: 'Rezervat', st_transit: 'În tranzit', st_sold: 'Vândut',
+      search_ph: 'Caută model…', fav_chip: 'Favorite', share: 'Distribuie', share_ok: 'Link copiat ✓',
+      feat_counter: 'din',
       xp_title: 'Explorează stocul', xp_brands: 'După marcă', xp_cats: 'După caroserie', xp_bands: 'După buget',
       cars_word: 'automobile', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedan & Limuzină', cat_sport: 'Coupé & Cabrio',
       faq_title: 'Întrebări frecvente',
@@ -144,6 +158,9 @@
       wa_hi: 'Здравствуйте! Интересует {car} ({year}).',
       wa_reserve: 'Хочу забронировать {car}.', wa_view: 'Хочу записаться на просмотр {car}.',
       wa_credit: 'Кредит и лизинг', wa_trade: 'Trade-In', wa_order: 'Авто под заказ', wa_report: 'Прошу отчёт истории для {car}.',
+      st_reserved: 'Бронь', st_transit: 'В пути', st_sold: 'Продано',
+      search_ph: 'Поиск модели…', fav_chip: 'Избранное', share: 'Поделиться', share_ok: 'Ссылка скопирована ✓',
+      feat_counter: 'из',
       xp_title: 'Исследуй сток', xp_brands: 'По марке', xp_cats: 'По кузову', xp_bands: 'По бюджету',
       cars_word: 'автомобилей', cat_suv: 'SUV и кроссоверы', cat_sedan: 'Седаны', cat_sport: 'Купе и кабрио',
       faq_title: 'Частые вопросы',
@@ -211,6 +228,9 @@
       wa_hi: 'Hello! I am interested in {car} ({year}).',
       wa_reserve: 'I want to reserve {car}.', wa_view: 'I want to book a viewing for {car}.',
       wa_credit: 'Credit & leasing', wa_trade: 'Trade-In', wa_order: 'Car on order', wa_report: 'Requesting the history report for {car}.',
+      st_reserved: 'Reserved', st_transit: 'In transit', st_sold: 'Sold',
+      search_ph: 'Search model…', fav_chip: 'Saved', share: 'Share', share_ok: 'Link copied ✓',
+      feat_counter: 'of',
       xp_title: 'Explore the stock', xp_brands: 'By make', xp_cats: 'By body style', xp_bands: 'By budget',
       cars_word: 'cars', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedans', cat_sport: 'Coupés & convertibles',
       faq_title: 'Frequently asked questions',
@@ -264,13 +284,15 @@
     lang: 'ro',
     route: { page: 'home', carId: null },
     brand: 'all', body: 'all', fuel: 'all', sort: 'new',
-    bodyGroup: null, priceBand: null,
+    bodyGroup: null, priceBand: null, q: '', favOnly: false,
     gi: 0, lb: false,
     calcDown: 30, calcTerm: 60
   };
   var silentHash = false;
   var skelTimer = null;
   var heroTimer = null;
+  var featTimer = null;
+  var featIdx = 0;
 
   function t(key) {
     var d = T[state.lang] || T.ro;
@@ -287,8 +309,8 @@
     return s;
   }
 
-  /* ---------- curation ---------- */
-  var byPrice = CARS.slice().sort(function (a, b) { return b.price - a.price; });
+  /* ---------- curation (LIVE stock only) ---------- */
+  var byPrice = LIVE.slice().sort(function (a, b) { return b.price - a.price; });
   var FLAGSHIP = byPrice[0];
   function distinctMakeTop(n) {
     var seen = {}, out = [];
@@ -300,7 +322,7 @@
   }
   var TEASER = distinctMakeTop(9);
   var IG_CELLS = distinctMakeTop(5);
-  /* hero rotates evergreen stock; the flagship listing stays in the story section only */
+  /* hero rotates evergreen stock; the flagship tier lives in the featured spotlight */
   var HERO_SLIDES = (function () {
     var seen = {}, out = [];
     for (var i = 0; i < byPrice.length && out.length < 5; i++) {
@@ -310,16 +332,24 @@
     }
     return out;
   })();
+  /* featured spotlight: admin-picked ids first, else top of the stock */
+  var FEATURED = (function () {
+    var picked = (OVR.featured || []).map(function (id) {
+      return LIVE.filter(function (c) { return c.id === id; })[0];
+    }).filter(Boolean);
+    if (picked.length >= 2) return picked.slice(0, 6);
+    return byPrice.slice(0, 4);
+  })();
 
   var makeCounts = {};
-  CARS.forEach(function (c) { makeCounts[c.make] = (makeCounts[c.make] || 0) + 1; });
+  LIVE.forEach(function (c) { makeCounts[c.make] = (makeCounts[c.make] || 0) + 1; });
   var TOP_MAKES = Object.keys(makeCounts).sort(function (a, b) { return makeCounts[b] - makeCounts[a]; }).slice(0, 5);
   var BODIES = Object.keys(CARS.reduce(function (m, c) { if (c.body) m[c.body] = 1; return m; }, {}));
   var FUELS = Object.keys(CARS.reduce(function (m, c) { if (c.fuel) m[c.fuel] = 1; return m; }, {}));
 
   var XP_MAKES = Object.keys(makeCounts).sort(function (a, b) { return makeCounts[b] - makeCounts[a]; }).slice(0, 6)
     .map(function (m) {
-      var cars = CARS.filter(function (c) { return c.make === m; });
+      var cars = LIVE.filter(function (c) { return c.make === m; });
       return { make: m, count: cars.length, minPrice: Math.min.apply(null, cars.map(function (c) { return c.price; })) };
     });
   var CATS = [
@@ -327,7 +357,7 @@
     { key: 'sedan', bodies: ['Sedan'] },
     { key: 'sport', bodies: ['Coupe', 'Cabriolet'] }
   ].map(function (g) {
-    var cars = CARS.filter(function (c) { return g.bodies.indexOf(c.body) !== -1; })
+    var cars = LIVE.filter(function (c) { return g.bodies.indexOf(c.body) !== -1; })
       .sort(function (a, b) { return b.price - a.price; });
     return { key: g.key, bodies: g.bodies, count: cars.length, img: cars.length ? cars[0].images[0] : null };
   }).filter(function (g) { return g.count > 0; });
@@ -337,9 +367,28 @@
     { min: 80000, max: 150000, label: '80–150.000 €' },
     { min: 150000, max: Infinity, label: '150.000 € +' }
   ].map(function (b) {
-    b.count = CARS.filter(function (c) { return c.price >= b.min && c.price < b.max; }).length;
+    b.count = LIVE.filter(function (c) { return c.price >= b.min && c.price < b.max; }).length;
     return b;
   }).filter(function (b) { return b.count > 0; });
+
+  /* status presentation (design's badge system, driven by admin overrides) */
+  var ST = {
+    disponibil: { key: 'status_avail', dot: '#C8BFAE', badge: false },
+    rezervat: { key: 'st_reserved', dot: '#C8BFAE', badge: true },
+    tranzit: { key: 'st_transit', dot: '#F4F1EC', badge: true },
+    vandut: { key: 'st_sold', dot: '#E10600', badge: false }
+  };
+
+  /* favorites (localStorage) */
+  function getFavs() {
+    try { return JSON.parse(localStorage.getItem('pk-favs') || '[]'); } catch (e) { return []; }
+  }
+  function toggleFav(id) {
+    var f = getFavs(), i = f.indexOf(id);
+    if (i === -1) f.push(id); else f.splice(i, 1);
+    try { localStorage.setItem('pk-favs', JSON.stringify(f)); } catch (e) {}
+    return f;
+  }
 
   function carById(id) {
     for (var i = 0; i < CARS.length; i++) if (CARS[i].id === id) return CARS[i];
@@ -358,9 +407,16 @@
 
   /* ---------- shared renderers ---------- */
   function cardHtml(c) {
+    var st = ST[c.st] || ST.disponibil;
+    var favs = getFavs();
     return '' +
-      '<div class="car-card" data-car="' + esc(c.id) + '">' +
-        '<div class="car-media"><img src="' + esc(img900(c.images[0])) + '" alt="' + esc(c.name) + '" loading="lazy"></div>' +
+      '<div class="car-card rv" data-car="' + esc(c.id) + '">' +
+        '<div class="car-media">' +
+          '<img src="' + esc(img900(c.images[0])) + '" srcset="' + esc(img320(c.images[0])) + ' 320w, ' + esc(img900(c.images[0])) + ' 900w" sizes="(max-width:640px) 96vw, (max-width:1100px) 46vw, 31vw" alt="' + esc(c.name) + '" loading="lazy" decoding="async">' +
+          (st.badge ? '<div class="car-badge"><i style="background:' + st.dot + '"></i><span>' + t(st.key) + '</span></div>' : '') +
+          (c.st === 'vandut' ? '<div class="car-sold"><span>' + t('st_sold') + '</span><i></i></div>' : '') +
+          '<button class="fav' + (favs.indexOf(c.id) !== -1 ? ' on' : '') + '" data-fav="' + esc(c.id) + '" aria-label="Favorite">♥</button>' +
+        '</div>' +
         '<div class="car-body">' +
           '<div class="car-row"><span class="car-name">' + esc(c.name) + '</span><span class="car-price">' + fmtEur(c.price) + '</span></div>' +
           '<div class="car-meta">' + esc(carMeta(c)) + '</div>' +
@@ -415,18 +471,18 @@
 
     '<section class="stock">' +
       '<div class="stock-head">' +
-        '<div class="sec-head"><span class="sec-num">01</span><h2 class="sec-title">' + t('stock_title') + '</h2></div>' +
+        '<div class="sec-head rv"><span class="sec-num">01</span><h2 class="sec-title">' + t('stock_title') + '</h2></div>' +
         '<a class="link-caps" href="#/automobile" data-nav="inventory">' + tf('stock_all', { n: CARS.length }) + '</a>' +
       '</div>' +
       gridHtml(TEASER) +
     '</section>' +
 
     '<section class="xp">' +
-      '<div class="sec-head"><span class="sec-num">02</span><h2 class="sec-title">' + t('xp_title') + '</h2></div>' +
+      '<div class="sec-head rv"><span class="sec-num">02</span><h2 class="sec-title">' + t('xp_title') + '</h2></div>' +
       '<div class="xp-sub">' + t('xp_cats') + '</div>' +
       '<div class="cat-grid">' +
         CATS.map(function (g) {
-          return '<div class="cat-card" data-catgo="' + esc(g.bodies.join('|')) + '">' +
+          return '<div class="cat-card rv" data-catgo="' + esc(g.bodies.join('|')) + '">' +
             '<img src="' + esc(img900(g.img)) + '" alt="' + t('cat_' + g.key) + '" loading="lazy">' +
             '<div class="cap"><b>' + t('cat_' + g.key) + '</b><span>' + g.count + ' ' + t('cars_word') + ' →</span></div>' +
             '</div>';
@@ -435,7 +491,7 @@
       '<div class="xp-sub">' + t('xp_brands') + '</div>' +
       '<div class="xp-brands">' +
         XP_MAKES.map(function (m) {
-          return '<div class="xp-brand" data-brandgo="' + esc(m.make) + '">' +
+          return '<div class="xp-brand rv" data-brandgo="' + esc(m.make) + '">' +
             '<b>' + esc(m.make) + '</b>' +
             '<span>' + m.count + ' ' + t('cars_word') + ' · ' + t('rail_from') + ' ' + fmtEur(m.minPrice) + '</span>' +
             '</div>';
@@ -449,35 +505,35 @@
       '</div>' +
     '</section>' +
 
-    '<div class="story" id="pk-story">' +
-      '<div class="story-stage grain">' +
-        '<div class="story-scene" data-scene="0" style="opacity:1">' +
-          '<img src="' + esc(img900(f.images[0])) + '" alt="Exterior">' +
-          '<div class="story-shade"></div>' +
-          '<div class="story-cap"><div class="story-cap-k">' + t('story_ext_k') + '</div><div class="story-cap-t">' + esc(f.name) + '. ' + t('story_ext_t') + '</div></div>' +
-        '</div>' +
-        '<div class="story-scene" data-scene="1">' +
-          '<img src="' + esc(img900(f.images[Math.min(8, f.images.length - 1)])) + '" alt="Interior">' +
-          '<div class="story-shade"></div>' +
-          '<div class="story-cap"><div class="story-cap-k">' + t('story_int_k') + '</div><div class="story-cap-t">' + t('story_int_t') + '</div></div>' +
-        '</div>' +
-        '<div class="story-scene story-final" data-scene="2">' +
-          '<div class="story-cap-k" style="color:rgba(244,241,236,.5)">' + esc(f.name) + ' · ' + f.year + '</div>' +
-          '<div class="story-price">' + fmtNum(f.price) + ' <span>€</span></div>' +
-          '<div style="font-size:14px;color:rgba(244,241,236,.55)">' + t('story_from') + ' <span style="color:#F4F1EC;font-weight:600">' + fmtNum(mo) + ' ' + t('story_mo') + '</span> ' + t('story_lease') + '</div>' +
-          '<button class="btn-red" data-car="' + esc(f.id) + '" style="margin-top:8px">' + t('story_cta') + ' <span style="font-weight:400">→</span></button>' +
-        '</div>' +
-        '<div class="story-tag"><span class="sec-num">03</span><span style="font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:rgba(244,241,236,.55)">' + t('story_tag') + '</span></div>' +
-        '<div class="story-bar" id="pk-story-bar"></div>' +
+    '<section class="feat grain" id="pk-feat">' +
+      FEATURED.map(function (c, i) {
+        var cmo = monthly(c.price, 30, 60);
+        return '<div class="feat-slide' + (i === 0 ? ' on' : '') + '" data-feat="' + i + '">' +
+          '<img src="' + esc(img900(c.images[0])) + '" alt="' + esc(c.name) + '"' + (i > 0 ? ' loading="lazy"' : '') + ' decoding="async">' +
+          '<div class="feat-shade"></div>' +
+          '<div class="feat-cap">' +
+            '<div class="feat-k">' + esc(c.year + (c.gen ? ' · ' + c.gen : '')) + '</div>' +
+            '<h2 class="feat-name">' + esc(c.name) + '</h2>' +
+            '<div class="feat-price">' + fmtEur(c.price) + ' <span>· ' + t('story_from') + ' ' + fmtNum(cmo) + ' ' + t('story_mo') + '</span></div>' +
+            '<button class="btn-red" data-car="' + esc(c.id) + '">' + t('story_cta') + ' <span style="font-weight:400">→</span></button>' +
+          '</div>' +
+          '</div>';
+      }).join('') +
+      '<div class="feat-tag"><span class="sec-num">03</span><span>' + t('story_tag') + '</span></div>' +
+      '<div class="feat-nav">' +
+        '<span class="feat-count" id="pk-feat-count">1 ' + t('feat_counter') + ' ' + FEATURED.length + '</span>' +
+        '<button id="pk-feat-prev" aria-label="Prev">←</button>' +
+        '<button id="pk-feat-next" aria-label="Next">→</button>' +
       '</div>' +
-    '</div>' +
+      '<div class="feat-bar" id="pk-feat-bar"></div>' +
+    '</section>' +
 
     '<section class="how" id="servicii">' +
-      '<div class="sec-head"><span class="sec-num">04</span><h2 class="sec-title">' + t('how_title') + '</h2></div>' +
+      '<div class="sec-head rv"><span class="sec-num">04</span><h2 class="sec-title">' + t('how_title') + '</h2></div>' +
       '<div class="pk-steps">' +
-        '<div class="step"><div class="step-num">01</div><h3>' + t('how1_t') + '</h3><p>' + t('how1_d') + '</p></div>' +
-        '<div class="step"><div class="step-num">02</div><h3>' + t('how2_t') + '</h3><p>' + t('how2_d') + '</p></div>' +
-        '<div class="step"><div class="step-num">03</div><h3>' + t('how3_t') + '</h3><p>' + t('how3_d') + '</p></div>' +
+        '<div class="step rv"><div class="step-num">01</div><h3>' + t('how1_t') + '</h3><p>' + t('how1_d') + '</p></div>' +
+        '<div class="step rv"><div class="step-num">02</div><h3>' + t('how2_t') + '</h3><p>' + t('how2_d') + '</p></div>' +
+        '<div class="step rv"><div class="step-num">03</div><h3>' + t('how3_t') + '</h3><p>' + t('how3_d') + '</p></div>' +
       '</div>' +
     '</section>' +
 
@@ -495,7 +551,7 @@
 
     '<section class="show" id="showroom">' +
       '<div>' +
-        '<div class="sec-head"><span class="sec-num">05</span><h2 class="sec-title">' + t('show_title') + '</h2></div>' +
+        '<div class="sec-head rv"><span class="sec-num">05</span><h2 class="sec-title">' + t('show_title') + '</h2></div>' +
         '<div class="show-rows">' +
           '<div class="show-row"><span class="k">' + t('show_addr_k') + '</span><span class="v">' + t('show_addr_v') + '</span></div>' +
           '<div class="show-row"><span class="k">' + t('show_prog_k') + '</span><span class="v">' + t('show_prog_v') + '</span></div>' +
@@ -521,7 +577,7 @@
 
     '<section class="ig">' +
       '<div class="ig-head">' +
-        '<div class="sec-head"><span class="sec-num">07</span><h2 class="sec-title">@peakauto.md</h2></div>' +
+        '<div class="sec-head rv"><span class="sec-num">07</span><h2 class="sec-title">@peakauto.md</h2></div>' +
         '<a class="link-caps" href="' + IG_URL + '" target="_blank" rel="noopener">' + t('ig_followers') + '</a>' +
       '</div>' +
       '<div class="ig-grid">' +
@@ -554,6 +610,11 @@
       if (state.body !== 'all' && c.body !== state.body) return false;
       if (state.fuel !== 'all' && c.fuel !== state.fuel) return false;
       if (state.priceBand && !(c.price >= state.priceBand[0] && c.price < state.priceBand[1])) return false;
+      if (state.favOnly && getFavs().indexOf(c.id) === -1) return false;
+      if (state.q) {
+        var hay = (c.name + ' ' + c.gen + ' ' + c.body + ' ' + c.fuel + ' ' + c.year).toLowerCase();
+        if (hay.indexOf(state.q.toLowerCase()) === -1) return false;
+      }
       return true;
     });
     if (state.sort === 'priceAsc') list = list.slice().sort(function (a, b) { return a.price - b.price; });
@@ -596,9 +657,12 @@
         '<div class="inv-count"><b>' + list.length + '</b> ' + t('inv_count') + '</div>' +
       '</section>' +
       '<div class="filters">' +
+        '<input class="inv-q" id="pk-q" type="search" value="' + esc(state.q) + '" placeholder="' + t('search_ph') + '" aria-label="Search">' +
         '<div class="chips">' + chips.map(function (ch) {
           return '<button class="chip' + (state.brand === ch.v ? ' on' : '') + '" data-brand="' + esc(ch.v) + '">' + esc(ch.l) + '</button>';
-        }).join('') + '</div>' +
+        }).join('') +
+        (getFavs().length ? '<button class="chip fav-chip' + (state.favOnly ? ' on' : '') + '" id="pk-favonly">♥ ' + t('fav_chip') + ' (' + getFavs().length + ')</button>' : '') +
+        '</div>' +
         '<div class="filters-sel">' +
           '<select id="pk-f-body" aria-label="Body">' + bodyOpts + '</select>' +
           '<select id="pk-f-fuel" aria-label="Fuel">' + fuelOpts + '</select>' +
@@ -648,7 +712,7 @@
 
         '<div style="min-width:0">' +
           '<div class="gal" id="pk-gal">' +
-            '<img class="main" id="pk-gal-img" src="' + esc(img900(gal[gi])) + '" alt="' + esc(c.name) + '">' +
+            '<img class="main" id="pk-gal-img" src="' + esc(img900(gal[gi])) + '" alt="' + esc(c.name) + '" style="view-transition-name:car-hero" decoding="async">' +
             '<div class="gal-shade"></div>' +
             '<div class="gal-count" id="pk-gal-count">' + (gi + 1) + ' / ' + gal.length + '</div>' +
             '<button class="gal-nav prev" id="pk-prev" aria-label="Prev">←</button>' +
@@ -725,7 +789,13 @@
         '</div>' +
 
         '<div class="pk-rail">' +
-          '<div class="rail-badge"><i></i><span>' + esc(tv(c.avail || 'Disponibil')) + '</span></div>' +
+          '<div class="rail-top">' +
+            '<div class="rail-badge"><i style="background:' + (ST[c.st] || ST.disponibil).dot + '"></i><span>' + t((ST[c.st] || ST.disponibil).key) + '</span></div>' +
+            '<div class="rail-acts">' +
+              '<button class="ract fav-d' + (getFavs().indexOf(c.id) !== -1 ? ' on' : '') + '" data-fav="' + esc(c.id) + '" aria-label="Favorite">♥</button>' +
+              '<button class="ract" id="pk-share" aria-label="Share">⇪</button>' +
+            '</div>' +
+          '</div>' +
           '<h1 class="rail-name">' + esc(c.name) + '</h1>' +
           '<div class="rail-meta">' + esc(carMeta(c) + ' · ' + tv(c.fuel)) + '</div>' +
           '<div class="rail-price">' + fmtEur(c.price) + '</div>' +
@@ -809,10 +879,11 @@
   }
 
   /* ---------- render root ---------- */
-  function render(opts) {
+  function doRender(opts) {
     var view = document.getElementById('pk-view');
     var page = state.route.page;
     clearInterval(heroTimer);
+    clearInterval(featTimer);
     if (page === 'home') view.innerHTML = homeHtml();
     else if (page === 'inventory') view.innerHTML = invHtml(!!(opts && opts.loading));
     else {
@@ -823,8 +894,70 @@
     bindView();
     syncHeader();
     initTicks();
+    initReveals();
     renderLb();
-    if (page === 'home') startHero();
+    if (page === 'home') { startHero(); startFeat(); }
+    syncTitle();
+  }
+
+  function render(opts, vt) {
+    if (vt && document.startViewTransition && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+      document.startViewTransition(function () { doRender(opts); });
+    } else {
+      doRender(opts);
+    }
+  }
+
+  function syncTitle() {
+    var base = 'PEAK AUTO';
+    var page = state.route.page;
+    if (page === 'car') {
+      var c = carById(state.route.carId);
+      if (c) document.title = c.name + ' ' + c.year + ' — ' + fmtEur(c.price) + ' · ' + base;
+    } else if (page === 'inventory') {
+      document.title = t('inv_title') + ' · ' + base;
+    } else {
+      document.title = base + ' — Automobile premium în Chișinău';
+    }
+  }
+
+  function stepFeat(d, manual) {
+    var slides = document.querySelectorAll('.feat-slide');
+    if (!slides.length) return;
+    featIdx = (featIdx + d + slides.length) % slides.length;
+    slides.forEach(function (s, i) { s.classList.toggle('on', i === featIdx); });
+    var cnt = document.getElementById('pk-feat-count');
+    if (cnt) cnt.textContent = (featIdx + 1) + ' ' + t('feat_counter') + ' ' + slides.length;
+    var bar = document.getElementById('pk-feat-bar');
+    if (bar) { bar.style.transition = 'none'; bar.style.width = '0%'; }
+    if (manual) restartFeatTimer();
+  }
+  function restartFeatTimer() {
+    clearInterval(featTimer);
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var t0 = Date.now(), DUR = 7000;
+    featTimer = setInterval(function () {
+      var p = (Date.now() - t0) / DUR;
+      var bar = document.getElementById('pk-feat-bar');
+      if (bar) { bar.style.transition = 'none'; bar.style.width = Math.min(100, p * 100) + '%'; }
+      if (p >= 1) { t0 = Date.now(); stepFeat(1); }
+    }, 100);
+  }
+  function startFeat() {
+    featIdx = 0;
+    restartFeatTimer();
+  }
+
+  function initReveals() {
+    if (!('IntersectionObserver' in window)) return;
+    var els = document.querySelectorAll('.rv:not(.rv-in)');
+    if (!els.length) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('rv-in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -4% 0px' });
+    els.forEach(function (el) { io.observe(el); });
   }
 
   function startHero() {
@@ -846,8 +979,47 @@
     var view = document.getElementById('pk-view');
 
     view.querySelectorAll('[data-car]').forEach(function (el) {
-      el.addEventListener('click', function () { goto('car', el.getAttribute('data-car')); });
+      el.addEventListener('click', function (e) {
+        if (e.target.closest('[data-fav]')) return;
+        var im = el.querySelector('img');
+        if (im && document.startViewTransition) im.style.viewTransitionName = 'car-hero';
+        goto('car', el.getAttribute('data-car'));
+      });
     });
+    view.querySelectorAll('[data-fav]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var favs = toggleFav(el.getAttribute('data-fav'));
+        el.classList.toggle('on', favs.indexOf(el.getAttribute('data-fav')) !== -1);
+        if (state.favOnly && !favs.length) state.favOnly = false;
+      });
+    });
+    var fo = document.getElementById('pk-favonly');
+    if (fo) fo.addEventListener('click', function () { state.favOnly = !state.favOnly; render(); });
+    var q = document.getElementById('pk-q');
+    if (q) {
+      var qT = null;
+      q.addEventListener('input', function () {
+        clearTimeout(qT);
+        qT = setTimeout(function () {
+          state.q = q.value;
+          render();
+          var q2 = document.getElementById('pk-q');
+          if (q2) { q2.focus(); q2.setSelectionRange(q2.value.length, q2.value.length); }
+        }, 220);
+      });
+    }
+    var shareBtn = document.getElementById('pk-share');
+    if (shareBtn) shareBtn.addEventListener('click', function () {
+      var c = carById(state.route.carId);
+      var url = location.href;
+      var done = function () { shareBtn.textContent = '✓'; setTimeout(function () { shareBtn.textContent = '⇪'; }, 1600); };
+      if (navigator.share) navigator.share({ title: c ? c.name : 'PEAK AUTO', url: url }).catch(function () {});
+      else if (navigator.clipboard) navigator.clipboard.writeText(url).then(done).catch(function () {});
+    });
+    var fPrev = document.getElementById('pk-feat-prev'), fNext = document.getElementById('pk-feat-next');
+    if (fPrev) fPrev.addEventListener('click', function () { stepFeat(-1, true); });
+    if (fNext) fNext.addEventListener('click', function () { stepFeat(1, true); });
     view.querySelectorAll('[data-nav]').forEach(bindNav);
 
     view.querySelectorAll('[data-brand]').forEach(function (el) {
@@ -882,7 +1054,7 @@
     var fs = document.getElementById('pk-f-sort');
     if (fs) fs.addEventListener('change', function () { state.sort = fs.value; render(); });
     var rs = document.getElementById('pk-reset');
-    if (rs) rs.addEventListener('click', function () { state.brand = 'all'; state.body = 'all'; state.fuel = 'all'; state.sort = 'new'; state.bodyGroup = null; state.priceBand = null; render(); });
+    if (rs) rs.addEventListener('click', function () { state.brand = 'all'; state.body = 'all'; state.fuel = 'all'; state.sort = 'new'; state.bodyGroup = null; state.priceBand = null; state.q = ''; state.favOnly = false; render(); });
 
     var gal = document.getElementById('pk-gal');
     if (gal) {
@@ -890,6 +1062,14 @@
         if (e.target.closest('button')) return;
         state.lb = true; renderLb();
       });
+      var tx0 = null;
+      gal.addEventListener('touchstart', function (e) { tx0 = e.touches[0].clientX; }, { passive: true });
+      gal.addEventListener('touchend', function (e) {
+        if (tx0 == null) return;
+        var dx = e.changedTouches[0].clientX - tx0;
+        tx0 = null;
+        if (Math.abs(dx) > 42) stepImg(dx < 0 ? 1 : -1);
+      }, { passive: true });
       document.getElementById('pk-prev').addEventListener('click', function (e) { e.stopPropagation(); stepImg(-1); });
       document.getElementById('pk-next').addEventListener('click', function (e) { e.stopPropagation(); stepImg(1); });
       document.querySelectorAll('#pk-thumbs .thumb').forEach(function (th) {
@@ -933,11 +1113,11 @@
     var h = page === 'home' ? '#/' : page === 'inventory' ? '#/automobile' : '#/auto/' + carId;
     if (location.hash !== h) { silentHash = true; location.hash = h; }
     if (page === 'inventory') {
-      render({ loading: true });
+      render({ loading: true }, true);
       clearTimeout(skelTimer);
       skelTimer = setTimeout(function () { render(); window.scrollTo(0, 0); }, 450);
     } else {
-      render();
+      render(null, true);
     }
     window.scrollTo(0, 0);
   }
@@ -1000,23 +1180,6 @@
     var h = document.getElementById('pk-header');
     if (h) h.classList.toggle('on', window.scrollY > 40);
 
-    var story = document.getElementById('pk-story');
-    if (story) {
-      var r = story.getBoundingClientRect();
-      var total = r.height - window.innerHeight;
-      var p = Math.min(1, Math.max(0, -r.top / total));
-      var w = 0.09;
-      story.querySelectorAll('[data-scene]').forEach(function (el) {
-        var i = +el.dataset.scene, o = 0;
-        if (i === 0) o = p < 0.33 ? 1 : Math.max(0, 1 - (p - 0.33) / w);
-        else if (i === 1) o = p < 0.33 ? 0 : p < 0.66 ? Math.min(1, (p - 0.33) / w) : Math.max(0, 1 - (p - 0.66) / w);
-        else o = p < 0.66 ? 0 : Math.min(1, (p - 0.66) / w);
-        el.style.opacity = o;
-        el.style.pointerEvents = o > 0.5 ? 'auto' : 'none';
-      });
-      var bar = document.getElementById('pk-story-bar');
-      if (bar) bar.style.width = (p * 100) + '%';
-    }
   }
 
   /* ---------- boot ---------- */
