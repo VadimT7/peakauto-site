@@ -2,14 +2,12 @@
 (function () {
   'use strict';
 
-  /* merge admin overrides (data/overrides.js) over the scraped stock */
-  var OVR = window.PK_OVERRIDES || { cars: {}, featured: [] };
-  var CARS = (window.PK_CARS || []).map(function (c) {
-    var o = (OVR.cars || {})[c.id] || {};
+  /* data/inventory.js is the system of record, managed by /admin.html */
+  var INV = window.PK_INVENTORY || { cars: [], featured: [] };
+  var CARS = (INV.cars || []).map(function (c) {
     var out = {};
     for (var k in c) out[k] = c[k];
-    out.st = o.status || 'disponibil';
-    if (o.price != null && o.price !== '' && isFinite(+o.price)) out.price = +o.price;
+    out.st = c.status || 'disponibil';
     return out;
   }).filter(function (c) { return c.st !== 'ascuns'; });
   /* LIVE = sellable stock used for hero/featured/teaser curation; sold cars stay in inventory with an overlay */
@@ -21,8 +19,9 @@
   var EUR_MDL = 20.07;
   var CDN = 'https://i.simpalsmedia.com/999.md/BoardImages/';
 
-  function img900(hash) { return CDN + '900x900/' + hash; }
-  function img320(hash) { return CDN + '320x240/' + hash; }
+  function isRepoImg(e) { return e.indexOf('/') !== -1; }
+  function img900(e) { return isRepoImg(e) ? '/' + e : CDN + '900x900/' + e; }
+  function img320(e) { return isRepoImg(e) ? '/' + e : CDN + '320x240/' + e; }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -334,7 +333,7 @@
   })();
   /* featured spotlight: admin-picked ids first, else top of the stock */
   var FEATURED = (function () {
-    var picked = (OVR.featured || []).map(function (id) {
+    var picked = (INV.featured || []).map(function (id) {
       return LIVE.filter(function (c) { return c.id === id; })[0];
     }).filter(Boolean);
     if (picked.length >= 2) return picked.slice(0, 6);
@@ -702,7 +701,7 @@
       '<div class="det-sec">' +
         '<h2 class="det-h2">' + t('desc_title') + '</h2>' +
         '<div class="prose">' + esc(c.prose) + '</div>' +
-        '<a class="link-under" style="display:inline-block;margin-top:22px" href="' + esc(c.url) + '" target="_blank" rel="noopener">' + t('see_999') + '</a>' +
+        (c.url ? '<a class="link-under" style="display:inline-block;margin-top:22px" href="' + esc(c.url) + '" target="_blank" rel="noopener">' + t('see_999') + '</a>' : '') +
       '</div>') : '';
 
     return '' +

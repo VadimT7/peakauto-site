@@ -1,7 +1,7 @@
 design/
 tools/
 data/*
-!data/overrides.js
+!data/inventory.js
 .claude/
 .gitignore
 .github/
