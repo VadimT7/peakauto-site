@@ -36,5 +36,6 @@ jobs:
             echo "No stock changes."
           else
             git commit -m "bot: refresh stock from 999.md"
+            git pull --rebase origin main
             git push
           fi
