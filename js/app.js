@@ -1422,4 +1422,40 @@
       hidePre();
     }
   });
+
+  /* ---------- pointer polish: hero parallax + magnetic CTAs (desktop only) ---------- */
+  if (window.matchMedia('(pointer: fine)').matches &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var parX = 0, parY = 0, parTX = 0, parTY = 0, parRaf = null;
+    var magEl = null;
+    var parTick = function () {
+      parRaf = null;
+      parX += (parTX - parX) * .07;
+      parY += (parTY - parY) * .07;
+      var slide = state.route.page === 'home' ? document.querySelector('.hero-slide.on') : null;
+      if (slide) slide.style.transform = 'translate3d(' + (parX * 14).toFixed(2) + 'px,' + (parY * 10).toFixed(2) + 'px,0)';
+      if (Math.abs(parTX - parX) > .002 || Math.abs(parTY - parY) > .002) parRaf = requestAnimationFrame(parTick);
+    };
+    document.addEventListener('mousemove', function (e) {
+      if (state.route.page === 'home') {
+        var hero = document.querySelector('.hero');
+        if (hero) {
+          var r = hero.getBoundingClientRect();
+          if (e.clientY >= r.top && e.clientY <= r.bottom) {
+            parTX = (e.clientX / window.innerWidth - .5) * 2;
+            parTY = ((e.clientY - r.top) / r.height - .5) * 2;
+            if (!parRaf) parRaf = requestAnimationFrame(parTick);
+          }
+        }
+      }
+      var m = e.target.closest ? e.target.closest('.btn-red, .btn-ghost, .feat-nav button') : null;
+      if (m !== magEl) { if (magEl) magEl.style.transform = ''; magEl = m; }
+      if (magEl) {
+        var b = magEl.getBoundingClientRect();
+        magEl.style.transform = 'translate(' +
+          ((e.clientX - b.left - b.width / 2) * .16).toFixed(2) + 'px,' +
+          ((e.clientY - b.top - b.height / 2) * .22).toFixed(2) + 'px)';
+      }
+    }, { passive: true });
+  }
 })();
