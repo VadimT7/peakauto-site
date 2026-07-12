@@ -24,6 +24,25 @@
     ['vandut', 'Vândut'],
     ['ascuns', 'Ascuns (nu apare pe site)']
   ];
+  var BRANDS_BASE = ['Audi', 'BMW', 'Mercedes', 'Porsche', 'Land Rover', 'Range Rover', 'Lexus', 'Toyota', 'Volkswagen', 'Skoda',
+    'Volvo', 'Tesla', 'Bentley', 'Rolls-Royce', 'Ferrari', 'Lamborghini', 'Maserati', 'Aston Martin', 'Jaguar', 'Mini',
+    'Jeep', 'Ford', 'Honda', 'Hyundai', 'Kia', 'Nissan', 'Mazda', 'Mitsubishi', 'Subaru', 'Suzuki', 'Genesis', 'Infiniti',
+    'Cadillac', 'Chevrolet', 'GMC', 'Dodge', 'RAM', 'Lincoln', 'Renault', 'Dacia', 'Peugeot', 'Citroën', 'Opel', 'Fiat',
+    'Alfa Romeo', 'Smart', 'Xiaomi', 'Zeekr', 'BYD', 'Li Auto', 'NIO', 'Lucid', 'Polestar'];
+  function knownBrands() {
+    var set = {};
+    BRANDS_BASE.forEach(function (b) { set[b] = 1; });
+    cars.forEach(function (r) { if (r.data.make) set[r.data.make] = 1; });
+    return Object.keys(set).sort();
+  }
+  function knownModels(make) {
+    var set = {};
+    cars.forEach(function (r) {
+      if (r.data.model && (!make || (r.data.make || '').toLowerCase() === make.toLowerCase())) set[r.data.model] = 1;
+    });
+    return Object.keys(set).sort();
+  }
+
   var OPTS = {
     fuel: ['Benzină', 'Diesel', 'Electricitate', 'Hibrid', 'Plagin-hibrid (benzină)', 'Plagin-hibrid (diesel)', 'Gaz/Benzină'],
     box: ['Automată', 'Mecanică', 'Robotizată', 'Variator'],
@@ -237,8 +256,11 @@
   }
 
   /* ---------- editor ---------- */
-  function fld(label, key, type, opts) {
+  function fld(label, key, type, opts, listId) {
     var v = draft[key];
+    if (listId) {
+      return '<div class="fld"><label>' + label + '</label><input data-k="' + key + '" type="text" list="' + listId + '" value="' + esc(v == null ? '' : v) + '" autocomplete="off" placeholder="alege sau scrie…"></div>';
+    }
     if (opts) {
       var found = v && opts.indexOf(v) !== -1;
       return '<div class="fld"><label>' + label + '</label><select data-k="' + key + '">' +
@@ -276,7 +298,7 @@
         '<div class="ed-head"><h2>' + (isNew ? 'Automobil nou' : 'Editezi: ' + esc(draft.name || draft.id)) + '</h2>' +
         '<span style="font-size:11px;color:rgba(244,241,236,.35);letter-spacing:.1em">ID ' + esc(draft.id) + '</span></div>' +
         '<div class="ed-grid">' +
-          fld('Marcă *', 'make') + fld('Model *', 'model') + fld('Generație', 'gen') +
+          fld('Marcă *', 'make', null, null, 'dl-make') + fld('Model *', 'model', null, null, 'dl-model') + fld('Generație', 'gen') +
           fld('An *', 'year', 'number') + fld('Preț EUR *', 'price', 'number') + fld('Rulaj km', 'km', 'number') +
           fld('Putere CP', 'power', 'number') + fld('Motor (ex: 3.0 l)', 'engine') +
           fld('Combustibil', 'fuel', null, OPTS.fuel) + fld('Cutie', 'box', null, OPTS.box) +
@@ -296,6 +318,8 @@
           '<button class="btn red" id="ed-save">Salvează pe site</button>' +
           '<button class="btn" id="ed-cancel">Renunță</button>' +
         '</div>' +
+        '<datalist id="dl-make">' + knownBrands().map(function (b) { return '<option value="' + esc(b) + '">'; }).join('') + '</datalist>' +
+        '<datalist id="dl-model">' + knownModels(draft.make).map(function (m) { return '<option value="' + esc(m) + '">'; }).join('') + '</datalist>' +
       '</div>';
 
     $('editor-host').querySelectorAll('[data-k]').forEach(function (el) {
@@ -304,6 +328,10 @@
         if (k === 'equip') draft.equip = v.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
         else if (el.type === 'number') draft[k] = v === '' ? null : +v;
         else draft[k] = v;
+        if (k === 'make') {
+          var dl = document.getElementById('dl-model');
+          if (dl) dl.innerHTML = knownModels(v).map(function (m) { return '<option value="' + esc(m) + '">'; }).join('');
+        }
       });
     });
     bindPhotoGrid();

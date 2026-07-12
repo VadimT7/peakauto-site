@@ -292,7 +292,6 @@
     gi: 0, lb: false,
     calcDown: 30, calcTerm: 60
   };
-  var silentHash = false;
   var skelTimer = null;
   var heroTimer = null;
   var featTimer = null;
@@ -480,7 +479,7 @@
     '<section class="stock">' +
       '<div class="stock-head">' +
         '<div class="sec-head rv"><span class="sec-num">01</span><h2 class="sec-title">' + t('stock_title') + '</h2></div>' +
-        '<a class="link-caps" href="#/automobile" data-nav="inventory">' + tf('stock_all', { n: CARS.length }) + '</a>' +
+        '<a class="link-caps" href="/automobile" data-nav="inventory">' + tf('stock_all', { n: CARS.length }) + '</a>' +
       '</div>' +
       gridHtml(TEASER) +
     '</section>' +
@@ -957,18 +956,78 @@
     }
   }
 
+  function setMeta(desc) {
+    var m = document.querySelector('meta[name="description"]');
+    if (m && desc) m.setAttribute('content', desc);
+    var canon = document.getElementById('pk-canon');
+    if (!canon) {
+      canon = document.createElement('link');
+      canon.rel = 'canonical'; canon.id = 'pk-canon';
+      document.head.appendChild(canon);
+    }
+    canon.href = location.origin + location.pathname;
+  }
+  function setJsonLd(id, obj) {
+    var el = document.getElementById(id);
+    if (!obj) { if (el) el.remove(); return; }
+    if (!el) {
+      el = document.createElement('script');
+      el.type = 'application/ld+json'; el.id = id;
+      document.head.appendChild(el);
+    }
+    el.textContent = JSON.stringify(obj);
+  }
   function syncTitle() {
     var base = 'PEAK AUTO';
     var page = state.route.page;
     if (page === 'car') {
       var c = carById(state.route.carId);
-      if (c) document.title = c.name + ' ' + c.year + ' — ' + fmtEur(c.price) + ' · ' + base;
+      if (c) {
+        document.title = c.name + ' ' + c.year + ' — ' + fmtEur(c.price) + ' · ' + base;
+        setMeta(c.name + ' ' + c.year + ', ' + fmtNum(c.km) + ' km, ' + tv(c.fuel) + ' — ' + fmtEur(c.price) + '. Verificat, în Chișinău la PEAK AUTO. ' + PHONE_DISPLAY + '.');
+        setJsonLd('pk-ld-car', {
+          '@context': 'https://schema.org',
+          '@type': 'Car',
+          name: c.name + ' ' + c.year,
+          brand: { '@type': 'Brand', name: c.make },
+          model: c.model,
+          vehicleModelDate: String(c.year),
+          mileageFromOdometer: { '@type': 'QuantitativeValue', value: c.km, unitCode: 'KMT' },
+          fuelType: c.fuel,
+          vehicleTransmission: c.box,
+          vehicleIdentificationNumber: c.vin || undefined,
+          image: (c.images || []).slice(0, 5).map(img900),
+          offers: {
+            '@type': 'Offer',
+            price: c.price,
+            priceCurrency: 'EUR',
+            availability: c.st === 'vandut' ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
+            url: location.origin + '/auto/' + c.id
+          }
+        });
+      }
     } else if (page === 'inventory') {
-      document.title = t('inv_title') + ' · ' + base;
+      document.title = t('inv_title') + ' (' + CARS.length + ') · ' + base;
+      setMeta(CARS.length + ' automobile premium și business class în stoc la PEAK AUTO Chișinău. Mercedes, BMW, Porsche, Audi, Land Rover. Credit și leasing.');
+      setJsonLd('pk-ld-car', null);
     } else {
       document.title = base + ' — Automobile premium în Chișinău';
+      setMeta('PEAK AUTO — automobile premium și business class, importate și verificate. Showroom în centrul Chișinăului, str. Grigore Ureche 64. Credit, leasing, trade-in.');
+      setJsonLd('pk-ld-car', null);
     }
   }
+  /* dealer schema, once */
+  setJsonLd('pk-ld-dealer', {
+    '@context': 'https://schema.org',
+    '@type': 'AutoDealer',
+    name: 'PEAK AUTO',
+    legalName: 'Peak Development SRL',
+    url: location.origin,
+    telephone: '+37361249999',
+    address: { '@type': 'PostalAddress', streetAddress: 'str. Grigore Ureche 64', addressLocality: 'Chișinău', addressCountry: 'MD' },
+    openingHours: 'Mo-Sa 09:00-19:00',
+    sameAs: ['https://instagram.com/peakauto.md', 'https://999.md/ro/profile/PEAKAUTO']
+  });
 
   function stepFeat(d, manual) {
     var slides = document.querySelectorAll('.feat-slide');
@@ -1193,8 +1252,8 @@
     var restore = state.route.page === 'car' && page === 'inventory';
     state.route = { page: page, carId: carId || null };
     state.gi = 0; state.lb = false;
-    var h = page === 'home' ? '#/' : page === 'inventory' ? '#/automobile' : '#/auto/' + carId;
-    if (location.hash !== h) { silentHash = true; location.hash = h; }
+    var h = page === 'home' ? '/' : page === 'inventory' ? '/automobile' : '/auto/' + carId;
+    if (location.pathname !== h) history.pushState({}, '', h);
     if (page === 'inventory' && !restore) {
       render({ loading: true }, true);
       clearTimeout(skelTimer);
@@ -1215,11 +1274,16 @@
     };
     if (state.route.page !== 'home') { goto('home'); setTimeout(go, 140); } else go();
   }
-  function onHash() {
-    if (silentHash) { silentHash = false; return; }
-    var m = location.hash.match(/^#\/auto\/(.+)$/);
-    if (m) goto('car', m[1]);
-    else if (location.hash === '#/automobile') goto('inventory');
+  function onRoute() {
+    /* legacy #/ links keep working: migrate them to clean paths */
+    var hm = location.hash.match(/^#\/(auto\/(.+)|automobile)\/?$/);
+    if (hm) {
+      var clean = hm[2] ? '/auto/' + hm[2] : '/automobile';
+      history.replaceState({}, '', clean);
+    }
+    var m = location.pathname.match(/^\/auto\/([^\/]+)\/?$/);
+    if (m) goto('car', decodeURIComponent(m[1]));
+    else if (/^\/automobile\/?$/.test(location.pathname)) goto('inventory');
     else goto('home');
   }
 
@@ -1296,7 +1360,7 @@
   document.querySelectorAll('.hdr [data-nav], footer [data-nav]').forEach(bindNav);
 
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('hashchange', onHash);
+  window.addEventListener('popstate', onRoute);
   window.addEventListener('keydown', function (e) {
     if (state.route.page !== 'car') return;
     if (e.key === 'Escape' && state.lb) closeLb();
@@ -1326,7 +1390,7 @@
   var booted = false;
   function boot(inv) {
     initData(inv);
-    if (!booted) { booted = true; onHash(); } else { render(); }
+    if (!booted) { booted = true; onRoute(); } else { render(); }
     onScroll();
   }
 
