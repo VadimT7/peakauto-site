@@ -180,34 +180,43 @@
       var starred = featured.indexOf(row.id) !== -1;
       return '<div class="row" data-id="' + esc(row.id) + '">' +
         '<img src="' + (c.images && c.images.length ? esc(imgUrl(c.images[0])) : '') + '" alt="" loading="lazy">' +
-        '<div class="nm"><b>' + esc(c.name || '(fără nume)') + '</b><span>' + esc((c.year || '—') + ' · ' + Number(c.km || 0).toLocaleString('ro-RO') + ' km · ' + (c.images ? c.images.length : 0) + ' poze') + '</span></div>' +
+        '<div class="nm"><b>' + esc(c.name || '(fără nume)') + '</b><span>' + esc((c.year || '—') + ' · ' + Number(c.km || 0).toLocaleString('ro-RO') + ' km · ' + (c.images ? c.images.length : 0) + ' poze') + '</span><div class="price-m">' + fmtEur(c.price) + '</div></div>' +
         '<div class="price">' + fmtEur(c.price) + '</div>' +
         '<div class="stc"><span class="st-pill st-' + s + '"><i></i>' + stLabel + '</span></div>' +
-        '<div class="stars"><span class="rstar' + (starred ? ' on' : '') + '">★</span></div>' +
         '<div class="racts">' +
-          '<button data-act="edit">Editează</button>' +
-          '<button data-act="star" title="În prim-plan">★</button>' +
-          '<button data-act="del" title="Șterge">✕</button>' +
+          '<button class="act-star' + (starred ? ' on' : '') + '" data-act="star" title="' + (starred ? 'În prim-plan pe site — apasă ca să scoți' : 'Pune în prim-plan pe site') + '">★</button>' +
+          '<button class="act-edit" data-act="edit">Editează</button>' +
+          '<button class="act-del" data-act="del" title="Șterge">✕</button>' +
         '</div>' +
         '</div>';
     }).join('');
     $('rows').innerHTML = html || '<p style="color:rgba(244,241,236,.5);padding:30px 0">Niciun rezultat.</p>';
+    var rowsEls = $('rows').querySelectorAll('.row');
+    for (var ri = 0; ri < rowsEls.length; ri++) rowsEls[ri].style.animationDelay = Math.min(ri, 12) * 28 + 'ms';
 
     $('rows').querySelectorAll('.row').forEach(function (rowEl) {
       var id = rowEl.getAttribute('data-id');
       rowEl.querySelector('[data-act="edit"]').addEventListener('click', function () { openEditor(id); });
       rowEl.querySelector('[data-act="star"]').addEventListener('click', function () {
+        var btn = this;
         var i = featured.indexOf(id);
         if (i === -1) {
           if (featured.length >= 6) { msg('Maxim 6 mașini featured.', 'err'); return; }
           featured.push(id);
         } else featured.splice(i, 1);
-        rowEl.classList.add('saving');
+        var on = featured.indexOf(id) !== -1;
+        btn.classList.toggle('on', on);
+        btn.title = on ? 'În prim-plan pe site — apasă ca să scoți' : 'Pune în prim-plan pe site';
         saveFeatured().then(function () {
-          rowEl.classList.remove('saving');
-          renderStats(); renderRows();
-          msg('Featured actualizat — live pe site.', 'ok');
-        }).catch(function (e) { rowEl.classList.remove('saving'); msg(e.message, 'err'); });
+          renderStats();
+          msg(on ? 'Adăugat în prim-plan — live pe site.' : 'Scos din prim-plan — live pe site.', 'ok');
+        }).catch(function (e) {
+          // revert on failure
+          var j = featured.indexOf(id);
+          if (on && j !== -1) featured.splice(j, 1); else if (!on && j === -1) featured.push(id);
+          btn.classList.toggle('on', !on);
+          msg(e.message, 'err');
+        });
       });
       rowEl.querySelector('[data-act="del"]').addEventListener('click', function () {
         var c = carData(id).data;
