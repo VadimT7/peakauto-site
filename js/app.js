@@ -718,7 +718,7 @@
       '<div class="pk-detail">' +
 
         '<div style="min-width:0">' +
-          '<div class="gal" id="pk-gal">' +
+          '<div class="gal" id="pk-gal" style="--gal-bg:url(\'' + esc(img900(gal[gi])) + '\')">' +
             '<img class="gal-im show" id="pk-gal-a" src="' + esc(img900(gal[gi])) + '" alt="' + esc(c.name) + '" style="view-transition-name:car-hero" decoding="async">' +
             '<img class="gal-im" id="pk-gal-b" alt="" decoding="async">' +
             '<div class="gal-shade"></div>' +
@@ -919,6 +919,8 @@
       front.style.viewTransitionName = '';
       back.classList.add('show');
       front.classList.remove('show');
+      var galEl = document.getElementById('pk-gal');
+      if (galEl) galEl.style.setProperty('--gal-bg', "url('" + src + "')");
       galFront = galFront === 'a' ? 'b' : 'a';
       preloadNeighbors(c);
     };
