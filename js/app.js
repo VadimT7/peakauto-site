@@ -434,6 +434,19 @@
     return '<div class="pk-cars">' + cars.map(cardHtml).join('') + '</div>';
   }
 
+  /* closing CTA banner, shared by home + inventory */
+  function closingHtml() {
+    return '' +
+    '<section class="closing">' +
+      '<p class="closing-i">' + t('close_i') + '</p>' +
+      '<h2 class="closing-h">' + t('close_h') + '</h2>' +
+      '<div class="closing-ctas">' +
+        '<a class="btn-red" href="' + WA + '" target="_blank" rel="noopener">' + t('close_wa') + '</a>' +
+        '<a class="btn-ghost" href="' + PHONE_TEL + '">' + PHONE_DISPLAY + '</a>' +
+      '</div>' +
+    '</section>';
+  }
+
   /* ---------- home ---------- */
   function homeHtml() {
     var f = FLAGSHIP;
@@ -594,14 +607,7 @@
       '</div>' +
     '</section>' +
 
-    '<section class="closing">' +
-      '<p class="closing-i">' + t('close_i') + '</p>' +
-      '<h2 class="closing-h">' + t('close_h') + '</h2>' +
-      '<div class="closing-ctas">' +
-        '<a class="btn-red" href="' + WA + '" target="_blank" rel="noopener">' + t('close_wa') + '</a>' +
-        '<a class="btn-ghost" href="' + PHONE_TEL + '">' + PHONE_DISPLAY + '</a>' +
-      '</div>' +
-    '</section>' +
+    closingHtml() +
 
     '</div>';
   }
@@ -677,6 +683,7 @@
         '</div>' +
       '</div>' +
       '<section class="inv-grid">' + bodyHtml + '</section>' +
+      (loading ? '' : closingHtml()) +
     '</div>';
   }
 
@@ -1247,7 +1254,7 @@
         e.preventDefault();
         // element-relative scroll survives the layout shift from the
         // content-visibility sections above collapsing as they render
-        var c = state.route.page === 'home' ? document.querySelector('.closing') : null;
+        var c = document.querySelector('.closing');
         if (c) {
           c.scrollIntoView({ behavior: 'smooth', block: 'center' });
           // on short viewports the page bottoms out before the banner can
