@@ -95,7 +95,6 @@
       st_reserved: 'Rezervat', st_transit: 'În tranzit', st_sold: 'Vândut',
       search_ph: 'Caută model…', fav_chip: 'Favorite', share: 'Distribuie', share_ok: 'Link copiat ✓',
       feat_counter: 'din',
-      reel_k: 'Privește-l în mișcare', dark_k: 'Showroom după ore', dark_hint: 'Plimbă lumina',
       xp_title: 'Explorează stocul', xp_brands: 'După marcă', xp_cats: 'După caroserie', xp_bands: 'După buget',
       cars_word: 'automobile', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedan & Limuzină', cat_sport: 'Coupé & Cabrio',
       faq_title: 'Întrebări frecvente',
@@ -166,7 +165,6 @@
       st_reserved: 'Бронь', st_transit: 'В пути', st_sold: 'Продано',
       search_ph: 'Поиск модели…', fav_chip: 'Избранное', share: 'Поделиться', share_ok: 'Ссылка скопирована ✓',
       feat_counter: 'из',
-      reel_k: 'Посмотри его в движении', dark_k: 'Шоурум после закрытия', dark_hint: 'Веди лучом',
       xp_title: 'Исследуй сток', xp_brands: 'По марке', xp_cats: 'По кузову', xp_bands: 'По бюджету',
       cars_word: 'автомобилей', cat_suv: 'SUV и кроссоверы', cat_sedan: 'Седаны', cat_sport: 'Купе и кабрио',
       faq_title: 'Частые вопросы',
@@ -237,7 +235,6 @@
       st_reserved: 'Reserved', st_transit: 'In transit', st_sold: 'Sold',
       search_ph: 'Search model…', fav_chip: 'Saved', share: 'Share', share_ok: 'Link copied ✓',
       feat_counter: 'of',
-      reel_k: 'See it in motion', dark_k: 'The showroom after hours', dark_hint: 'Move the light',
       xp_title: 'Explore the stock', xp_brands: 'By make', xp_cats: 'By body style', xp_bands: 'By budget',
       cars_word: 'cars', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedans', cat_sport: 'Coupés & convertibles',
       faq_title: 'Frequently asked questions',
@@ -437,43 +434,6 @@
     return '<div class="pk-cars">' + cars.map(cardHtml).join('') + '</div>';
   }
 
-  /* ---------- home: crazy-layer sections ---------- */
-  function reelHtml() {
-    var f = FLAGSHIP;
-    if (!f || !f.images || f.images.length < 6) return '';
-    return '' +
-    '<section class="reel" id="pk-reel">' +
-      '<div class="reel-sticky">' +
-        '<canvas id="pk-reel-cv"></canvas>' +
-        '<div class="reel-shade"></div>' +
-        '<div class="reel-cap">' +
-          '<div class="reel-k">' + t('reel_k') + '</div>' +
-          '<div class="reel-name">' + esc(f.name) + '</div>' +
-          '<div class="reel-price">' + fmtEur(f.price) + '</div>' +
-          '<button class="btn-red" data-car="' + esc(f.id) + '">' + t('story_cta') + ' <span style="font-weight:400">→</span></button>' +
-        '</div>' +
-        '<div class="reel-count" id="pk-reel-count">01</div>' +
-      '</div>' +
-    '</section>';
-  }
-  function darkHtml() {
-    var c = (HERO_SLIDES && HERO_SLIDES[1]) || FLAGSHIP;
-    if (!c || !c.images || !c.images[0]) return '';
-    return '' +
-    '<section class="droom" id="pk-droom">' +
-      '<img src="' + esc(img900(c.images[0])) + '" alt="' + esc(c.name) + '" loading="lazy">' +
-      '<div class="droom-veil"></div>' +
-      '<div class="droom-beam"></div>' +
-      '<div class="droom-cap">' +
-        '<div class="droom-k">' + t('dark_k') + '</div>' +
-        '<div class="droom-hint">' + t('dark_hint') + '</div>' +
-      '</div>' +
-    '</section>';
-  }
-  function trailsHtml() {
-    return '<div class="trails"><canvas class="trails-cv"></canvas></div>';
-  }
-
   /* ---------- home ---------- */
   function homeHtml() {
     var f = FLAGSHIP;
@@ -561,7 +521,7 @@
           '<div class="feat-cap">' +
             '<div class="feat-k">' + esc(c.year + (c.gen ? ' · ' + c.gen : '')) + '</div>' +
             '<h2 class="feat-name">' + esc(c.name) + '</h2>' +
-            '<div class="feat-price">' + odoHtml(fmtEur(c.price)) + ' <span>· ' + t('story_from') + ' ' + fmtNum(cmo) + ' ' + t('story_mo') + '</span></div>' +
+            '<div class="feat-price">' + fmtEur(c.price) + ' <span>· ' + t('story_from') + ' ' + fmtNum(cmo) + ' ' + t('story_mo') + '</span></div>' +
             '<button class="btn-red" data-car="' + esc(c.id) + '">' + t('story_cta') + ' <span style="font-weight:400">→</span></button>' +
           '</div>' +
           '</div>';
@@ -574,8 +534,6 @@
       '</div>' +
       '<div class="feat-bar" id="pk-feat-bar"></div>' +
     '</section>' +
-
-    reelHtml() +
 
     '<section class="how" id="servicii">' +
       '<div class="sec-head rv"><span class="sec-num">04</span><h2 class="sec-title">' + t('how_title') + '</h2></div>' +
@@ -597,9 +555,6 @@
         '<div><div class="serv-t">' + t('serv_order_t') + '</div><div class="serv-d">' + t('serv_order_d') + '</div></div>' +
         '<span class="serv-arrow">→</span></a>' +
     '</section>' +
-
-    trailsHtml() +
-    darkHtml() +
 
     '<section class="show" id="showroom">' +
       '<div>' +
@@ -638,8 +593,6 @@
         }).join('') +
       '</div>' +
     '</section>' +
-
-    trailsHtml() +
 
     '<section class="closing">' +
       '<p class="closing-i">' + t('close_i') + '</p>' +
@@ -770,7 +723,6 @@
             '<img class="gal-im" id="pk-gal-b" alt="" decoding="async">' +
             '<div class="gal-shade"></div>' +
             '<div class="gal-count" id="pk-gal-count">' + (gi + 1) + ' / ' + gal.length + '</div>' +
-            (gal.length > 7 ? '<button class="gal-360" id="pk-spin">360°</button>' : '') +
             '<button class="gal-nav prev" id="pk-prev" aria-label="Prev">←</button>' +
             '<button class="gal-nav next" id="pk-next" aria-label="Next">→</button>' +
           '</div>' +
@@ -854,7 +806,7 @@
           '</div>' +
           '<h1 class="rail-name">' + esc(c.name) + '</h1>' +
           '<div class="rail-meta">' + esc(carMeta(c) + ' · ' + tv(c.fuel)) + '</div>' +
-          '<div class="rail-price" id="pk-rail-price">' + odoHtml(fmtEur(c.price)) + '</div>' +
+          '<div class="rail-price">' + fmtEur(c.price) + '</div>' +
           '<div class="rail-mdl">≈ ' + fmtNum(mdl) + ' MDL</div>' +
           '<div class="rail-monthly">' + t('rail_from') + ' <b>' + fmtNum(mo) + ' ' + t('rail_mo') + '</b> · <a href="#calc">' + t('rail_calc') + '</a></div>' +
           '<div class="rail-hr"></div>' +
@@ -969,8 +921,6 @@
       front.classList.remove('show');
       var galEl = document.getElementById('pk-gal');
       if (galEl) galEl.style.setProperty('--gal-bg', "url('" + src + "')");
-      var det = document.querySelector('.pk-detail');
-      if (det) det.style.setProperty('--gal-bg', "url('" + src + "')");
       galFront = galFront === 'a' ? 'b' : 'a';
       preloadNeighbors(c);
     };
@@ -984,9 +934,6 @@
     var page = state.route.page;
     clearInterval(heroTimer);
     clearInterval(featTimer);
-    clearTimeout(cinT);
-    cinemaExit();
-    if (spin) { if (spin.raf) cancelAnimationFrame(spin.raf); spin = null; }
     if (page === 'home') view.innerHTML = homeHtml();
     else if (page === 'inventory') view.innerHTML = invHtml(!!(opts && opts.loading));
     else {
@@ -1005,14 +952,7 @@
 
   function render(opts, vt) {
     if (vt && document.startViewTransition && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
-      var run = document.startViewTransition(function () { doRender(opts); });
-      document.documentElement.classList.add('pk-cut');
-      var unbar = function () { document.documentElement.classList.remove('pk-cut'); };
-      if (run && run.finished) {
-        run.finished.then(unbar, unbar);
-        if (run.ready) run.ready.catch(function () {});
-        if (run.updateCallbackDone) run.updateCallbackDone.catch(function () {});
-      } else setTimeout(unbar, 500);
+      document.startViewTransition(function () { doRender(opts); });
     } else {
       doRender(opts);
     }
@@ -1096,7 +1036,6 @@
     if (!slides.length) return;
     featIdx = (featIdx + d + slides.length) % slides.length;
     slides.forEach(function (s, i) { s.classList.toggle('on', i === featIdx); });
-    slides[featIdx].classList.add('odo-go');
     var cnt = document.getElementById('pk-feat-count');
     if (cnt) cnt.textContent = (featIdx + 1) + ' ' + t('feat_counter') + ' ' + slides.length;
     var bar = document.getElementById('pk-feat-bar');
@@ -1117,8 +1056,6 @@
   function startFeat() {
     featIdx = 0;
     restartFeatTimer();
-    var s0 = document.querySelector('.feat-slide.on');
-    if (s0) setTimeout(function () { s0.classList.add('odo-go'); }, 350);
   }
 
   function initReveals() {
@@ -1161,11 +1098,7 @@
       el.addEventListener('click', function (e) {
         if (e.target.closest('[data-fav]')) return;
         var im = el.querySelector('img');
-        if (im && document.startViewTransition) {
-          // only one element may carry the shared-element name at a time
-          document.querySelectorAll('.gal-im, .car-media img').forEach(function (m) { m.style.viewTransitionName = ''; });
-          im.style.viewTransitionName = 'car-hero';
-        }
+        if (im && document.startViewTransition) im.style.viewTransitionName = 'car-hero';
         goto('car', el.getAttribute('data-car'));
       });
     });
@@ -1246,9 +1179,9 @@
         state.lb = true; renderLb();
       });
       var tx0 = null;
-      gal.addEventListener('touchstart', function (e) { if (spin && spin.on) return; tx0 = e.touches[0].clientX; }, { passive: true });
+      gal.addEventListener('touchstart', function (e) { tx0 = e.touches[0].clientX; }, { passive: true });
       gal.addEventListener('touchend', function (e) {
-        if (tx0 == null || (spin && spin.on)) return;
+        if (tx0 == null) return;
         var dx = e.changedTouches[0].clientX - tx0;
         tx0 = null;
         if (Math.abs(dx) > 42) stepImg(dx < 0 ? 1 : -1);
@@ -1271,7 +1204,7 @@
       gal.addEventListener('dragstart', function (e) { e.preventDefault(); });
       var drag = null;
       gal.addEventListener('pointerdown', function (e) {
-        if (e.pointerType === 'touch' || e.target.closest('button') || (spin && spin.on)) return;
+        if (e.pointerType === 'touch' || e.target.closest('button')) return;
         drag = { x: e.clientX, moved: false };
       });
       gal.addEventListener('pointermove', function (e) {
@@ -1287,20 +1220,6 @@
     }
 
     if (gal) preloadNeighbors(carById(state.route.carId));
-
-    if (state.route.page === 'home') { initReel(); initDark(); initTrails(); }
-    if (state.route.page === 'car') {
-      var cc = carById(state.route.carId);
-      if (cc) {
-        bindSpin(cc);
-        bindDock();
-        var det = document.querySelector('.pk-detail');
-        if (det && cc.images && cc.images[state.gi]) det.style.setProperty('--gal-bg', "url('" + img900(cc.images[state.gi]) + "')");
-        var rp = document.getElementById('pk-rail-price');
-        if (rp) setTimeout(function () { rp.classList.add('odo-go'); }, 120);
-      }
-    }
-    cinemaArm();
 
     var rd = document.getElementById('pk-r-down'), rt = document.getElementById('pk-r-term');
     if (rd && rt) {
@@ -1505,428 +1424,6 @@
       hidePre();
     }
   });
-
-  /* ---------- crazy layer ---------- */
-  var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var FINE = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
-
-  /* odometer digits */
-  function odoHtml(str) {
-    var out = '';
-    for (var i = 0; i < str.length; i++) {
-      var ch = str.charAt(i);
-      if (ch >= '0' && ch <= '9') out += '<b class="odo" style="--d:' + ch + '"><i>0</i><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i><i>8</i><i>9</i></b>';
-      else out += esc(ch);
-    }
-    return out;
-  }
-
-  /* scroll-film reel */
-  var reelCtx = null;
-  function initReel() {
-    reelCtx = null;
-    var el = document.getElementById('pk-reel'), cv = document.getElementById('pk-reel-cv');
-    if (!el || !cv) return;
-    var ctx = { el: el, cv: cv, g: cv.getContext('2d'), srcs: FLAGSHIP.images.slice(0, 14).map(img900), imgs: [], frame: -1, sized: false };
-    var io = new IntersectionObserver(function (en) {
-      if (!en[0].isIntersecting) return;
-      io.disconnect();
-      ctx.srcs.forEach(function (s, i) {
-        var im = new Image(); im.src = s; ctx.imgs[i] = im;
-        im.onload = function () { ctx.frame = -1; reelScroll(); };
-      });
-    }, { rootMargin: '160% 0px' });
-    io.observe(el);
-    reelCtx = ctx;
-  }
-  function reelSize() {
-    var c = reelCtx; if (!c) return;
-    var s = Math.min(window.devicePixelRatio || 1, 1.6);
-    c.cv.width = c.el.clientWidth * s;
-    c.cv.height = window.innerHeight * s;
-    c.sized = true; c.frame = -1;
-  }
-  function reelScroll() {
-    var c = reelCtx;
-    if (!c || !c.el.isConnected) return;
-    var r = c.el.getBoundingClientRect();
-    if (r.bottom < 0 || r.top > window.innerHeight) return;
-    var p = Math.min(1, Math.max(0, -r.top / (r.height - window.innerHeight)));
-    var f = Math.round(p * (c.srcs.length - 1));
-    if (f === c.frame) return;
-    var im = c.imgs[f];
-    if (!im || !im.complete || !im.naturalWidth) return;
-    if (!c.sized) reelSize();
-    var s = Math.max(c.cv.width / im.naturalWidth, c.cv.height / im.naturalHeight);
-    c.g.filter = 'saturate(.82) contrast(1.06) brightness(.86)';
-    c.g.drawImage(im, (c.cv.width - im.naturalWidth * s) / 2, (c.cv.height - im.naturalHeight * s) / 2, im.naturalWidth * s, im.naturalHeight * s);
-    c.frame = f;
-    var n = document.getElementById('pk-reel-count');
-    if (n) n.textContent = (f + 1 < 10 ? '0' : '') + (f + 1);
-  }
-  window.addEventListener('scroll', reelScroll, { passive: true });
-  window.addEventListener('resize', function () { if (reelCtx) { reelSize(); reelScroll(); } });
-
-  /* night showroom */
-  function initDark() {
-    var el = document.getElementById('pk-droom');
-    if (!el) return;
-    var dx = 50, dy = 55, tx = 50, ty = 55, raf = null;
-    function tick() {
-      raf = null;
-      dx += (tx - dx) * .16; dy += (ty - dy) * .16;
-      el.style.setProperty('--dx', dx.toFixed(2) + '%');
-      el.style.setProperty('--dy', dy.toFixed(2) + '%');
-      if (Math.abs(tx - dx) > .05 || Math.abs(ty - dy) > .05) raf = requestAnimationFrame(tick);
-    }
-    function aim(cx, cy) {
-      var r = el.getBoundingClientRect();
-      tx = (cx - r.left) / r.width * 100;
-      ty = (cy - r.top) / r.height * 100;
-      el.classList.add('lit');
-      if (!raf) raf = requestAnimationFrame(tick);
-    }
-    el.addEventListener('pointermove', function (e) { aim(e.clientX, e.clientY); }, { passive: true });
-    el.addEventListener('touchmove', function (e) { aim(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
-  }
-
-  /* generative light-trail dividers */
-  function initTrails() {
-    var seed = 0;
-    try {
-      seed = +sessionStorage.getItem('pk-seed') || 0;
-      if (!seed) { seed = 1 + Math.floor(Math.random() * 2147483000); sessionStorage.setItem('pk-seed', seed); }
-    } catch (e) { seed = 987654321; }
-    document.querySelectorAll('.trails-cv').forEach(function (cv, ix) {
-      var s = (seed + ix * 7919) % 2147483647;
-      var rnd = function () { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
-      cv.width = (cv.clientWidth || 1200) * 1.5;
-      cv.height = (cv.clientHeight || 150) * 1.5;
-      var g = cv.getContext('2d');
-      g.globalCompositeOperation = 'lighter';
-      var n = 9 + Math.floor(rnd() * 6);
-      for (var i = 0; i < n; i++) {
-        var y = cv.height * (.18 + rnd() * .64);
-        var amp = (6 + rnd() * 26) * (rnd() < .5 ? -1 : 1);
-        var red = rnd() < .78, a = .05 + rnd() * .2;
-        g.strokeStyle = red ? 'rgba(225,6,0,' + a.toFixed(3) + ')' : 'rgba(255,236,206,' + (a * .8).toFixed(3) + ')';
-        g.lineWidth = .8 + rnd() * 2.2;
-        g.shadowColor = red ? 'rgba(225,6,0,.8)' : 'rgba(255,236,206,.6)';
-        g.shadowBlur = 7 + rnd() * 10;
-        g.beginPath();
-        g.moveTo(-40, y);
-        g.bezierCurveTo(cv.width * .3, y - amp, cv.width * .7, y + amp * rnd(), cv.width + 40, y + (rnd() - .5) * 30);
-        g.stroke();
-      }
-    });
-  }
-
-  /* 360 spin mode */
-  var spin = null;
-  function bindSpin(c) {
-    spin = null;
-    var btn = document.getElementById('pk-spin'), gal = document.getElementById('pk-gal');
-    if (!btn || !gal) return;
-    btn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      if (spin && spin.on) { spinOff(); return; }
-      btn.classList.add('busy');
-      var srcs = c.images.map(img900), loaded = 0, need = Math.min(srcs.length, 6), started = false;
-      var start = function () {
-        if (started || state.route.page !== 'car') return;
-        started = true;
-        btn.classList.remove('busy'); btn.classList.add('on');
-        gal.classList.add('spin');
-        spin = { on: true, srcs: srcs, acc: 0, vel: 0, raf: null, drag: false, lastX: 0, lastT: 0 };
-      };
-      srcs.forEach(function (s) {
-        var im = new Image(); im.src = s;
-        im.onload = im.onerror = function () { if (++loaded >= need) start(); };
-      });
-      setTimeout(start, 2600);
-    });
-  }
-  function spinOff() {
-    var gal = document.getElementById('pk-gal'), btn = document.getElementById('pk-spin');
-    if (spin && spin.raf) cancelAnimationFrame(spin.raf);
-    spin = null;
-    if (gal) gal.classList.remove('spin', 'dragging');
-    if (btn) btn.classList.remove('on');
-    var c = carById(state.route.carId);
-    if (c && gal) updateGallery(c, 1);
-  }
-  function spinFrame(ix) {
-    var n = spin.srcs.length;
-    ix = ((Math.round(ix) % n) + n) % n;
-    if (ix === state.gi) return;
-    state.gi = ix;
-    var front = document.querySelector('.gal-im.show');
-    if (front) front.src = spin.srcs[ix];
-    var cn = document.getElementById('pk-gal-count');
-    if (cn) cn.textContent = (ix + 1) + ' / ' + n;
-  }
-  document.addEventListener('pointerdown', function (e) {
-    if (!spin || !spin.on || !e.target.closest('#pk-gal') || e.target.closest('button')) return;
-    spin.drag = true; spin.acc = 0; spin.vel = 0;
-    spin.lastX = e.clientX; spin.lastT = performance.now();
-    if (spin.raf) { cancelAnimationFrame(spin.raf); spin.raf = null; }
-    var gal = document.getElementById('pk-gal');
-    if (gal) gal.classList.add('dragging');
-  });
-  document.addEventListener('pointermove', function (e) {
-    if (!spin || !spin.on || !spin.drag) return;
-    var now = performance.now();
-    var dx = e.clientX - spin.lastX;
-    spin.acc += dx;
-    spin.vel = dx / Math.max(1, now - spin.lastT) * 16;
-    spin.lastX = e.clientX; spin.lastT = now;
-    var steps = Math.trunc(spin.acc / 24);
-    if (steps) { spin.acc -= steps * 24; spinFrame(state.gi + steps); }
-  });
-  document.addEventListener('pointerup', function () {
-    if (!spin || !spin.on || !spin.drag) return;
-    spin.drag = false;
-    var gal = document.getElementById('pk-gal');
-    if (gal) {
-      gal.classList.remove('dragging');
-      gal._skipClick = true;
-      setTimeout(function () { if (gal) gal._skipClick = false; }, 90);
-    }
-    var fx = state.gi, v = spin.vel / 24;
-    var mom = function () {
-      if (!spin || !spin.on) return;
-      spin.raf = null;
-      v *= .93;
-      if (Math.abs(v) < .04) return;
-      fx += v;
-      spinFrame(fx);
-      spin.raf = requestAnimationFrame(mom);
-    };
-    if (Math.abs(v) > .12) spin.raf = requestAnimationFrame(mom);
-  });
-
-  /* cinema mode */
-  var cinT = null, cinInt = null;
-  function cinemaExit() {
-    document.documentElement.classList.remove('pk-cinema');
-    if (cinInt) { clearInterval(cinInt); cinInt = null; }
-  }
-  function cinemaArm() {
-    clearTimeout(cinT);
-    cinemaExit();
-    if (state.route.page !== 'car' || REDUCED) return;
-    cinT = setTimeout(function () {
-      if (state.route.page !== 'car' || state.lb || (spin && spin.on)) return;
-      document.documentElement.classList.add('pk-cinema');
-      cinInt = setInterval(function () { stepImg(1); }, 4200);
-    }, 5000);
-  }
-  ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(function (ev) {
-    document.addEventListener(ev, cinemaArm, { passive: true });
-  });
-  window.addEventListener('scroll', function () { if (!cinInt) cinemaArm(); }, { passive: true });
-  document.addEventListener('pointermove', function () { if (document.documentElement.classList.contains('pk-cinema') || cinT) cinemaArm(); }, { passive: true });
-
-  /* dock thumbstrip */
-  function bindDock() {
-    if (!FINE) return;
-    var strip = document.getElementById('pk-thumbs');
-    if (!strip) return;
-    strip.addEventListener('mousemove', function (e) {
-      for (var i = 0; i < strip.children.length; i++) {
-        var r = strip.children[i].getBoundingClientRect();
-        var d = Math.abs(e.clientX - (r.left + r.width / 2));
-        var sc = 1 + .32 * Math.exp(-(d * d) / 9800);
-        strip.children[i].style.transform = sc > 1.015 ? 'translateY(' + (-(sc - 1) * 26).toFixed(1) + 'px) scale(' + sc.toFixed(3) + ')' : '';
-      }
-    });
-    strip.addEventListener('mouseleave', function () {
-      for (var i = 0; i < strip.children.length; i++) strip.children[i].style.transform = '';
-    });
-  }
-
-  /* time of day, Chisinau clock */
-  try {
-    var todH = +new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Chisinau', hour: '2-digit', hour12: false }).format(new Date());
-    document.documentElement.setAttribute('data-tod', todH >= 21 || todH < 7 ? 'night' : todH >= 17 ? 'dusk' : 'day');
-  } catch (e) {}
-
-  /* heat haze on featured */
-  if (FINE && !REDUCED) (function () {
-    var host = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    host.setAttribute('width', '0'); host.setAttribute('height', '0');
-    host.style.position = 'absolute';
-    host.innerHTML = '<filter id="pk-haze" x="-5%" y="-5%" width="110%" height="110%">' +
-      '<feTurbulence type="fractalNoise" baseFrequency="0.011 0.026" numOctaves="2" seed="7"/>' +
-      '<feDisplacementMap id="pk-haze-d" in="SourceGraphic" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter>';
-    document.body.appendChild(host);
-    var disp = host.querySelector('#pk-haze-d');
-    var amt = 0, target = 0, raf = null;
-    function tick() {
-      raf = null;
-      amt += (target - amt) * .07;
-      disp.setAttribute('scale', amt.toFixed(2));
-      var img = document.querySelector('.feat-slide.on img');
-      if (img) {
-        if (amt > .3) img.classList.add('hazing');
-        else img.classList.remove('hazing');
-      }
-      if (Math.abs(target - amt) > .05) raf = requestAnimationFrame(tick);
-    }
-    document.addEventListener('mouseover', function (e) {
-      var over = !!(e.target.closest && e.target.closest('.feat'));
-      if ((over && target === 13) || (!over && target === 0)) return;
-      target = over ? 13 : 0;
-      if (!raf) raf = requestAnimationFrame(tick);
-    });
-  })();
-
-  /* scroll velocity: breathing headline, grid lean, live grain */
-  if (!REDUCED) (function () {
-    var lastY = window.scrollY, vel = 0, raf = null;
-    function tick() {
-      raf = null;
-      vel *= .86;
-      var a = Math.min(1, Math.abs(vel) / 70);
-      var h1 = document.querySelector('.hero-h1');
-      if (h1) h1.style.fontVariationSettings = '"wght" ' + Math.round(600 + a * 110);
-      var grid = document.querySelector('.pk-cars');
-      if (grid) grid.style.transform = a > .02 ? 'perspective(1100px) rotateX(' + ((vel > 0 ? -1 : 1) * a * 1.1).toFixed(2) + 'deg)' : '';
-      document.documentElement.style.setProperty('--grain-o', (.06 + a * .07).toFixed(3));
-      if (Math.abs(vel) > .3) raf = requestAnimationFrame(tick);
-      else {
-        if (h1) h1.style.fontVariationSettings = '';
-        if (grid) grid.style.transform = '';
-        document.documentElement.style.setProperty('--grain-o', '.06');
-      }
-    }
-    window.addEventListener('scroll', function () {
-      var y = window.scrollY;
-      vel = vel * .5 + (y - lastY) * .5;
-      lastY = y;
-      if (!raf) raf = requestAnimationFrame(tick);
-    }, { passive: true });
-  })();
-
-  /* long-exposure cursor trail */
-  if (FINE && !REDUCED) (function () {
-    var cv = document.createElement('canvas');
-    cv.id = 'pk-trail';
-    document.body.appendChild(cv);
-    var g = cv.getContext('2d'), pts = [], raf = null;
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    function size() { cv.width = window.innerWidth * dpr; cv.height = window.innerHeight * dpr; }
-    size();
-    window.addEventListener('resize', size);
-    function tick() {
-      raf = null;
-      var now = performance.now();
-      g.clearRect(0, 0, cv.width, cv.height);
-      pts = pts.filter(function (p) { return now - p.t < 650; });
-      g.lineCap = 'round';
-      for (var i = 1; i < pts.length; i++) {
-        var a = 1 - (now - pts[i].t) / 650;
-        g.strokeStyle = 'rgba(225,6,0,' + (a * .26).toFixed(3) + ')';
-        g.lineWidth = 1.3 * dpr;
-        g.shadowColor = 'rgba(225,6,0,.55)';
-        g.shadowBlur = 7 * dpr * a;
-        g.beginPath();
-        g.moveTo(pts[i - 1].x * dpr, pts[i - 1].y * dpr);
-        g.lineTo(pts[i].x * dpr, pts[i].y * dpr);
-        g.stroke();
-      }
-      if (pts.length) raf = requestAnimationFrame(tick);
-    }
-    document.addEventListener('mousemove', function (e) {
-      var last = pts[pts.length - 1];
-      if (last && Math.abs(last.x - e.clientX) < 3 && Math.abs(last.y - e.clientY) < 3) return;
-      pts.push({ x: e.clientX, y: e.clientY, t: performance.now() });
-      if (pts.length > 34) pts.shift();
-      if (!raf) raf = requestAnimationFrame(tick);
-    }, { passive: true });
-  })();
-
-  /* gyroscope hero on mobile (Android; iOS would demand a permission prompt) */
-  if ('ontouchstart' in window && window.DeviceOrientationEvent &&
-      typeof DeviceOrientationEvent.requestPermission !== 'function' && !REDUCED) (function () {
-    var raf = null, gx = 0, gy = 0;
-    window.addEventListener('deviceorientation', function (e) {
-      if (e.gamma == null) return;
-      gx = Math.max(-1, Math.min(1, e.gamma / 28));
-      gy = Math.max(-1, Math.min(1, (e.beta - 45) / 32));
-      if (!raf) raf = requestAnimationFrame(function () {
-        raf = null;
-        if (state.route.page !== 'home') return;
-        var s = document.querySelector('.hero-slide.on');
-        if (s) s.style.transform = 'translate3d(' + (gx * 16).toFixed(1) + 'px,' + (gy * 10).toFixed(1) + 'px,0)';
-      });
-    }, true);
-  })();
-
-  /* easter egg: type a stock VIN anywhere */
-  (function () {
-    var buf = '';
-    document.addEventListener('keydown', function (e) {
-      if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
-      if (!/^[a-zA-Z0-9]$/.test(e.key)) return;
-      buf = (buf + e.key.toUpperCase()).slice(-17);
-      if (buf.length < 11) return;
-      for (var i = 0; i < CARS.length; i++) {
-        var v = (CARS[i].vin || '').toUpperCase();
-        if (v.length >= 11 && buf.slice(-v.length) === v) {
-          buf = '';
-          var c = CARS[i];
-          var ov = document.createElement('div');
-          ov.className = 'keyturn';
-          ov.innerHTML = '<div class="keyturn-name">' + esc(c.name) + '</div><div class="keyturn-line"><div></div></div>';
-          document.body.appendChild(ov);
-          setTimeout(function () { goto('car', c.id); }, 620);
-          setTimeout(function () { ov.remove(); }, 1050);
-          return;
-        }
-      }
-    });
-  })();
-
-  /* easter egg: triple-click the wordmark */
-  (function () {
-    var logo = document.querySelector('.hdr-logo');
-    if (!logo) return;
-    var clicks = 0, t0 = 0;
-    logo.addEventListener('click', function () {
-      var now = Date.now();
-      if (now - t0 > 900) clicks = 0;
-      t0 = now;
-      if (++clicks < 3) return;
-      clicks = 0;
-      logo.classList.remove('rev');
-      void logo.offsetWidth;
-      logo.classList.add('rev');
-      try {
-        var AC = window.AudioContext || window.webkitAudioContext;
-        var ac = new AC();
-        var tt = ac.currentTime;
-        var master = ac.createGain();
-        master.gain.setValueAtTime(.0001, tt);
-        master.gain.exponentialRampToValueAtTime(.38, tt + .1);
-        master.gain.exponentialRampToValueAtTime(.0001, tt + 1.5);
-        var lp = ac.createBiquadFilter();
-        lp.type = 'lowpass'; lp.frequency.value = 380; lp.Q.value = 5;
-        [46, 69, 138].forEach(function (f, i) {
-          var o = ac.createOscillator();
-          o.type = i === 2 ? 'square' : 'sawtooth';
-          o.frequency.setValueAtTime(f, tt);
-          o.frequency.exponentialRampToValueAtTime(f * 2.7, tt + .5);
-          o.frequency.exponentialRampToValueAtTime(f * 1.2, tt + 1.35);
-          var og = ac.createGain(); og.gain.value = i === 2 ? .1 : .3;
-          o.connect(og); og.connect(lp);
-          o.start(tt); o.stop(tt + 1.55);
-        });
-        lp.connect(master); master.connect(ac.destination);
-        setTimeout(function () { ac.close(); }, 1900);
-      } catch (e) {}
-    });
-  })();
 
   /* ---------- pointer polish: hero parallax + magnetic CTAs (desktop only) ---------- */
   if (window.matchMedia('(pointer: fine)').matches &&
