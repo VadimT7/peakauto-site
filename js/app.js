@@ -95,10 +95,7 @@
       st_reserved: 'Rezervat', st_transit: 'În tranzit', st_sold: 'Vândut',
       search_ph: 'Caută model…', fav_chip: 'Favorite', share: 'Distribuie', share_ok: 'Link copiat ✓',
       feat_counter: 'din',
-      drive_k: 'Auto la comandă', drive_hint: 'Trage pentru a roti',
-      drive_h: 'Nu e în stoc? Îl aducem.',
-      drive_p: 'De la business class până la supercar — sursăm din UE și SUA exact automobilul pe care îl visezi. Istoric verificat, transport asigurat, acte la cheie, în 30–45 de zile.',
-      drive_cta: 'Comandă automobilul tău',
+      drive_hint: 'Trage pentru a roti',
       xp_title: 'Explorează stocul', xp_brands: 'După marcă', xp_cats: 'După caroserie', xp_bands: 'După buget',
       cars_word: 'automobile', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedan & Limuzină', cat_sport: 'Coupé & Cabrio',
       faq_title: 'Întrebări frecvente',
@@ -169,10 +166,7 @@
       st_reserved: 'Бронь', st_transit: 'В пути', st_sold: 'Продано',
       search_ph: 'Поиск модели…', fav_chip: 'Избранное', share: 'Поделиться', share_ok: 'Ссылка скопирована ✓',
       feat_counter: 'из',
-      drive_k: 'Авто под заказ', drive_hint: 'Потяни, чтобы повернуть',
-      drive_h: 'Нет в наличии? Привезём.',
-      drive_p: 'От бизнес-класса до суперкара — найдём в ЕС и США именно тот автомобиль, о котором вы мечтаете. Проверенная история, застрахованная доставка, документы под ключ, за 30–45 дней.',
-      drive_cta: 'Заказать свой автомобиль',
+      drive_hint: 'Потяни, чтобы повернуть',
       xp_title: 'Исследуй сток', xp_brands: 'По марке', xp_cats: 'По кузову', xp_bands: 'По бюджету',
       cars_word: 'автомобилей', cat_suv: 'SUV и кроссоверы', cat_sedan: 'Седаны', cat_sport: 'Купе и кабрио',
       faq_title: 'Частые вопросы',
@@ -243,10 +237,7 @@
       st_reserved: 'Reserved', st_transit: 'In transit', st_sold: 'Sold',
       search_ph: 'Search model…', fav_chip: 'Saved', share: 'Share', share_ok: 'Link copied ✓',
       feat_counter: 'of',
-      drive_k: 'Car on order', drive_hint: 'Drag to rotate',
-      drive_h: 'Not in stock? We bring it.',
-      drive_p: 'From business class to supercars — we source the exact car you dream of from the EU and US. Verified history, insured transport, turnkey paperwork, in 30–45 days.',
-      drive_cta: 'Order your car',
+      drive_hint: 'Drag to rotate',
       xp_title: 'Explore the stock', xp_brands: 'By make', xp_cats: 'By body style', xp_bands: 'By budget',
       cars_word: 'cars', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedans', cat_sport: 'Coupés & convertibles',
       faq_title: 'Frequently asked questions',
@@ -451,16 +442,11 @@
   /* 3D showroom: real GLB supercar under a spotlight, story on the right (lazy three.js) */
   function driveHtml() {
     return '' +
-    '<section class="drive grain" id="pk-drive">' +
+    '<section class="drive" id="pk-drive">' +
       '<div class="drive-stage">' +
+        '<div class="drive-word" aria-hidden="true">PEAK AUTO</div>' +
         '<canvas id="pk-drive-cv"></canvas>' +
         '<div class="drive-hint">' + t('drive_hint') + '</div>' +
-      '</div>' +
-      '<div class="drive-txt">' +
-        '<div class="drive-k">' + t('drive_k') + '</div>' +
-        '<h2 class="drive-h">' + t('drive_h') + '</h2>' +
-        '<p class="drive-p">' + t('drive_p') + '</p>' +
-        '<a class="btn-red" href="' + WA + '?text=' + encodeURIComponent(t('wa_order')) + '" target="_blank" rel="noopener">' + t('drive_cta') + ' <span style="font-weight:400">→</span></a>' +
       '</div>' +
     '</section>';
   }
@@ -1524,35 +1510,28 @@
       var cv = document.getElementById('pk-drive-cv');
       if (!cv || !sec.isConnected) return;
 
-      var renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: false });
+      var renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+      renderer.setClearColor(0x000000, 0);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 0.9;
+      renderer.toneMappingExposure = 1.0;
 
       var scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x060607);
-      scene.fog = new THREE.Fog(0x060607, 14, 42);
       scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment()).texture;
-      scene.environmentIntensity = 0.35;
+      scene.environmentIntensity = 0.55;
 
       var camera = new THREE.PerspectiveCamera(36, 2, 0.1, 120);
 
-      /* museum lighting: one overhead spot, red brand rim, faint cool fill */
-      var spot = new THREE.SpotLight(0xfff4e4, 300, 30, 0.62, 0.55, 1.6);
-      spot.position.set(0.6, 7.5, 1.2);
-      spot.target.position.set(0, 0, 0);
-      scene.add(spot, spot.target);
-      var rim = new THREE.PointLight(0xE10600, 18, 22);
-      rim.position.set(-6.5, 2, -5);
+      /* minimal studio: soft key, brand red rim, cool fill — reflections do the rest */
+      var key = new THREE.DirectionalLight(0xffffff, 2.1);
+      key.position.set(3, 6, 4);
+      scene.add(key);
+      var rim = new THREE.PointLight(0xE10600, 16, 26);
+      rim.position.set(-6, 2.4, -5);
       scene.add(rim);
-      var fill = new THREE.DirectionalLight(0x8899ff, 0.22);
-      fill.position.set(-4, 3, 6);
+      var fill = new THREE.DirectionalLight(0xaab4ff, 0.32);
+      fill.position.set(-5, 2, 6);
       scene.add(fill);
-
-      scene.add(new THREE.Mesh(
-        new THREE.PlaneGeometry(300, 300).rotateX(-Math.PI / 2),
-        new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.7, metalness: 0.15, envMapIntensity: 0.2 })
-      ));
 
       function radialTex(inner, mid) {
         var c = document.createElement('canvas');
@@ -1566,24 +1545,11 @@
         g2.fillRect(0, 0, 256, 256);
         return new THREE.CanvasTexture(c);
       }
-      /* lit pool on the floor + a whisper of a light cone */
-      var pool = new THREE.Mesh(
-        new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2),
-        new THREE.MeshBasicMaterial({ map: radialTex('rgba(255,244,225,.16)', 'rgba(255,244,225,.05)'), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })
-      );
-      pool.position.y = 0.004;
-      scene.add(pool);
-      var cone = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.32, 3.4, 7.2, 40, 1, true),
-        new THREE.MeshBasicMaterial({ color: 0xfff4e4, transparent: true, opacity: 0.045, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false })
-      );
-      cone.position.set(0.3, 3.6, 0.6);
-      scene.add(cone);
 
       var carGroup = new THREE.Group();
       scene.add(carGroup);
       var userYaw = 0, yawVel = 0;
-      var camDist = 7, camHeight = 1.5, lookY = 0.7;
+      var camDist = 7, camHeight = 1.5, lookY = 0.7, fitR = 0;
       var mixer = null, doorAction = null, doorDur = 0, doorsOpen = false, revealed = false, modelReady = false;
 
       function doors(open) {
@@ -1617,7 +1583,7 @@
         /* soft generic contact shadow */
         var shadow = new THREE.Mesh(
           new THREE.PlaneGeometry((box.max.x - box.min.x) * 1.3, (box.max.z - box.min.z) * 1.25).rotateX(-Math.PI / 2),
-          new THREE.MeshBasicMaterial({ map: radialTex('rgba(0,0,0,.92)', 'rgba(0,0,0,.5)'), transparent: true, depthWrite: false })
+          new THREE.MeshBasicMaterial({ map: radialTex('rgba(0,0,0,.55)', 'rgba(0,0,0,.26)'), transparent: true, depthWrite: false })
         );
         shadow.position.y = 0.002;
         shadow.renderOrder = 2;
@@ -1625,10 +1591,10 @@
         carGroup.add(car);
         /* frame the camera from the model's real size */
         var sphere = box.getBoundingSphere(new THREE.Sphere());
-        camDist = sphere.radius / Math.sin((camera.fov / 2) * Math.PI / 180) * 1.04;
-        camHeight = sphere.radius * 0.56;
-        lookY = (box.max.y - box.min.y) * 0.4;
-        pool.scale.setScalar(sphere.radius * 2.8);
+        fitR = sphere.radius;
+        camHeight = sphere.radius * 0.42;
+        lookY = (box.max.y - box.min.y) * 0.6;
+        size();
         /* the doors: play the model's own animation when the section reveals.
            rotation tracks only — a held translation track in this clip
            teleports the body off the floor the moment the mixer engages */
@@ -1654,8 +1620,17 @@
       function size() {
         var w = stage.clientWidth, h = stage.clientHeight;
         renderer.setSize(w, h, false);
-        camera.aspect = w / h;
+        camera.aspect = (w / h) || 1;
         camera.updateProjectionMatrix();
+        if (fitR) {
+          /* fit the car to whichever axis is tighter, so it never crops on portrait */
+          var vf = camera.fov * Math.PI / 180;
+          var distV = fitR / Math.sin(vf / 2);
+          var hf = 2 * Math.atan(Math.tan(vf / 2) * camera.aspect);
+          var distH = fitR / Math.sin(hf / 2);
+          /* wide screens: tight vertical fill; narrow/portrait: pad the sides so the car never crops */
+          camDist = distH > distV ? distH * 0.96 : distV * 0.82;
+        }
       }
       size();
 
