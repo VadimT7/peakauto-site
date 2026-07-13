@@ -538,3 +538,15 @@ section.show { padding: clamp(72px, 9vw, 130px) 4vw; display: grid; grid-templat
 
 /* ---------- numerals ---------- */
 .car-price, .rail-price, .rail-mdl, .feat-price, .trust-num, .calc-out-v, .gal-count, .lb-count, .feat-count, .story-price, .inv-count, .price { font-feature-settings: 'tnum' 1; font-variant-numeric: tabular-nums; }
+
+/* ---------- 3D night drive ---------- */
+.drive { position: relative; height: 82vh; min-height: 480px; background: var(--bg2); overflow: hidden; }
+.drive canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity .9s ease; cursor: grab; touch-action: pan-y; }
+.drive.on canvas { opacity: 1; }
+.drive.dragging canvas { cursor: grabbing; }
+.drive-fade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, var(--bg) 0%, transparent 14%, transparent 84%, var(--bg) 100%); }
+.drive-cap { position: absolute; left: 4vw; bottom: 6vh; pointer-events: none; }
+.drive-k { font-size: 11px; font-weight: 600; letter-spacing: .28em; text-transform: uppercase; color: rgba(244, 241, 236, .7); }
+.drive-hint { margin-top: 10px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 20px; color: rgba(244, 241, 236, .45); transition: opacity 1s ease; }
+.drive.lit .drive-hint { opacity: 0; }
+@media (max-width: 760px) { .drive { height: 58vh; min-height: 380px; } }

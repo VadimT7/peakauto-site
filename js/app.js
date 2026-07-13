@@ -95,6 +95,7 @@
       st_reserved: 'Rezervat', st_transit: 'În tranzit', st_sold: 'Vândut',
       search_ph: 'Caută model…', fav_chip: 'Favorite', share: 'Distribuie', share_ok: 'Link copiat ✓',
       feat_counter: 'din',
+      drive_k: 'Construite pentru drum', drive_hint: 'Trage pentru a roti',
       xp_title: 'Explorează stocul', xp_brands: 'După marcă', xp_cats: 'După caroserie', xp_bands: 'După buget',
       cars_word: 'automobile', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedan & Limuzină', cat_sport: 'Coupé & Cabrio',
       faq_title: 'Întrebări frecvente',
@@ -165,6 +166,7 @@
       st_reserved: 'Бронь', st_transit: 'В пути', st_sold: 'Продано',
       search_ph: 'Поиск модели…', fav_chip: 'Избранное', share: 'Поделиться', share_ok: 'Ссылка скопирована ✓',
       feat_counter: 'из',
+      drive_k: 'Созданы для дороги', drive_hint: 'Потяни, чтобы повернуть',
       xp_title: 'Исследуй сток', xp_brands: 'По марке', xp_cats: 'По кузову', xp_bands: 'По бюджету',
       cars_word: 'автомобилей', cat_suv: 'SUV и кроссоверы', cat_sedan: 'Седаны', cat_sport: 'Купе и кабрио',
       faq_title: 'Частые вопросы',
@@ -235,6 +237,7 @@
       st_reserved: 'Reserved', st_transit: 'In transit', st_sold: 'Sold',
       search_ph: 'Search model…', fav_chip: 'Saved', share: 'Share', share_ok: 'Link copied ✓',
       feat_counter: 'of',
+      drive_k: 'Built for the road', drive_hint: 'Drag to rotate',
       xp_title: 'Explore the stock', xp_brands: 'By make', xp_cats: 'By body style', xp_bands: 'By budget',
       cars_word: 'cars', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedans', cat_sport: 'Coupés & convertibles',
       faq_title: 'Frequently asked questions',
@@ -296,6 +299,7 @@
   var heroTimer = null;
   var featTimer = null;
   var featIdx = 0;
+  var driveCtx = null;
 
   function t(key) {
     var d = T[state.lang] || T.ro;
@@ -434,6 +438,19 @@
     return '<div class="pk-cars">' + cars.map(cardHtml).join('') + '</div>';
   }
 
+  /* 3D night drive: real GLB sports car on an infinite road (lazy three.js) */
+  function driveHtml() {
+    return '' +
+    '<section class="drive grain" id="pk-drive">' +
+      '<canvas id="pk-drive-cv"></canvas>' +
+      '<div class="drive-fade"></div>' +
+      '<div class="drive-cap">' +
+        '<div class="drive-k">' + t('drive_k') + '</div>' +
+        '<div class="drive-hint">' + t('drive_hint') + '</div>' +
+      '</div>' +
+    '</section>';
+  }
+
   /* closing CTA banner, shared by home + inventory */
   function closingHtml() {
     return '' +
@@ -488,6 +505,8 @@
         '<div><div class="trust-num"><span data-tick="7.8" data-dec="1">0</span>k</div><div class="trust-label">' + t('trust_ig') + '</div></div>' +
       '</div>' +
     '</section>' +
+
+    driveHtml() +
 
     '<section class="stock">' +
       '<div class="stock-head">' +
@@ -942,6 +961,7 @@
     var page = state.route.page;
     clearInterval(heroTimer);
     clearInterval(featTimer);
+    destroyDrive();
     if (page === 'home') view.innerHTML = homeHtml();
     else if (page === 'inventory') view.innerHTML = invHtml(!!(opts && opts.loading));
     else {
@@ -954,7 +974,7 @@
     initTicks();
     initReveals();
     renderLb();
-    if (page === 'home') { startHero(); startFeat(); }
+    if (page === 'home') { startHero(); startFeat(); initDrive(); }
     syncTitle();
   }
 
@@ -1455,6 +1475,188 @@
       hidePre();
     }
   });
+
+  /* ---------- 3D night drive (three.js, lazy) ---------- */
+  function destroyDrive() {
+    if (!driveCtx) return;
+    if (driveCtx.raf) cancelAnimationFrame(driveCtx.raf);
+    if (driveCtx.io) driveCtx.io.disconnect();
+    if (driveCtx.vis) driveCtx.vis.disconnect();
+    if (driveCtx.onResize) window.removeEventListener('resize', driveCtx.onResize);
+    if (driveCtx.renderer) driveCtx.renderer.dispose();
+    driveCtx = null;
+  }
+  function initDrive() {
+    destroyDrive();
+    var sec = document.getElementById('pk-drive');
+    if (!sec) return;
+    var io = new IntersectionObserver(function (en) {
+      if (!en[0].isIntersecting) return;
+      io.disconnect();
+      bootDrive(sec);
+    }, { rootMargin: '90% 0px' });
+    io.observe(sec);
+    driveCtx = { io: io };
+  }
+  function bootDrive(sec) {
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    Promise.all([
+      import('three'),
+      import('three/addons/loaders/GLTFLoader.js'),
+      import('three/addons/loaders/DRACOLoader.js'),
+      import('three/addons/environments/RoomEnvironment.js')
+    ]).then(function (m) {
+      var THREE = m[0], GLTFLoader = m[1].GLTFLoader, DRACOLoader = m[2].DRACOLoader, RoomEnvironment = m[3].RoomEnvironment;
+      var cv = document.getElementById('pk-drive-cv');
+      if (!cv || !sec.isConnected) return;
+
+      var renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: false });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 0.9;
+
+      var scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x060607);
+      scene.fog = new THREE.Fog(0x060607, 11, 48);
+      scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment()).texture;
+
+      var camera = new THREE.PerspectiveCamera(38, 2, 0.1, 120);
+      camera.position.set(4.4, 1.5, 5.2);
+
+      var key = new THREE.DirectionalLight(0xffffff, 1.6);
+      key.position.set(4, 7, 3);
+      scene.add(key);
+      var rim = new THREE.PointLight(0xE10600, 34, 24);
+      rim.position.set(-7, 1.3, -6);
+      scene.add(rim);
+      var fill = new THREE.DirectionalLight(0x8899ff, 0.3);
+      fill.position.set(-4, 3, 6);
+      scene.add(fill);
+
+      scene.add(new THREE.Mesh(
+        new THREE.PlaneGeometry(300, 300).rotateX(-Math.PI / 2),
+        new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.85, metalness: 0.1, envMapIntensity: 0.25 })
+      ));
+
+      /* passing city lights + lane dashes = infinite motion */
+      var movers = [];
+      var streakGroup = new THREE.Group();
+      for (var i = 0; i < 16; i++) {
+        var red = Math.random() < 0.3;
+        var st = new THREE.Mesh(
+          new THREE.BoxGeometry(0.05, 0.05, 4 + Math.random() * 7),
+          new THREE.MeshBasicMaterial({ color: red ? 0xE10600 : 0xfff2e0, transparent: true, opacity: 0.28 + Math.random() * 0.35, blending: THREE.AdditiveBlending, fog: false })
+        );
+        st.position.set((Math.random() < 0.5 ? -1 : 1) * (5.5 + Math.random() * 6), 0.4 + Math.random() * 2.8, -90 + Math.random() * 115);
+        movers.push({ o: st, v: 30 + Math.random() * 45 });
+        streakGroup.add(st);
+      }
+      for (var j = 0; j < 14; j++) {
+        var da = new THREE.Mesh(
+          new THREE.BoxGeometry(0.09, 0.012, 2.6),
+          new THREE.MeshBasicMaterial({ color: 0x777777, transparent: true, opacity: 0.22 })
+        );
+        da.position.set(j % 2 ? 1.95 : -1.95, 0.006, -84 + j * 8);
+        movers.push({ o: da, v: 26 });
+        streakGroup.add(da);
+      }
+      scene.add(streakGroup);
+
+      var carGroup = new THREE.Group();
+      scene.add(carGroup);
+      var wheels = [];
+      /* nose down the +Z lane (front 3/4 to camera); world streams -Z, opposite travel */
+      var baseYaw = -1.38, userYaw = 0, yawVel = 0;
+
+      var draco = new DRACOLoader();
+      draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/libs/draco/gltf/');
+      var loader = new GLTFLoader();
+      loader.setDRACOLoader(draco);
+      loader.load('/assets/ferrari.glb', function (gltf) {
+        if (!sec.isConnected) return;
+        var car = gltf.scene.children[0];
+        var setMat = function (name, mat) { var o = car.getObjectByName(name); if (o) o.material = mat; };
+        setMat('body', new THREE.MeshPhysicalMaterial({ color: 0xB50500, metalness: 1.0, roughness: 0.45, clearcoat: 1.0, clearcoatRoughness: 0.03 }));
+        var details = new THREE.MeshStandardMaterial({ color: 0x8f8f92, metalness: 1.0, roughness: 0.38 });
+        ['rim_fl', 'rim_fr', 'rim_rl', 'rim_rr', 'trim'].forEach(function (n) { setMat(n, details); });
+        setMat('glass', new THREE.MeshStandardMaterial({ color: 0x0b0b0e, metalness: 1.0, roughness: 0.05 }));
+        ['wheel_fl', 'wheel_fr', 'wheel_rl', 'wheel_rr'].forEach(function (n) {
+          var w = car.getObjectByName(n);
+          if (w) wheels.push(w);
+        });
+        var shadowTex = new THREE.TextureLoader().load('/assets/ferrari_ao.png');
+        var shadow = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.655 * 4, 1.3 * 4).rotateX(-Math.PI / 2),
+          new THREE.MeshBasicMaterial({ map: shadowTex, blending: THREE.MultiplyBlending, toneMapped: false, transparent: true })
+        );
+        shadow.renderOrder = 2;
+        car.add(shadow);
+        carGroup.add(car);
+        sec.classList.add('on');
+        if (reduced && driveCtx && !driveCtx.raf) { last = performance.now(); driveCtx.raf = requestAnimationFrame(frame); }
+      }, undefined, function () { sec.style.display = 'none'; });
+
+      var camX = 4.4, camZ = 5.2;
+      function size() {
+        var w = sec.clientWidth, h = sec.clientHeight;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        /* narrow screens need a longer lens or the car crops */
+        if (camera.aspect < 0.9) { camX = 6.6; camZ = 7.9; camera.fov = 44; }
+        else { camX = 4.4; camZ = 5.2; camera.fov = 38; }
+        camera.updateProjectionMatrix();
+      }
+      size();
+
+      var playing = true, last = performance.now(), t = 0;
+      function frame(now) {
+        if (!driveCtx) return;
+        driveCtx.raf = null;
+        if (!sec.isConnected) { destroyDrive(); return; }
+        var dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        t += dt;
+        for (var i = 0; i < movers.length; i++) {
+          movers[i].o.position.z -= movers[i].v * dt;
+          if (movers[i].o.position.z < -92) movers[i].o.position.z = 26;
+        }
+        for (var w = 0; w < wheels.length; w++) wheels[w].rotation.x -= dt * 11;
+        yawVel *= 0.94;
+        userYaw += yawVel;
+        carGroup.rotation.y = baseYaw + userYaw + Math.sin(t * 0.12) * 0.07;
+        carGroup.position.y = Math.sin(t * 9) * 0.008;
+        camera.position.x = camX + Math.sin(t * 0.25) * 0.25;
+        camera.position.y = 1.35 + Math.sin(t * 0.4) * 0.06;
+        camera.position.z = camZ;
+        camera.lookAt(0, 0.7, 0);
+        renderer.render(scene, camera);
+        if (playing && !reduced) driveCtx.raf = requestAnimationFrame(frame);
+      }
+      driveCtx.renderer = renderer;
+      driveCtx.raf = requestAnimationFrame(frame);
+
+      var vis = new IntersectionObserver(function (en) {
+        playing = en[0].isIntersecting;
+        if (playing && !driveCtx.raf && !reduced) { last = performance.now(); driveCtx.raf = requestAnimationFrame(frame); }
+      });
+      vis.observe(sec);
+      driveCtx.vis = vis;
+
+      var dragX = null;
+      cv.addEventListener('pointerdown', function (e) { dragX = e.clientX; sec.classList.add('dragging'); });
+      window.addEventListener('pointermove', function (e) {
+        if (dragX == null) return;
+        yawVel = (e.clientX - dragX) * 0.004;
+        dragX = e.clientX;
+        sec.classList.add('lit');
+        if (reduced && !driveCtx.raf) { last = performance.now(); driveCtx.raf = requestAnimationFrame(frame); }
+      });
+      window.addEventListener('pointerup', function () { dragX = null; sec.classList.remove('dragging'); });
+
+      driveCtx.onResize = function () { size(); if (reduced) renderer.render(scene, camera); };
+      window.addEventListener('resize', driveCtx.onResize);
+    }).catch(function () { sec.style.display = 'none'; });
+  }
 
   /* ---------- pointer polish: hero parallax + magnetic CTAs (desktop only) ---------- */
   if (window.matchMedia('(pointer: fine)').matches &&
