@@ -538,37 +538,3 @@ section.show { padding: clamp(72px, 9vw, 130px) 4vw; display: grid; grid-templat
 
 /* ---------- numerals ---------- */
 .car-price, .rail-price, .rail-mdl, .feat-price, .trust-num, .calc-out-v, .gal-count, .lb-count, .feat-count, .story-price, .inv-count, .price { font-feature-settings: 'tnum' 1; font-variant-numeric: tabular-nums; }
-
-/* ---------- signature flagship film ---------- */
-.film { position: relative; height: 340vh; background: var(--bg2); }
-.film-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; }
-.film-stage { position: absolute; inset: 0; }
-.film-im {
-  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-  opacity: 0; transform: scale(1.05); transform-origin: 60% 45%;
-  filter: saturate(.82) contrast(1.06) brightness(.82); will-change: opacity, transform;
-}
-.film-grade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(6,6,7,.5), rgba(6,6,7,.05) 34%, rgba(6,6,7,.86)); }
-.film-grade::after { content: ''; position: absolute; inset: 0; background: radial-gradient(120% 90% at 12% 88%, rgba(6,6,7,.72), rgba(6,6,7,.3) 42%, transparent 66%); }
-.film-top { position: absolute; left: 4vw; top: 108px; z-index: 3; text-shadow: 0 1px 2px rgba(6,6,7,.6); }
-.film-kicker { font-size: 11px; font-weight: 600; letter-spacing: .28em; text-transform: uppercase; color: rgba(244,241,236,.6); margin-bottom: 10px; }
-.film-title { font-weight: 600; font-size: clamp(19px, 2vw, 28px); letter-spacing: -.01em; color: var(--ink); }
-.film-caps { position: absolute; left: 4vw; right: 4vw; bottom: 12vh; z-index: 3; }
-.film-cap { position: absolute; left: 0; bottom: 0; max-width: 26ch; will-change: opacity, transform; text-shadow: 0 1px 2px rgba(6,6,7,.6), 0 14px 48px rgba(6,6,7,.55); }
-.film-cl { font-size: 11px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase; color: rgba(244,241,236,.62); margin-bottom: 14px; }
-.film-cv { font-weight: 600; font-size: clamp(32px, 4.8vw, 68px); letter-spacing: -.03em; line-height: 1.02; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.film-price { font-weight: 600; font-size: clamp(38px, 5.4vw, 76px); letter-spacing: -.03em; line-height: 1; color: var(--red); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.film-mo { margin: 16px 0 28px; font-size: 15px; color: rgba(244,241,236,.62); }
-.film-ticks { position: absolute; right: 4vw; top: 50%; transform: translateY(-50%); z-index: 3; display: flex; flex-direction: column; gap: 10px; }
-.film-ticks i { width: 2px; height: 26px; background: rgba(255,255,255,.18); transition: background .3s ease; }
-.film-ticks i.on { background: var(--red); }
-.film-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: rgba(255,255,255,.08); z-index: 3; }
-.film-bar i { display: block; height: 100%; background: var(--red); transform: scaleX(0); transform-origin: left; }
-.film-static { height: 100vh; }
-.film-static .film-sticky { position: relative; }
-@media (max-width: 760px) {
-  .film { height: 300vh; }
-  .film-ticks { display: none; }
-  .film-top { top: 88px; }
-  .film-caps { bottom: 13vh; }
-}

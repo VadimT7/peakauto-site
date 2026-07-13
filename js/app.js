@@ -95,7 +95,6 @@
       st_reserved: 'Rezervat', st_transit: 'În tranzit', st_sold: 'Vândut',
       search_ph: 'Caută model…', fav_chip: 'Favorite', share: 'Distribuie', share_ok: 'Link copiat ✓',
       feat_counter: 'din',
-      film_c0: 'Business class', film_verif: 'istoric verificat', film_price: 'Preț',
       xp_title: 'Explorează stocul', xp_brands: 'După marcă', xp_cats: 'După caroserie', xp_bands: 'După buget',
       cars_word: 'automobile', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedan & Limuzină', cat_sport: 'Coupé & Cabrio',
       faq_title: 'Întrebări frecvente',
@@ -166,7 +165,6 @@
       st_reserved: 'Бронь', st_transit: 'В пути', st_sold: 'Продано',
       search_ph: 'Поиск модели…', fav_chip: 'Избранное', share: 'Поделиться', share_ok: 'Ссылка скопирована ✓',
       feat_counter: 'из',
-      film_c0: 'Бизнес-класс', film_verif: 'история проверена', film_price: 'Цена',
       xp_title: 'Исследуй сток', xp_brands: 'По марке', xp_cats: 'По кузову', xp_bands: 'По бюджету',
       cars_word: 'автомобилей', cat_suv: 'SUV и кроссоверы', cat_sedan: 'Седаны', cat_sport: 'Купе и кабрио',
       faq_title: 'Частые вопросы',
@@ -237,7 +235,6 @@
       st_reserved: 'Reserved', st_transit: 'In transit', st_sold: 'Sold',
       search_ph: 'Search model…', fav_chip: 'Saved', share: 'Share', share_ok: 'Link copied ✓',
       feat_counter: 'of',
-      film_c0: 'Business class', film_verif: 'history verified', film_price: 'Price',
       xp_title: 'Explore the stock', xp_brands: 'By make', xp_cats: 'By body style', xp_bands: 'By budget',
       cars_word: 'cars', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedans', cat_sport: 'Coupés & convertibles',
       faq_title: 'Frequently asked questions',
@@ -299,7 +296,6 @@
   var heroTimer = null;
   var featTimer = null;
   var featIdx = 0;
-  var filmScroll = null;
 
   function t(key) {
     var d = T[state.lang] || T.ro;
@@ -438,45 +434,6 @@
     return '<div class="pk-cars">' + cars.map(cardHtml).join('') + '</div>';
   }
 
-  /* signature moment: pinned, scroll-driven flagship film */
-  function filmHtml() {
-    var f = FLAGSHIP;
-    if (!f || !f.images || f.images.length < 3) return '';
-    var N = Math.min(4, f.images.length);
-    var imgs = f.images.slice(0, N);
-    var mo = monthly(f.price, 30, 60);
-    var allCaps = [
-      { k: t('film_c0'), v: String(f.year) },
-      { k: t('k_engine'), v: f.power ? f.power + ' CP' : (f.engine || tv(f.fuel)) },
-      { k: t('k_km'), v: fmtNum(f.km) + ' km' }
-    ];
-    var caps = allCaps.slice(0, N - 1);
-    var layers = imgs.map(function (h, i) {
-      return '<img class="film-im" data-i="' + i + '" src="' + esc(img900(h)) + '" alt="' + esc(f.name) + '"' + (i > 0 ? ' loading="lazy"' : '') + ' decoding="async">';
-    }).join('');
-    var capHtml = caps.map(function (c, i) {
-      return '<div class="film-cap" data-i="' + i + '"><div class="film-cl">' + esc(c.k) + '</div><div class="film-cv">' + esc(c.v) + '</div></div>';
-    }).join('') +
-    '<div class="film-cap film-cap-end" data-i="' + (N - 1) + '">' +
-      '<div class="film-cl">' + t('film_price') + '</div>' +
-      '<div class="film-price">' + fmtEur(f.price) + '</div>' +
-      '<div class="film-mo">' + t('story_from') + ' ' + fmtNum(mo) + ' ' + t('story_mo') + '</div>' +
-      '<button class="btn-red" data-car="' + esc(f.id) + '">' + t('story_cta') + ' <span style="font-weight:400">→</span></button>' +
-    '</div>';
-    var ticks = '';
-    for (var i = 0; i < N; i++) ticks += '<i data-i="' + i + '"></i>';
-    return '' +
-    '<section class="film" id="pk-film" data-beats="' + N + '">' +
-      '<div class="film-sticky">' +
-        '<div class="film-stage">' + layers + '<div class="film-grade"></div></div>' +
-        '<div class="film-top"><div class="film-kicker">' + t('story_tag') + '</div><div class="film-title">' + esc(f.name) + '</div></div>' +
-        '<div class="film-caps">' + capHtml + '</div>' +
-        '<div class="film-ticks">' + ticks + '</div>' +
-        '<div class="film-bar"><i id="pk-film-bar"></i></div>' +
-      '</div>' +
-    '</section>';
-  }
-
   /* closing CTA banner, shared by home + inventory */
   function closingHtml() {
     return '' +
@@ -539,8 +496,6 @@
       '</div>' +
       gridHtml(TEASER) +
     '</section>' +
-
-    filmHtml() +
 
     '<section class="xp">' +
       '<div class="sec-head rv"><span class="sec-num">02</span><h2 class="sec-title">' + t('xp_title') + '</h2></div>' +
@@ -999,8 +954,7 @@
     initTicks();
     initReveals();
     renderLb();
-    if (page === 'home') { startHero(); startFeat(); initFilm(); }
-    else if (filmScroll) { window.removeEventListener('scroll', filmScroll); window.removeEventListener('resize', filmScroll); filmScroll = null; }
+    if (page === 'home') { startHero(); startFeat(); }
     syncTitle();
   }
 
@@ -1110,52 +1064,6 @@
   function startFeat() {
     featIdx = 0;
     restartFeatTimer();
-  }
-
-  function initFilm() {
-    if (filmScroll) { window.removeEventListener('scroll', filmScroll); window.removeEventListener('resize', filmScroll); filmScroll = null; }
-    var sec = document.getElementById('pk-film');
-    if (!sec) return;
-    var N = +sec.getAttribute('data-beats') || 1;
-    var ims = sec.querySelectorAll('.film-im');
-    var caps = sec.querySelectorAll('.film-cap');
-    var ticks = sec.querySelectorAll('.film-ticks i');
-    var bar = document.getElementById('pk-film-bar');
-    ims.forEach(function (im) { if (!im.complete) { var p = new Image(); p.src = im.src; } });
-
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      sec.classList.add('film-static');
-      ims.forEach(function (im, i) { im.style.opacity = i === 0 ? '1' : '0'; if (i === 0) im.style.transform = 'none'; });
-      caps.forEach(function (c) { c.style.opacity = c.classList.contains('film-cap-end') ? '1' : '0'; });
-      return;
-    }
-
-    var raf = null;
-    function draw() {
-      if (!sec.isConnected) { window.removeEventListener('scroll', filmScroll); window.removeEventListener('resize', filmScroll); filmScroll = null; return; }
-      var span = sec.offsetHeight - window.innerHeight;
-      var p = span > 0 ? Math.min(1, Math.max(0, -sec.getBoundingClientRect().top / span)) : 0;
-      var bf = p * (N - 1);
-      for (var i = 0; i < ims.length; i++) {
-        var d = Math.abs(bf - i);
-        var vis = Math.max(0, 1 - d);
-        ims[i].style.opacity = vis.toFixed(3);
-        ims[i].style.transform = 'scale(' + (1.04 + 0.055 * vis + 0.02 * (bf - i)).toFixed(4) + ')';
-        ims[i].style.zIndex = vis > 0.5 ? 2 : 1;
-      }
-      for (var j = 0; j < caps.length; j++) {
-        var dc = Math.abs(bf - j);
-        caps[j].style.opacity = Math.max(0, 1 - dc * 1.6).toFixed(3);
-        caps[j].style.transform = 'translateY(' + ((bf - j) * 26).toFixed(1) + 'px)';
-        caps[j].style.pointerEvents = dc < 0.5 ? 'auto' : 'none';
-      }
-      for (var k = 0; k < ticks.length; k++) ticks[k].classList.toggle('on', Math.round(bf) === k);
-      if (bar) bar.style.transform = 'scaleX(' + p.toFixed(3) + ')';
-    }
-    filmScroll = function () { if (!raf) raf = requestAnimationFrame(function () { raf = null; draw(); }); };
-    window.addEventListener('scroll', filmScroll, { passive: true });
-    window.addEventListener('resize', filmScroll);
-    draw();
   }
 
   function initReveals() {
