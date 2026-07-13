@@ -296,8 +296,6 @@
   var heroTimer = null;
   var featTimer = null;
   var featIdx = 0;
-  var driveCtx = null;
-  var DRIVE_MODEL = '/assets/lambo.glb';
 
   function t(key) {
     var d = T[state.lang] || T.ro;
@@ -436,24 +434,6 @@
     return '<div class="pk-cars">' + cars.map(cardHtml).join('') + '</div>';
   }
 
-  /* PEAK AUTO wordmark — geometric, triangle A's, matches the brand logo */
-  function pkLogo() {
-    return '<span class="pk-logo" role="img" aria-label="PEAK AUTO">' +
-      '<b>P</b><b>E</b><i></i><b>K</b><i></i><b>U</b><b>T</b><b>O</b></span>';
-  }
-
-  /* 3D showroom: real GLB supercar, doors scrubbed by scroll (lazy three.js) */
-  function driveHtml() {
-    return '' +
-    '<section class="drive" id="pk-drive">' +
-      '<div class="drive-stage">' +
-        '<canvas id="pk-drive-cv"></canvas>' +
-        '<div class="drive-word" aria-hidden="true">PEAKAUTO</div>' +
-        '<div class="drive-mark">' + pkLogo() + '</div>' +
-      '</div>' +
-    '</section>';
-  }
-
   /* closing CTA banner, shared by home + inventory */
   function closingHtml() {
     return '' +
@@ -516,8 +496,6 @@
       '</div>' +
       gridHtml(TEASER) +
     '</section>' +
-
-    driveHtml() +
 
     '<section class="xp">' +
       '<div class="sec-head rv"><span class="sec-num">02</span><h2 class="sec-title">' + t('xp_title') + '</h2></div>' +
@@ -964,7 +942,6 @@
     var page = state.route.page;
     clearInterval(heroTimer);
     clearInterval(featTimer);
-    destroyDrive();
     if (page === 'home') view.innerHTML = homeHtml();
     else if (page === 'inventory') view.innerHTML = invHtml(!!(opts && opts.loading));
     else {
@@ -977,7 +954,7 @@
     initTicks();
     initReveals();
     renderLb();
-    if (page === 'home') { startHero(); startFeat(); initDrive(); }
+    if (page === 'home') { startHero(); startFeat(); }
     syncTitle();
   }
 
@@ -1478,184 +1455,6 @@
       hidePre();
     }
   });
-
-  /* ---------- 3D night drive (three.js, lazy) ---------- */
-  function destroyDrive() {
-    if (!driveCtx) return;
-    if (driveCtx.raf) cancelAnimationFrame(driveCtx.raf);
-    if (driveCtx.io) driveCtx.io.disconnect();
-    if (driveCtx.vis) driveCtx.vis.disconnect();
-    if (driveCtx.onResize) window.removeEventListener('resize', driveCtx.onResize);
-    if (driveCtx.renderer) driveCtx.renderer.dispose();
-    driveCtx = null;
-  }
-  function initDrive() {
-    destroyDrive();
-    var sec = document.getElementById('pk-drive');
-    if (!sec) return;
-    var io = new IntersectionObserver(function (en) {
-      if (!en[0].isIntersecting) return;
-      io.disconnect();
-      bootDrive(sec);
-    }, { rootMargin: '90% 0px' });
-    io.observe(sec);
-    driveCtx = { io: io };
-  }
-  function bootDrive(sec) {
-    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    Promise.all([
-      import('three'),
-      import('three/addons/loaders/GLTFLoader.js'),
-      import('three/addons/loaders/DRACOLoader.js'),
-      import('three/addons/environments/RoomEnvironment.js')
-    ]).then(function (m) {
-      var THREE = m[0], GLTFLoader = m[1].GLTFLoader, DRACOLoader = m[2].DRACOLoader, RoomEnvironment = m[3].RoomEnvironment;
-      var cv = document.getElementById('pk-drive-cv');
-      if (!cv || !sec.isConnected) return;
-
-      var renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
-      renderer.setClearColor(0x000000, 0);
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.0;
-
-      var scene = new THREE.Scene();
-      scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment()).texture;
-      scene.environmentIntensity = 0.55;
-
-      var camera = new THREE.PerspectiveCamera(36, 2, 0.1, 120);
-
-      /* minimal studio: soft key, brand red rim, cool fill — reflections do the rest */
-      var key = new THREE.DirectionalLight(0xffffff, 2.1);
-      key.position.set(3, 6, 4);
-      scene.add(key);
-      var rim = new THREE.PointLight(0xE10600, 16, 26);
-      rim.position.set(-6, 2.4, -5);
-      scene.add(rim);
-      var fill = new THREE.DirectionalLight(0xaab4ff, 0.32);
-      fill.position.set(-5, 2, 6);
-      scene.add(fill);
-
-      function radialTex(inner, mid) {
-        var c = document.createElement('canvas');
-        c.width = c.height = 256;
-        var g2 = c.getContext('2d');
-        var gr = g2.createRadialGradient(128, 128, 16, 128, 128, 126);
-        gr.addColorStop(0, inner);
-        gr.addColorStop(0.55, mid);
-        gr.addColorStop(1, 'rgba(0,0,0,0)');
-        g2.fillStyle = gr;
-        g2.fillRect(0, 0, 256, 256);
-        return new THREE.CanvasTexture(c);
-      }
-
-      var carGroup = new THREE.Group();
-      scene.add(carGroup);
-      var camDist = 7, camHeight = 1.5, lookY = 0.7, fitR = 0;
-      var mixer = null, doorAction = null, doorDur = 0;
-
-      var draco = new DRACOLoader();
-      draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/libs/draco/gltf/');
-      var loader = new GLTFLoader();
-      loader.setDRACOLoader(draco);
-      loader.load(DRIVE_MODEL, function (gltf) {
-        if (!sec.isConnected) return;
-        var car = gltf.scene;
-        /* auto-fit any model: normalize length, sit on the floor, center */
-        /* precise=true: rotated parts otherwise inflate the AABB and the car floats */
-        var box = new THREE.Box3().setFromObject(car, true);
-        var sizeV = box.getSize(new THREE.Vector3());
-        var s = 4.6 / Math.max(sizeV.x, sizeV.z);
-        car.scale.setScalar(s);
-        box.setFromObject(car, true);
-        var center = box.getCenter(new THREE.Vector3());
-        car.position.x -= center.x;
-        car.position.z -= center.z;
-        car.position.y -= box.min.y;
-        car.traverse(function (o) { if (o.isMesh && o.material) o.material.envMapIntensity = 1.1; });
-        /* soft generic contact shadow */
-        var shadow = new THREE.Mesh(
-          new THREE.PlaneGeometry((box.max.x - box.min.x) * 1.3, (box.max.z - box.min.z) * 1.25).rotateX(-Math.PI / 2),
-          new THREE.MeshBasicMaterial({ map: radialTex('rgba(0,0,0,.55)', 'rgba(0,0,0,.26)'), transparent: true, depthWrite: false })
-        );
-        shadow.position.y = 0.002;
-        shadow.renderOrder = 2;
-        carGroup.add(shadow);
-        carGroup.add(car);
-        /* frame the camera from the model's real size */
-        var sphere = box.getBoundingSphere(new THREE.Sphere());
-        fitR = sphere.radius;
-        camHeight = sphere.radius * 0.42;
-        lookY = (box.max.y - box.min.y) * 0.6;
-        size();
-        /* the doors: play the model's own animation when the section reveals.
-           rotation tracks only — a held translation track in this clip
-           teleports the body off the floor the moment the mixer engages */
-        if (gltf.animations && gltf.animations.length) {
-          gltf.animations[0].tracks = gltf.animations[0].tracks.filter(function (tr) {
-            return tr.name.indexOf('.position') === -1 && tr.name.indexOf('.scale') === -1;
-          });
-        }
-        if (gltf.animations && gltf.animations.length && gltf.animations[0].tracks.length) {
-          mixer = new THREE.AnimationMixer(car);
-          doorAction = mixer.clipAction(gltf.animations[0]);
-          doorDur = gltf.animations[0].duration;
-          doorAction.play();
-          doorAction.paused = true; /* scrubbed by scroll, never auto-advances */
-        }
-        sec.classList.add('on');
-        if (reduced && driveCtx && !driveCtx.raf) { last = performance.now(); driveCtx.raf = requestAnimationFrame(frame); }
-      }, undefined, function () { sec.style.display = 'none'; });
-
-      var stage = cv.parentElement;
-      function size() {
-        var w = stage.clientWidth, h = stage.clientHeight;
-        renderer.setSize(w, h, false);
-        camera.aspect = (w / h) || 1;
-        camera.updateProjectionMatrix();
-        if (fitR) {
-          /* fit the car to whichever axis is tighter, so it never crops on portrait */
-          var vf = camera.fov * Math.PI / 180;
-          var distV = fitR / Math.sin(vf / 2);
-          var hf = 2 * Math.atan(Math.tan(vf / 2) * camera.aspect);
-          var distH = fitR / Math.sin(hf / 2);
-          /* wide screens: tight vertical fill; narrow/portrait: pad the sides so the car never crops */
-          camDist = distH > distV ? distH * 0.96 : distV * 0.82;
-        }
-      }
-      size();
-
-      var playing = true, doorP = 0, az = 0.72;
-      function frame(now) {
-        if (!driveCtx) return;
-        driveCtx.raf = null;
-        if (!sec.isConnected) { destroyDrive(); return; }
-        /* doors scrub to how far the section has risen into view: down opens, up closes */
-        var r = sec.getBoundingClientRect(), vh = window.innerHeight;
-        var target = Math.min(1, Math.max(0, (vh * 0.9 - r.top) / (vh * 0.62)));
-        doorP += (target - doorP) * 0.16; /* smooth, so it eases rather than snaps */
-        if (doorAction) { doorAction.time = doorP * doorDur; mixer.update(0); }
-        carGroup.rotation.y = -0.62; /* fixed 3/4 stance, no rotation */
-        var t = reduced ? 0 : now * 0.001;
-        camera.position.set(Math.sin(az) * camDist, camHeight + (reduced ? 0 : Math.sin(t * 0.3) * 0.045), Math.cos(az) * camDist);
-        camera.lookAt(0, lookY, 0);
-        renderer.render(scene, camera);
-        if (playing) driveCtx.raf = requestAnimationFrame(frame);
-      }
-      driveCtx.renderer = renderer;
-      driveCtx.raf = requestAnimationFrame(frame);
-
-      var vis = new IntersectionObserver(function (en) {
-        playing = en[0].isIntersecting;
-        if (playing && !driveCtx.raf) driveCtx.raf = requestAnimationFrame(frame);
-      }, { threshold: 0 });
-      vis.observe(sec);
-      driveCtx.vis = vis;
-
-      driveCtx.onResize = function () { size(); if (reduced) renderer.render(scene, camera); };
-      window.addEventListener('resize', driveCtx.onResize);
-    }).catch(function () { sec.style.display = 'none'; });
-  }
 
   /* ---------- pointer polish: hero parallax + magnetic CTAs (desktop only) ---------- */
   if (window.matchMedia('(pointer: fine)').matches &&
