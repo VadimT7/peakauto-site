@@ -683,8 +683,9 @@
         '</div>' +
       '</div>' +
       '<section class="inv-grid">' + bodyHtml + '</section>' +
-      (loading ? '' : closingHtml()) +
-    '</div>';
+    '</div>' +
+    // outside .inv so the sticky filter bar unsticks and clears once you reach the banner
+    (loading ? '' : closingHtml());
   }
 
   /* ---------- car detail ---------- */
@@ -1252,17 +1253,21 @@
       else if (kind === 'showroom') { e.preventDefault(); scrollHome('showroom'); }
       else if (kind === 'contact') {
         e.preventDefault();
-        // element-relative scroll survives the layout shift from the
-        // content-visibility sections above collapsing as they render
         var c = document.querySelector('.closing');
         if (c) {
-          c.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          // on short viewports the page bottoms out before the banner can
-          // center, tucking the subtitle under the header — nudge it back down
+          // land at the page bottom so the footer's columns sit beneath the
+          // banner — identical framing on home and inventory
+          window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+          // then keep the subtitle clear of whatever is pinned at the top:
+          // the header on home, the sticky filter bar on inventory
           var clear = function () {
             var sub = c.querySelector('.closing-i');
             if (!sub) return;
-            var over = 96 - sub.getBoundingClientRect().top;
+            var hdr = document.getElementById('pk-header');
+            var top = hdr ? hdr.getBoundingClientRect().bottom : 72;
+            var filt = document.querySelector('.filters');
+            if (filt) { var fr = filt.getBoundingClientRect(); if (fr.top <= top + 2) top = Math.max(top, fr.bottom); }
+            var over = (top + 28) - sub.getBoundingClientRect().top;
             if (over > 0) window.scrollBy({ top: -over, behavior: 'smooth' });
           };
           if ('onscrollend' in window) window.addEventListener('scrollend', clear, { once: true });
