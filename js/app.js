@@ -95,7 +95,10 @@
       st_reserved: 'Rezervat', st_transit: 'În tranzit', st_sold: 'Vândut',
       search_ph: 'Caută model…', fav_chip: 'Favorite', share: 'Distribuie', share_ok: 'Link copiat ✓',
       feat_counter: 'din',
-      drive_k: 'Construite pentru drum', drive_hint: 'Trage pentru a roti',
+      drive_k: 'Auto la comandă', drive_hint: 'Trage pentru a roti',
+      drive_h: 'Nu e în stoc? Îl aducem.',
+      drive_p: 'De la business class până la supercar — sursăm din UE și SUA exact automobilul pe care îl visezi. Istoric verificat, transport asigurat, acte la cheie, în 30–45 de zile.',
+      drive_cta: 'Comandă automobilul tău',
       xp_title: 'Explorează stocul', xp_brands: 'După marcă', xp_cats: 'După caroserie', xp_bands: 'După buget',
       cars_word: 'automobile', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedan & Limuzină', cat_sport: 'Coupé & Cabrio',
       faq_title: 'Întrebări frecvente',
@@ -166,7 +169,10 @@
       st_reserved: 'Бронь', st_transit: 'В пути', st_sold: 'Продано',
       search_ph: 'Поиск модели…', fav_chip: 'Избранное', share: 'Поделиться', share_ok: 'Ссылка скопирована ✓',
       feat_counter: 'из',
-      drive_k: 'Созданы для дороги', drive_hint: 'Потяни, чтобы повернуть',
+      drive_k: 'Авто под заказ', drive_hint: 'Потяни, чтобы повернуть',
+      drive_h: 'Нет в наличии? Привезём.',
+      drive_p: 'От бизнес-класса до суперкара — найдём в ЕС и США именно тот автомобиль, о котором вы мечтаете. Проверенная история, застрахованная доставка, документы под ключ, за 30–45 дней.',
+      drive_cta: 'Заказать свой автомобиль',
       xp_title: 'Исследуй сток', xp_brands: 'По марке', xp_cats: 'По кузову', xp_bands: 'По бюджету',
       cars_word: 'автомобилей', cat_suv: 'SUV и кроссоверы', cat_sedan: 'Седаны', cat_sport: 'Купе и кабрио',
       faq_title: 'Частые вопросы',
@@ -237,7 +243,10 @@
       st_reserved: 'Reserved', st_transit: 'In transit', st_sold: 'Sold',
       search_ph: 'Search model…', fav_chip: 'Saved', share: 'Share', share_ok: 'Link copied ✓',
       feat_counter: 'of',
-      drive_k: 'Built for the road', drive_hint: 'Drag to rotate',
+      drive_k: 'Car on order', drive_hint: 'Drag to rotate',
+      drive_h: 'Not in stock? We bring it.',
+      drive_p: 'From business class to supercars — we source the exact car you dream of from the EU and US. Verified history, insured transport, turnkey paperwork, in 30–45 days.',
+      drive_cta: 'Order your car',
       xp_title: 'Explore the stock', xp_brands: 'By make', xp_cats: 'By body style', xp_bands: 'By budget',
       cars_word: 'cars', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedans', cat_sport: 'Coupés & convertibles',
       faq_title: 'Frequently asked questions',
@@ -300,6 +309,7 @@
   var featTimer = null;
   var featIdx = 0;
   var driveCtx = null;
+  var DRIVE_MODEL = '/assets/lambo.glb';
 
   function t(key) {
     var d = T[state.lang] || T.ro;
@@ -438,15 +448,19 @@
     return '<div class="pk-cars">' + cars.map(cardHtml).join('') + '</div>';
   }
 
-  /* 3D night drive: real GLB sports car on an infinite road (lazy three.js) */
+  /* 3D showroom: real GLB supercar under a spotlight, story on the right (lazy three.js) */
   function driveHtml() {
     return '' +
     '<section class="drive grain" id="pk-drive">' +
-      '<canvas id="pk-drive-cv"></canvas>' +
-      '<div class="drive-fade"></div>' +
-      '<div class="drive-cap">' +
-        '<div class="drive-k">' + t('drive_k') + '</div>' +
+      '<div class="drive-stage">' +
+        '<canvas id="pk-drive-cv"></canvas>' +
         '<div class="drive-hint">' + t('drive_hint') + '</div>' +
+      '</div>' +
+      '<div class="drive-txt">' +
+        '<div class="drive-k">' + t('drive_k') + '</div>' +
+        '<h2 class="drive-h">' + t('drive_h') + '</h2>' +
+        '<p class="drive-p">' + t('drive_p') + '</p>' +
+        '<a class="btn-red" href="' + WA + '?text=' + encodeURIComponent(t('wa_order')) + '" target="_blank" rel="noopener">' + t('drive_cta') + ' <span style="font-weight:400">→</span></a>' +
       '</div>' +
     '</section>';
   }
@@ -1517,93 +1531,130 @@
 
       var scene = new THREE.Scene();
       scene.background = new THREE.Color(0x060607);
-      scene.fog = new THREE.Fog(0x060607, 11, 48);
+      scene.fog = new THREE.Fog(0x060607, 14, 42);
       scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment()).texture;
+      scene.environmentIntensity = 0.35;
 
-      var camera = new THREE.PerspectiveCamera(38, 2, 0.1, 120);
-      camera.position.set(4.4, 1.5, 5.2);
+      var camera = new THREE.PerspectiveCamera(36, 2, 0.1, 120);
 
-      var key = new THREE.DirectionalLight(0xffffff, 1.6);
-      key.position.set(4, 7, 3);
-      scene.add(key);
-      var rim = new THREE.PointLight(0xE10600, 34, 24);
-      rim.position.set(-7, 1.3, -6);
+      /* museum lighting: one overhead spot, red brand rim, faint cool fill */
+      var spot = new THREE.SpotLight(0xfff4e4, 300, 30, 0.62, 0.55, 1.6);
+      spot.position.set(0.6, 7.5, 1.2);
+      spot.target.position.set(0, 0, 0);
+      scene.add(spot, spot.target);
+      var rim = new THREE.PointLight(0xE10600, 18, 22);
+      rim.position.set(-6.5, 2, -5);
       scene.add(rim);
-      var fill = new THREE.DirectionalLight(0x8899ff, 0.3);
+      var fill = new THREE.DirectionalLight(0x8899ff, 0.22);
       fill.position.set(-4, 3, 6);
       scene.add(fill);
 
       scene.add(new THREE.Mesh(
         new THREE.PlaneGeometry(300, 300).rotateX(-Math.PI / 2),
-        new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.85, metalness: 0.1, envMapIntensity: 0.25 })
+        new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.7, metalness: 0.15, envMapIntensity: 0.2 })
       ));
 
-      /* passing city lights + lane dashes = infinite motion */
-      var movers = [];
-      var streakGroup = new THREE.Group();
-      for (var i = 0; i < 16; i++) {
-        var red = Math.random() < 0.3;
-        var st = new THREE.Mesh(
-          new THREE.BoxGeometry(0.05, 0.05, 4 + Math.random() * 7),
-          new THREE.MeshBasicMaterial({ color: red ? 0xE10600 : 0xfff2e0, transparent: true, opacity: 0.28 + Math.random() * 0.35, blending: THREE.AdditiveBlending, fog: false })
-        );
-        st.position.set((Math.random() < 0.5 ? -1 : 1) * (5.5 + Math.random() * 6), 0.4 + Math.random() * 2.8, -90 + Math.random() * 115);
-        movers.push({ o: st, v: 30 + Math.random() * 45 });
-        streakGroup.add(st);
+      function radialTex(inner, mid) {
+        var c = document.createElement('canvas');
+        c.width = c.height = 256;
+        var g2 = c.getContext('2d');
+        var gr = g2.createRadialGradient(128, 128, 16, 128, 128, 126);
+        gr.addColorStop(0, inner);
+        gr.addColorStop(0.55, mid);
+        gr.addColorStop(1, 'rgba(0,0,0,0)');
+        g2.fillStyle = gr;
+        g2.fillRect(0, 0, 256, 256);
+        return new THREE.CanvasTexture(c);
       }
-      for (var j = 0; j < 14; j++) {
-        var da = new THREE.Mesh(
-          new THREE.BoxGeometry(0.09, 0.012, 2.6),
-          new THREE.MeshBasicMaterial({ color: 0x777777, transparent: true, opacity: 0.22 })
-        );
-        da.position.set(j % 2 ? 1.95 : -1.95, 0.006, -84 + j * 8);
-        movers.push({ o: da, v: 26 });
-        streakGroup.add(da);
-      }
-      scene.add(streakGroup);
+      /* lit pool on the floor + a whisper of a light cone */
+      var pool = new THREE.Mesh(
+        new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2),
+        new THREE.MeshBasicMaterial({ map: radialTex('rgba(255,244,225,.16)', 'rgba(255,244,225,.05)'), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })
+      );
+      pool.position.y = 0.004;
+      scene.add(pool);
+      var cone = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.32, 3.4, 7.2, 40, 1, true),
+        new THREE.MeshBasicMaterial({ color: 0xfff4e4, transparent: true, opacity: 0.045, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false })
+      );
+      cone.position.set(0.3, 3.6, 0.6);
+      scene.add(cone);
 
       var carGroup = new THREE.Group();
       scene.add(carGroup);
-      var wheels = [];
-      /* nose down the +Z lane (front 3/4 to camera); world streams -Z, opposite travel */
-      var baseYaw = -1.38, userYaw = 0, yawVel = 0;
+      var userYaw = 0, yawVel = 0;
+      var camDist = 7, camHeight = 1.5, lookY = 0.7;
+      var mixer = null, doorAction = null, doorDur = 0, doorsOpen = false, revealed = false, modelReady = false;
+
+      function doors(open) {
+        if (!doorAction) return;
+        doorsOpen = open;
+        doorAction.stop();
+        doorAction.time = open ? 0 : doorDur;
+        doorAction.timeScale = open ? 0.8 : -0.8;
+        doorAction.play();
+      }
 
       var draco = new DRACOLoader();
       draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/libs/draco/gltf/');
       var loader = new GLTFLoader();
       loader.setDRACOLoader(draco);
-      loader.load('/assets/ferrari.glb', function (gltf) {
+      loader.load(DRIVE_MODEL, function (gltf) {
         if (!sec.isConnected) return;
-        var car = gltf.scene.children[0];
-        var setMat = function (name, mat) { var o = car.getObjectByName(name); if (o) o.material = mat; };
-        setMat('body', new THREE.MeshPhysicalMaterial({ color: 0xB50500, metalness: 1.0, roughness: 0.45, clearcoat: 1.0, clearcoatRoughness: 0.03 }));
-        var details = new THREE.MeshStandardMaterial({ color: 0x8f8f92, metalness: 1.0, roughness: 0.38 });
-        ['rim_fl', 'rim_fr', 'rim_rl', 'rim_rr', 'trim'].forEach(function (n) { setMat(n, details); });
-        setMat('glass', new THREE.MeshStandardMaterial({ color: 0x0b0b0e, metalness: 1.0, roughness: 0.05 }));
-        ['wheel_fl', 'wheel_fr', 'wheel_rl', 'wheel_rr'].forEach(function (n) {
-          var w = car.getObjectByName(n);
-          if (w) wheels.push(w);
-        });
-        var shadowTex = new THREE.TextureLoader().load('/assets/ferrari_ao.png');
+        var car = gltf.scene;
+        /* auto-fit any model: normalize length, sit on the floor, center */
+        /* precise=true: rotated parts otherwise inflate the AABB and the car floats */
+        var box = new THREE.Box3().setFromObject(car, true);
+        var sizeV = box.getSize(new THREE.Vector3());
+        var s = 4.6 / Math.max(sizeV.x, sizeV.z);
+        car.scale.setScalar(s);
+        box.setFromObject(car, true);
+        var center = box.getCenter(new THREE.Vector3());
+        car.position.x -= center.x;
+        car.position.z -= center.z;
+        car.position.y -= box.min.y;
+        car.traverse(function (o) { if (o.isMesh && o.material) o.material.envMapIntensity = 1.1; });
+        /* soft generic contact shadow */
         var shadow = new THREE.Mesh(
-          new THREE.PlaneGeometry(0.655 * 4, 1.3 * 4).rotateX(-Math.PI / 2),
-          new THREE.MeshBasicMaterial({ map: shadowTex, blending: THREE.MultiplyBlending, toneMapped: false, transparent: true })
+          new THREE.PlaneGeometry((box.max.x - box.min.x) * 1.3, (box.max.z - box.min.z) * 1.25).rotateX(-Math.PI / 2),
+          new THREE.MeshBasicMaterial({ map: radialTex('rgba(0,0,0,.92)', 'rgba(0,0,0,.5)'), transparent: true, depthWrite: false })
         );
+        shadow.position.y = 0.002;
         shadow.renderOrder = 2;
-        car.add(shadow);
+        carGroup.add(shadow);
         carGroup.add(car);
+        /* frame the camera from the model's real size */
+        var sphere = box.getBoundingSphere(new THREE.Sphere());
+        camDist = sphere.radius / Math.sin((camera.fov / 2) * Math.PI / 180) * 1.04;
+        camHeight = sphere.radius * 0.56;
+        lookY = (box.max.y - box.min.y) * 0.4;
+        pool.scale.setScalar(sphere.radius * 2.8);
+        /* the doors: play the model's own animation when the section reveals.
+           rotation tracks only — a held translation track in this clip
+           teleports the body off the floor the moment the mixer engages */
+        if (gltf.animations && gltf.animations.length) {
+          gltf.animations[0].tracks = gltf.animations[0].tracks.filter(function (tr) {
+            return tr.name.indexOf('.position') === -1 && tr.name.indexOf('.scale') === -1;
+          });
+        }
+        if (gltf.animations && gltf.animations.length && gltf.animations[0].tracks.length) {
+          mixer = new THREE.AnimationMixer(car);
+          doorAction = mixer.clipAction(gltf.animations[0]);
+          doorAction.setLoop(THREE.LoopOnce);
+          doorAction.clampWhenFinished = true;
+          doorDur = gltf.animations[0].duration;
+          if (revealed || reduced) setTimeout(function () { doors(true); }, 700);
+        }
+        modelReady = true;
         sec.classList.add('on');
         if (reduced && driveCtx && !driveCtx.raf) { last = performance.now(); driveCtx.raf = requestAnimationFrame(frame); }
       }, undefined, function () { sec.style.display = 'none'; });
 
-      var camX = 4.4, camZ = 5.2;
+      var stage = cv.parentElement;
       function size() {
-        var w = sec.clientWidth, h = sec.clientHeight;
+        var w = stage.clientWidth, h = stage.clientHeight;
         renderer.setSize(w, h, false);
         camera.aspect = w / h;
-        /* narrow screens need a longer lens or the car crops */
-        if (camera.aspect < 0.9) { camX = 6.6; camZ = 7.9; camera.fov = 44; }
-        else { camX = 4.4; camZ = 5.2; camera.fov = 38; }
         camera.updateProjectionMatrix();
       }
       size();
@@ -1616,19 +1667,13 @@
         var dt = Math.min(0.05, (now - last) / 1000);
         last = now;
         t += dt;
-        for (var i = 0; i < movers.length; i++) {
-          movers[i].o.position.z -= movers[i].v * dt;
-          if (movers[i].o.position.z < -92) movers[i].o.position.z = 26;
-        }
-        for (var w = 0; w < wheels.length; w++) wheels[w].rotation.x -= dt * 11;
+        if (mixer) mixer.update(dt * (reduced ? 30 : 1));
         yawVel *= 0.94;
         userYaw += yawVel;
-        carGroup.rotation.y = baseYaw + userYaw + Math.sin(t * 0.12) * 0.07;
-        carGroup.position.y = Math.sin(t * 9) * 0.008;
-        camera.position.x = camX + Math.sin(t * 0.25) * 0.25;
-        camera.position.y = 1.35 + Math.sin(t * 0.4) * 0.06;
-        camera.position.z = camZ;
-        camera.lookAt(0, 0.7, 0);
+        carGroup.rotation.y = -0.62 + userYaw + t * 0.05;
+        var az = 0.72;
+        camera.position.set(Math.sin(az) * camDist, camHeight + Math.sin(t * 0.3) * 0.05, Math.cos(az) * camDist);
+        camera.lookAt(0, lookY, 0);
         renderer.render(scene, camera);
         if (playing && !reduced) driveCtx.raf = requestAnimationFrame(frame);
       }
@@ -1637,21 +1682,31 @@
 
       var vis = new IntersectionObserver(function (en) {
         playing = en[0].isIntersecting;
+        if (playing && !revealed && modelReady && doorAction) { revealed = true; setTimeout(function () { doors(true); }, 700); }
+        else if (playing) revealed = true;
         if (playing && !driveCtx.raf && !reduced) { last = performance.now(); driveCtx.raf = requestAnimationFrame(frame); }
-      });
+      }, { threshold: 0.45 });
       vis.observe(sec);
       driveCtx.vis = vis;
 
-      var dragX = null;
-      cv.addEventListener('pointerdown', function (e) { dragX = e.clientX; sec.classList.add('dragging'); });
+      var dragX = null, dragMoved = 0;
+      cv.addEventListener('pointerdown', function (e) { dragX = e.clientX; dragMoved = 0; sec.classList.add('dragging'); });
       window.addEventListener('pointermove', function (e) {
         if (dragX == null) return;
+        dragMoved += Math.abs(e.clientX - dragX);
         yawVel = (e.clientX - dragX) * 0.004;
         dragX = e.clientX;
         sec.classList.add('lit');
         if (reduced && !driveCtx.raf) { last = performance.now(); driveCtx.raf = requestAnimationFrame(frame); }
       });
-      window.addEventListener('pointerup', function () { dragX = null; sec.classList.remove('dragging'); });
+      window.addEventListener('pointerup', function (e) {
+        if (dragX != null && dragMoved < 6 && doorAction && e.target === cv) {
+          doors(!doorsOpen); /* a tap toggles the doors */
+          if (reduced && !driveCtx.raf) { last = performance.now(); driveCtx.raf = requestAnimationFrame(frame); }
+        }
+        dragX = null;
+        sec.classList.remove('dragging');
+      });
 
       driveCtx.onResize = function () { size(); if (reduced) renderer.render(scene, camera); };
       window.addEventListener('resize', driveCtx.onResize);
