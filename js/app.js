@@ -1071,8 +1071,13 @@
     var els = document.querySelectorAll('.rv:not(.rv-in)');
     if (!els.length) return;
     var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (en.isIntersecting) { en.target.classList.add('rv-in'); io.unobserve(en.target); }
+      /* cascade only the elements that appear together (a row/section), so nothing waits on a fixed delay */
+      var batch = entries.filter(function (en) { return en.isIntersecting; })
+        .sort(function (a, b) { return a.boundingClientRect.left - b.boundingClientRect.left; });
+      batch.forEach(function (en, i) {
+        en.target.style.setProperty('--d', (Math.min(i, 6) * 0.075).toFixed(3) + 's');
+        en.target.classList.add('rv-in');
+        io.unobserve(en.target);
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -4% 0px' });
     els.forEach(function (el) { io.observe(el); });
@@ -1409,12 +1414,14 @@
     var pre = document.getElementById('pk-pre');
     if (pre.hidden) { pre.hidden = false; pre.classList.remove('out'); preAt = Date.now(); }
   }
+  function markReady() { requestAnimationFrame(function () { document.body.classList.add('pk-ready'); }); }
   function hidePre() {
     var pre = document.getElementById('pk-pre');
-    if (pre.hidden) return;
+    if (pre.hidden) { markReady(); return; }
     var wait = Math.max(0, 900 - (Date.now() - preAt));
     setTimeout(function () {
       pre.classList.add('out');
+      markReady();
       try { sessionStorage.setItem('pk-intro', '1'); } catch (e) {}
       setTimeout(function () { pre.hidden = true; }, 500);
     }, wait);
@@ -1425,6 +1432,7 @@
     initData(inv);
     if (!booted) { booted = true; onRoute(); } else { render(); }
     onScroll();
+    if (document.getElementById('pk-pre').hidden) markReady();
   }
 
   var cached = null;
