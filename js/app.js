@@ -95,7 +95,6 @@
       st_reserved: 'Rezervat', st_transit: 'În tranzit', st_sold: 'Vândut',
       search_ph: 'Caută model…', fav_chip: 'Favorite', share: 'Distribuie', share_ok: 'Link copiat ✓',
       feat_counter: 'din',
-      drive_hint: 'Trage pentru a roti',
       xp_title: 'Explorează stocul', xp_brands: 'După marcă', xp_cats: 'După caroserie', xp_bands: 'După buget',
       cars_word: 'automobile', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedan & Limuzină', cat_sport: 'Coupé & Cabrio',
       faq_title: 'Întrebări frecvente',
@@ -166,7 +165,6 @@
       st_reserved: 'Бронь', st_transit: 'В пути', st_sold: 'Продано',
       search_ph: 'Поиск модели…', fav_chip: 'Избранное', share: 'Поделиться', share_ok: 'Ссылка скопирована ✓',
       feat_counter: 'из',
-      drive_hint: 'Потяни, чтобы повернуть',
       xp_title: 'Исследуй сток', xp_brands: 'По марке', xp_cats: 'По кузову', xp_bands: 'По бюджету',
       cars_word: 'автомобилей', cat_suv: 'SUV и кроссоверы', cat_sedan: 'Седаны', cat_sport: 'Купе и кабрио',
       faq_title: 'Частые вопросы',
@@ -237,7 +235,6 @@
       st_reserved: 'Reserved', st_transit: 'In transit', st_sold: 'Sold',
       search_ph: 'Search model…', fav_chip: 'Saved', share: 'Share', share_ok: 'Link copied ✓',
       feat_counter: 'of',
-      drive_hint: 'Drag to rotate',
       xp_title: 'Explore the stock', xp_brands: 'By make', xp_cats: 'By body style', xp_bands: 'By budget',
       cars_word: 'cars', cat_suv: 'SUV & Crossover', cat_sedan: 'Sedans', cat_sport: 'Coupés & convertibles',
       faq_title: 'Frequently asked questions',
@@ -439,14 +436,20 @@
     return '<div class="pk-cars">' + cars.map(cardHtml).join('') + '</div>';
   }
 
-  /* 3D showroom: real GLB supercar under a spotlight, story on the right (lazy three.js) */
+  /* PEAK AUTO wordmark — geometric, triangle A's, matches the brand logo */
+  function pkLogo() {
+    return '<span class="pk-logo" role="img" aria-label="PEAK AUTO">' +
+      '<b>P</b><b>E</b><i></i><b>K</b><i></i><b>U</b><b>T</b><b>O</b></span>';
+  }
+
+  /* 3D showroom: real GLB supercar, doors scrubbed by scroll (lazy three.js) */
   function driveHtml() {
     return '' +
     '<section class="drive" id="pk-drive">' +
       '<div class="drive-stage">' +
-        '<div class="drive-word" aria-hidden="true">PEAK AUTO</div>' +
         '<canvas id="pk-drive-cv"></canvas>' +
-        '<div class="drive-hint">' + t('drive_hint') + '</div>' +
+        '<div class="drive-word" aria-hidden="true">PEAKAUTO</div>' +
+        '<div class="drive-mark">' + pkLogo() + '</div>' +
       '</div>' +
     '</section>';
   }
@@ -506,8 +509,6 @@
       '</div>' +
     '</section>' +
 
-    driveHtml() +
-
     '<section class="stock">' +
       '<div class="stock-head">' +
         '<div class="sec-head rv"><span class="sec-num">01</span><h2 class="sec-title">' + t('stock_title') + '</h2></div>' +
@@ -515,6 +516,8 @@
       '</div>' +
       gridHtml(TEASER) +
     '</section>' +
+
+    driveHtml() +
 
     '<section class="xp">' +
       '<div class="sec-head rv"><span class="sec-num">02</span><h2 class="sec-title">' + t('xp_title') + '</h2></div>' +
@@ -1548,18 +1551,8 @@
 
       var carGroup = new THREE.Group();
       scene.add(carGroup);
-      var userYaw = 0, yawVel = 0;
       var camDist = 7, camHeight = 1.5, lookY = 0.7, fitR = 0;
-      var mixer = null, doorAction = null, doorDur = 0, doorsOpen = false, revealed = false, modelReady = false;
-
-      function doors(open) {
-        if (!doorAction) return;
-        doorsOpen = open;
-        doorAction.stop();
-        doorAction.time = open ? 0 : doorDur;
-        doorAction.timeScale = open ? 0.8 : -0.8;
-        doorAction.play();
-      }
+      var mixer = null, doorAction = null, doorDur = 0;
 
       var draco = new DRACOLoader();
       draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/libs/draco/gltf/');
@@ -1606,12 +1599,10 @@
         if (gltf.animations && gltf.animations.length && gltf.animations[0].tracks.length) {
           mixer = new THREE.AnimationMixer(car);
           doorAction = mixer.clipAction(gltf.animations[0]);
-          doorAction.setLoop(THREE.LoopOnce);
-          doorAction.clampWhenFinished = true;
           doorDur = gltf.animations[0].duration;
-          if (revealed || reduced) setTimeout(function () { doors(true); }, 700);
+          doorAction.play();
+          doorAction.paused = true; /* scrubbed by scroll, never auto-advances */
         }
-        modelReady = true;
         sec.classList.add('on');
         if (reduced && driveCtx && !driveCtx.raf) { last = performance.now(); driveCtx.raf = requestAnimationFrame(frame); }
       }, undefined, function () { sec.style.display = 'none'; });
@@ -1634,54 +1625,32 @@
       }
       size();
 
-      var playing = true, last = performance.now(), t = 0;
+      var playing = true, doorP = 0, az = 0.72;
       function frame(now) {
         if (!driveCtx) return;
         driveCtx.raf = null;
         if (!sec.isConnected) { destroyDrive(); return; }
-        var dt = Math.min(0.05, (now - last) / 1000);
-        last = now;
-        t += dt;
-        if (mixer) mixer.update(dt * (reduced ? 30 : 1));
-        yawVel *= 0.94;
-        userYaw += yawVel;
-        carGroup.rotation.y = -0.62 + userYaw + t * 0.05;
-        var az = 0.72;
-        camera.position.set(Math.sin(az) * camDist, camHeight + Math.sin(t * 0.3) * 0.05, Math.cos(az) * camDist);
+        /* doors scrub to how far the section has risen into view: down opens, up closes */
+        var r = sec.getBoundingClientRect(), vh = window.innerHeight;
+        var target = Math.min(1, Math.max(0, (vh * 0.9 - r.top) / (vh * 0.62)));
+        doorP += (target - doorP) * 0.16; /* smooth, so it eases rather than snaps */
+        if (doorAction) { doorAction.time = doorP * doorDur; mixer.update(0); }
+        carGroup.rotation.y = -0.62; /* fixed 3/4 stance, no rotation */
+        var t = reduced ? 0 : now * 0.001;
+        camera.position.set(Math.sin(az) * camDist, camHeight + (reduced ? 0 : Math.sin(t * 0.3) * 0.045), Math.cos(az) * camDist);
         camera.lookAt(0, lookY, 0);
         renderer.render(scene, camera);
-        if (playing && !reduced) driveCtx.raf = requestAnimationFrame(frame);
+        if (playing) driveCtx.raf = requestAnimationFrame(frame);
       }
       driveCtx.renderer = renderer;
       driveCtx.raf = requestAnimationFrame(frame);
 
       var vis = new IntersectionObserver(function (en) {
         playing = en[0].isIntersecting;
-        if (playing && !revealed && modelReady && doorAction) { revealed = true; setTimeout(function () { doors(true); }, 700); }
-        else if (playing) revealed = true;
-        if (playing && !driveCtx.raf && !reduced) { last = performance.now(); driveCtx.raf = requestAnimationFrame(frame); }
-      }, { threshold: 0.45 });
+        if (playing && !driveCtx.raf) driveCtx.raf = requestAnimationFrame(frame);
+      }, { threshold: 0 });
       vis.observe(sec);
       driveCtx.vis = vis;
-
-      var dragX = null, dragMoved = 0;
-      cv.addEventListener('pointerdown', function (e) { dragX = e.clientX; dragMoved = 0; sec.classList.add('dragging'); });
-      window.addEventListener('pointermove', function (e) {
-        if (dragX == null) return;
-        dragMoved += Math.abs(e.clientX - dragX);
-        yawVel = (e.clientX - dragX) * 0.004;
-        dragX = e.clientX;
-        sec.classList.add('lit');
-        if (reduced && !driveCtx.raf) { last = performance.now(); driveCtx.raf = requestAnimationFrame(frame); }
-      });
-      window.addEventListener('pointerup', function (e) {
-        if (dragX != null && dragMoved < 6 && doorAction && e.target === cv) {
-          doors(!doorsOpen); /* a tap toggles the doors */
-          if (reduced && !driveCtx.raf) { last = performance.now(); driveCtx.raf = requestAnimationFrame(frame); }
-        }
-        dragX = null;
-        sec.classList.remove('dragging');
-      });
 
       driveCtx.onResize = function () { size(); if (reduced) renderer.render(scene, camera); };
       window.addEventListener('resize', driveCtx.onResize);

@@ -541,20 +541,29 @@ section.show { padding: clamp(72px, 9vw, 130px) 4vw; display: grid; grid-templat
 
 /* ---------- 3D showroom (minimal) ---------- */
 .drive { position: relative; background: var(--bg); overflow: hidden; }
-.drive-stage { position: relative; height: 78vh; min-height: 520px; }
+.drive-stage { position: relative; height: 82vh; min-height: 560px; }
+/* colossal ghost echo, low and behind the car */
 .drive-word {
-  position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 17vw; line-height: 1; letter-spacing: -.03em; white-space: nowrap;
-  color: transparent; -webkit-text-stroke: 1.4px rgba(244, 241, 236, .11); pointer-events: none; user-select: none;
+  position: absolute; z-index: 1; left: 0; right: 0; bottom: 1vh; text-align: center;
+  font-weight: 800; font-size: 17vw; line-height: .82; letter-spacing: -.03em; white-space: nowrap;
+  color: transparent; -webkit-text-stroke: 1.4px rgba(244, 241, 236, .1);
   opacity: 0; transition: opacity 1.4s ease;
 }
 .drive.on .drive-word { opacity: 1; }
-.drive-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 2; opacity: 0; transition: opacity 1.1s ease; cursor: grab; touch-action: pan-y; }
+/* crisp brand mark, in front, seated below the car */
+.drive-mark {
+  position: absolute; z-index: 3; left: 0; right: 0; bottom: 21%; text-align: center;
+  opacity: 0; transition: opacity 1.4s ease .2s;
+}
+.drive.on .drive-mark { opacity: 1; }
+.pk-logo { display: inline-flex; align-items: flex-end; font-weight: 800; color: var(--red); line-height: 1; font-size: 30px; letter-spacing: .005em; }
+.pk-logo b { display: inline-block; }
+.pk-logo i { display: inline-block; width: .64em; height: .72em; margin: 0 .028em; background: currentColor; clip-path: polygon(50% 3%, 100% 100%, 0 100%); }
+.drive-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 2; opacity: 0; transition: opacity 1.1s ease; }
 .drive.on .drive-stage canvas { opacity: 1; }
-.drive.dragging .drive-stage canvas { cursor: grabbing; }
-.drive-hint { position: absolute; z-index: 3; left: 50%; transform: translateX(-50%); bottom: 5vh; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 19px; color: rgba(244, 241, 236, .4); transition: opacity 1s ease; pointer-events: none; white-space: nowrap; }
-.drive.lit .drive-hint { opacity: 0; }
 @media (max-width: 760px) {
-  .drive-stage { height: 68vh; min-height: 440px; }
-  .drive-word { font-size: 24vw; }
+  .drive-stage { height: 70vh; min-height: 460px; }
+  .drive-word { font-size: 26vw; }
+  .drive-base { height: 50%; }
+  .pk-logo { font-size: 24px; }
 }
