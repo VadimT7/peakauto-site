@@ -1243,7 +1243,26 @@
       else if (kind === 'inventory') { e.preventDefault(); goto('inventory'); }
       else if (kind === 'services') { e.preventDefault(); scrollHome('servicii'); }
       else if (kind === 'showroom') { e.preventDefault(); scrollHome('showroom'); }
-      else if (kind === 'contact') { e.preventDefault(); var f = document.getElementById('contact'); if (f) f.scrollIntoView({ behavior: 'smooth' }); }
+      else if (kind === 'contact') {
+        e.preventDefault();
+        // element-relative scroll survives the layout shift from the
+        // content-visibility sections above collapsing as they render
+        var c = state.route.page === 'home' ? document.querySelector('.closing') : null;
+        if (c) {
+          c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // on short viewports the page bottoms out before the banner can
+          // center, tucking the subtitle under the header — nudge it back down
+          var clear = function () {
+            var sub = c.querySelector('.closing-i');
+            if (!sub) return;
+            var over = 96 - sub.getBoundingClientRect().top;
+            if (over > 0) window.scrollBy({ top: -over, behavior: 'smooth' });
+          };
+          if ('onscrollend' in window) window.addEventListener('scrollend', clear, { once: true });
+          else setTimeout(clear, 700);
+        }
+        else { var f = document.getElementById('contact'); if (f) f.scrollIntoView({ behavior: 'smooth' }); }
+      }
     });
   }
 

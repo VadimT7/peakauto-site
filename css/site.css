@@ -534,7 +534,7 @@ section.show { padding: clamp(72px, 9vw, 130px) 4vw; display: grid; grid-templat
 }
 
 /* ---------- render perf ---------- */
-.xp, .faqs, section.show, .ig, .closing, .servs { content-visibility: auto; contain-intrinsic-size: auto 720px; }
+.xp, .faqs, section.show, .ig, .servs { content-visibility: auto; contain-intrinsic-size: auto 720px; }
 
 /* ---------- numerals ---------- */
 .car-price, .rail-price, .rail-mdl, .feat-price, .trust-num, .calc-out-v, .gal-count, .lb-count, .feat-count, .story-price, .inv-count, .price { font-feature-settings: 'tnum' 1; font-variant-numeric: tabular-nums; }
